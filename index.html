@@ -97,6 +97,14 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid var(--border); 
         }
         
+        /* Partner Logos */
+        .partner-logos {
+            display: flex; justify-content: center; align-items: center; gap: 20px;
+            margin-top: 25px; opacity: 0.7; border-top: 1px solid #334155; padding-top: 20px;
+        }
+        .logo-svg { height: 24px; width: auto; transition: transform 0.2s; }
+        .logo-svg:hover { transform: scale(1.1); opacity: 1; }
+        
         /* --- 2. USER APP (Mobile) --- */
         #user-app {
             max-width: 480px; margin: 0 auto; background: var(--bg-app); height: 100vh;
@@ -124,12 +132,19 @@
         .app-content::-webkit-scrollbar { width: 6px; }
         .app-content::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
 
+        /* TRANSPARENT BOTTOM NAV */
         .bottom-nav {
-            position: absolute; bottom: 0; width: 100%; background: var(--bg-card); border-top: 1px solid var(--border);
+            position: absolute; bottom: 0; width: 100%; 
+            background: transparent; /* Fully Transparent */
+            border-top: none; /* No Border */
+            /* Subtle dark gradient at bottom to ensure readability over bright content */
+            background: linear-gradient(to top, rgba(15, 23, 42, 0.95), transparent); 
+            backdrop-filter: blur(5px); /* Blur effect */
             display: flex; justify-content: space-around; padding: 10px 0; padding-bottom: max(10px, env(safe-area-inset-bottom));
         }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: #64748b; cursor: pointer; font-size: 11px; }
-        .nav-item.active { color: var(--primary); }
+        
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: rgba(255, 255, 255, 0.5); cursor: pointer; font-size: 11px; transition: color 0.2s; }
+        .nav-item.active { color: #ffffff; text-shadow: 0 0 10px rgba(255,255,255,0.3); } /* Active: White Glow */
         .nav-icon { font-size: 22px; margin-bottom: 4px; transition: transform 0.2s; }
         .nav-item.active .nav-icon { transform: translateY(-2px); }
 
@@ -209,6 +224,29 @@
             <p class="text-center mt-4 text-sm text-sub">
                 <span id="auth-toggle-text" onclick="toggleAuthMode()">New User? Create Account</span>
             </p>
+
+            <!-- PARTNER LOGOS -->
+            <div class="partner-logos">
+                <!-- EasyPaisa SVG -->
+                <svg class="logo-svg" viewBox="0 0 100 30">
+                    <text x="0" y="22" fill="#10B981" font-family="Arial, sans-serif" font-weight="bold" font-size="20">EasyPaisa</text>
+                </svg>
+                <!-- JazzCash SVG -->
+                <svg class="logo-svg" viewBox="0 0 100 30">
+                    <text x="0" y="22" fill="#D32F2F" font-family="Arial, sans-serif" font-weight="bold" font-size="20">JazzCash</text>
+                </svg>
+                <!-- Binance SVG (Simplified) -->
+                <svg class="logo-svg" viewBox="0 0 100 30">
+                    <path d="M15 5 L25 15 L15 25 L5 15 Z" fill="#F0B90B" />
+                    <text x="30" y="22" fill="#F0B90B" font-family="Arial, sans-serif" font-weight="bold" font-size="18">Binance</text>
+                </svg>
+                <!-- Bitcoin SVG -->
+                <svg class="logo-svg" viewBox="0 0 100 30">
+                    <circle cx="10" cy="15" r="10" fill="#F7931A" />
+                    <text x="25" y="22" fill="#F7931A" font-family="Arial, sans-serif" font-weight="bold" font-size="18">Bitcoin</text>
+                </svg>
+            </div>
+
             <div class="text-center mt-4 text-xs text-sub" style="border-top: 1px solid var(--border); padding-top: 10px;">
                 Admin: <strong>admin</strong> / <strong>admin123</strong>
             </div>
