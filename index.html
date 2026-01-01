@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TK COIN - Ultimate Dark Edition</title>
+    <style>
+        /* --- CORE VARIABLES & RESET --- */
+        :root {
+            --primary: #10B981; /* Neon Green */
+            --primary-dark: #059669;
+            --bg-app: #0f172a;   /* Deep Dark Blue/Black */
+            --bg-card: #1e293b;  /* Dark Card */
+            --bg-input: #334155; /* Input Background */
+            --text-main: #f1f5f9; /* White-ish */
+            --text-sub: #94a3b8;   /* Light Gray */
+            --border: #334155;
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            --radius: 12px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg-app); color: var(--text-main); height: 100vh; overflow: hidden; }
+        
+        /* --- UTILITIES --- */
+        .hidden { display: none !important; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .justify-center { justify-content: center; }
+        .w-full { width: 100%; }
+        .mt-2 { margin-top: 0.5rem; }
+        .mt-4 { margin-top: 1rem; }
+        .text-center { text-align: center; }
+        .font-bold { font-weight: 700; }
+        .text-sm { font-size: 0.875rem; }
+        .text-xs { font-size: 0.75rem; }
+        .text-primary { color: var(--primary); }
+        .text-white { color: var(--text-main); }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .p-3 { padding: 12px; }
+        
+        /* --- BUTTONS & INPUTS --- */
+        .btn {
+            padding: 12px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;
+            transition: all 0.2s; width: 100%; font-size: 14px;
+        }
+        .btn:active { transform: scale(0.98); }
+        .btn-primary { background: var(--primary); color: #000; box-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
+        .btn-primary:hover { background: var(--primary-dark); color: white; }
+        .btn-outline { border: 1px solid var(--primary); color: var(--primary); background: transparent; }
+        .btn-outline:hover { background: rgba(16, 185, 129, 0.1); }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-sm { padding: 6px 12px; font-size: 12px; width: auto; }
+
+        .input-group { margin-bottom: 15px; text-align: left; }
+        .input-group label { display: block; font-size: 12px; color: var(--text-sub); margin-bottom: 5px; font-weight: 600; }
+        .form-control {
+            width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px;
+            background: var(--bg-input); color: white; font-size: 14px; outline: none; transition: border 0.2s;
+        }
+        .form-control:focus { border-color: var(--primary); }
+        .form-control::placeholder { color: #64748b; }
+
+        /* --- TOGGLE SWITCH (Urgent Sell) --- */
+        .switch { position: relative; display: inline-block; width: 40px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #334155; transition: .4s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--danger); }
+        input:checked + .slider:before { transform: translateX(16px); }
+
+        /* --- TOASTS & MODALS --- */
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 10000; }
+        .toast { background: #1e293b; color: white; padding: 12px 24px; border-radius: 8px; margin-bottom: 10px; animation: slideIn 0.3s; box-shadow: var(--shadow); border: 1px solid var(--border); }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); z-index: 5000; display: flex;
+            justify-content: center; align-items: center;
+        }
+        .modal-box {
+            background: var(--bg-card); width: 90%; max-width: 400px; padding: 25px;
+            border-radius: 16px; text-align: center; animation: popUp 0.3s; border: 1px solid var(--border);
+        }
+        @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        /* --- VERIFIED BADGE SVG --- */
+        .verified-badge-svg { width: 18px; height: 18px; margin-left: 5px; vertical-align: text-bottom; }
+
+        /* --- 1. AUTH SCREEN --- */
+        #auth-screen {
+            background: radial-gradient(circle at center, #1e293b 0%, #020617 100%);
+            display: flex; align-items: center; justify-content: center; height: 100vh;
+        }
+        .auth-card { 
+            background: var(--bg-card); padding: 40px 30px; border-radius: 20px; width: 90%; max-width: 380px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid var(--border); 
+        }
+        
+        /* Partner Logos */
+        .partner-logos {
+            display: flex; justify-content: center; align-items: center; gap: 20px;
+            margin-top: 25px; opacity: 0.7; border-top: 1px solid #334155; padding-top: 20px;
+        }
+        .logo-svg { height: 24px; width: auto; transition: transform 0.2s; }
+        .logo-svg:hover { transform: scale(1.1); opacity: 1; }
+        
+        /* --- 2. USER APP (Mobile) --- */
+        #user-app {
+            max-width: 480px; margin: 0 auto; background: var(--bg-app); height: 100vh;
+            display: flex; flex-direction: column; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        
+        .app-header {
+            background: var(--bg-card); padding: 15px 20px; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 50; border-bottom: 1px solid var(--border);
+        }
+        .balance-card {
+            background: linear-gradient(135deg, #064e3b 0%, #022c22 100%); border: 1px solid #059669;
+            margin: 20px; padding: 25px; border-radius: 20px; text-align: center;
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.15); position: relative; overflow: hidden;
+        }
+        .balance-card::before {
+            content: ''; position: absolute; top: -50%; right: -50%; width: 200px; height: 200px;
+            background: rgba(16, 185, 129, 0.1); border-radius: 50%;
+        }
+
+        .app-content { 
+            flex: 1; overflow-y: auto; padding-bottom: 80px; padding: 0 20px; 
+            -webkit-overflow-scrolling: touch; 
+        }
+        .app-content::-webkit-scrollbar { width: 6px; }
+        .app-content::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+
+        /* TRANSPARENT BOTTOM NAV */
+        .bottom-nav {
+            position: absolute; bottom: 0; width: 100%; 
+            background: transparent;
+            border-top: none;
+            background: linear-gradient(to top, rgba(15, 23, 42, 0.95), transparent);
+            backdrop-filter: blur(5px);
+            display: flex; justify-content: space-around; padding: 10px 0; padding-bottom: max(10px, env(safe-area-inset-bottom));
+        }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: rgba(255, 255, 255, 0.5); cursor: pointer; font-size: 11px; transition: color 0.2s; }
+        .nav-item.active { color: #ffffff; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+        .nav-icon { font-size: 22px; margin-bottom: 4px; transition: transform 0.2s; }
+        .nav-item.active .nav-icon { transform: translateY(-2px); }
+
+        /* Posts */
+        .post-card { background: var(--bg-card); border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--border); }
+        .post-proof { border-left: 4px solid var(--success); background: rgba(16, 185, 129, 0.05); }
+        .post-header { display: flex; align-items: center; margin-bottom: 10px; }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-right: 12px; background: #334155; border: 2px solid var(--bg-app); }
+        .post-tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #334155; color: #94a3b8; margin-left: auto; }
+        .tag-proof { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+
+        /* Comments */
+        .comments-section { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+        .comment { font-size: 12px; margin-bottom: 6px; color: #cbd5e1; }
+        .comment strong { color: var(--primary); }
+        .comment-input-area { display: flex; gap: 5px; margin-top: 10px; }
+
+        /* --- 3. ADMIN PANEL (Web) --- */
+        #admin-panel { display: flex; height: 100vh; }
+        .sidebar { width: 260px; background: #020617; color: #94a3b8; display: flex; flex-direction: column; border-right: 1px solid var(--border); }
+        .sidebar-header { padding: 20px; font-size: 20px; font-weight: bold; color: var(--primary); border-bottom: 1px solid var(--border); }
+        .menu-item { padding: 15px 20px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.2s; }
+        .menu-item:hover, .menu-item.active { background: #0f172a; color: var(--primary); border-left: 3px solid var(--primary); }
+        .main-content { flex: 1; background: var(--bg-app); overflow-y: auto; padding: 30px; }
+        
+        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: var(--bg-card); padding: 20px; border-radius: 10px; box-shadow: var(--shadow); border: 1px solid var(--border); }
+        
+        .data-table { width: 100%; background: var(--bg-card); border-radius: 8px; overflow: hidden; box-shadow: var(--shadow); border-collapse: collapse; }
+        .data-table th, .data-table td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--border); font-size: 14px; color: var(--text-main); }
+        .data-table th { background: #0f172a; font-weight: 600; color: var(--text-sub); }
+        .data-table tr:hover { background: #1e293b; }
+        
+        .status-badge { padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+        .status-pending { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+        .status-locked { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+        .status-approved { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+        .status-rejected { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+
+        /* Loader */
+        .loader { border: 3px solid rgba(255,255,255,0.1); border-top: 3px solid var(--primary); border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; margin-right: 8px;}
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        @media (max-width: 768px) {
+            #admin-panel { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; flex-direction: row; overflow-x: auto; }
+            .sidebar-header { display: none; }
+            .menu-item { padding: 10px; font-size: 12px; flex-shrink: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOASTS -->
+    <div id="toast-container"></div>
+
+    <!-- 1. AUTHENTICATION -->
+    <div id="auth-screen">
+        <div class="auth-card">
+            <div class="text-center" style="margin-bottom: 30px;">
+                <h1 style="color: var(--primary); font-size: 32px;">🪙 TK COIN</h1>
+                <p style="color: var(--text-sub);">Secure Investment Platform</p>
+            </div>
+            
+            <form id="auth-form">
+                <div class="input-group">
+                    <label>Mobile Number or ID</label>
+                    <input type="text" id="auth-id" class="form-control" placeholder="0300XXXXXXX" required>
+                </div>
+                <div class="input-group">
+                    <label>Password / OTP</label>
+                    <input type="password" id="auth-pass" class="form-control" placeholder="•••••••" required>
+                </div>
+                <button type="submit" class="btn btn-primary mt-4" id="auth-btn">Login Now</button>
+            </form>
+            
+            <p class="text-center mt-4 text-sm text-sub">
+                <span id="auth-toggle-text" onclick="toggleAuthMode()">New User? Create Account</span>
+            </p>
+
+            <!-- PARTNER LOGOS -->
+            <div class="partner-logos">
+                <svg class="logo-svg" viewBox="0 0 100 30">
+                    <text x="0" y="22" fill="#10B981" font-family="Arial, sans-serif" font-weight="bold" font-size="20">EasyPaisa</text>
+                </svg>
+                <svg class="logo-svg" viewBox="0 0 100 30">
+                    <text x="0" y="22" fill="#D32F2F" font-family="Arial, sans-serif" font-weight="bold" font-size="20">JazzCash</text>
+                </svg>
+                <svg class="logo-svg" viewBox="0 0 100 30">
+                    <path d="M15 5 L25 15 L15 25 L5 15 Z" fill="#F0B90B" />
+                    <text x="30" y="22" fill="#F0B90B" font-family="Arial, sans-serif" font-weight="bold" font-size="18">Binance</text>
+                </svg>
+                <svg class="logo-svg" viewBox="0 0 100 30">
+                    <circle cx="10" cy="15" r="10" fill="#F7931A" />
+                    <text x="25" y="22" fill="#F7931A" font-family="Arial, sans-serif" font-weight="bold" font-size="18">Bitcoin</text>
+                </svg>
+            </div>
+
+            <div class="text-center mt-4 text-xs text-sub" style="border-top: 1px solid var(--border); padding-top: 10px;">
+                Admin: <strong>admin</strong> / <strong>admin123</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. USER APP -->
+    <div id="user-app" class="hidden">
+        <div class="app-header">
+            <div class="font-bold text-lg" style="color:white;">TK COIN</div>
+            <div class="flex items-center gap-2">
+                <span id="user-balance-mini" class="text-primary font-bold">0.00</span>
+                <img src="" id="nav-avatar" class="avatar" style="width: 32px; height: 32px; margin:0;">
+            </div>
+        </div>
+
+        <div class="app-content" id="app-content-area">
+            <!-- Dynamic Content Loaded Here -->
+        </div>
+
+        <div class="bottom-nav">
+            <div class="nav-item active" onclick="navTo('home')">
+                <span class="nav-icon">🏠</span>Home
+            </div>
+            <div class="nav-item" onclick="navTo('wallet')">
+                <span class="nav-icon">💳</span>Wallet
+            </div>
+            <div class="nav-item" onclick="navTo('feed')">
+                <span class="nav-icon">🔥</span>Feed
+            </div>
+            <div class="nav-item" onclick="navTo('profile')">
+                <span class="nav-icon">👤</span>Profile
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. ADMIN PANEL -->
+    <div id="admin-panel" class="hidden">
+        <div class="sidebar">
+            <div class="sidebar-header">TK ADMIN</div>
+            <div class="menu-item active" onclick="adminNav('dashboard')">📊 Dashboard</div>
+            <div class="menu-item" onclick="adminNav('requests')">✅ Requests</div>
+            <div class="menu-item" onclick="adminNav('users')">👥 Users</div>
+            <div class="menu-item" onclick="adminNav('settings')">⚙️ Settings</div>
+            <div class="menu-item" onclick="logout()" style="margin-top: auto; color: #EF4444;">🚪 Logout</div>
+        </div>
+        <div class="main-content" id="admin-view">
+            <!-- Admin Views -->
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script>
+        // --- DATA STORE ---
+        const DB = {
+            users: JSON.parse(localStorage.getItem('tc_users')) || [
+                { id: '03001234567', name: 'Ali Khan', pass: '1234', balance: 150.00, verified: false, role: 'user', avatar: 'https://i.pravatar.cc/150?u=0300', joined: '2023-10-01', refCode: 'ALI88' },
+                { id: 'admin', name: 'System Admin', pass: 'admin123', balance: 0, verified: true, role: 'admin', avatar: 'https://i.pravatar.cc/150?u=admin', joined: '2023-01-01', refCode: 'ADMIN' }
+            ],
+            posts: JSON.parse(localStorage.getItem('tc_posts')) || [
+                { id: 1, userId: '03001234567', type: 'proof', content: 'Received my first payout of 5000 PKR! Trusted app. 🚀', time: '2 hrs ago', likes: 45 },
+                { id: 2, userId: '03001234567', type: 'normal', content: 'Is coin rate kab increase hogi?', time: '5 hrs ago', likes: 2 }
+            ],
+            comments: JSON.parse(localStorage.getItem('tc_comments')) || [],
+            requests: JSON.parse(localStorage.getItem('tc_requests')) || [],
+            settings: JSON.parse(localStorage.getItem('tc_settings')) || { rate: 15, urgentRate: 12, minBuy: 500, maintenance: false, announcement: '' }
+        };
+
+        const saveDB = () => {
+            localStorage.setItem('tc_users', JSON.stringify(DB.users));
+            localStorage.setItem('tc_posts', JSON.stringify(DB.posts));
+            localStorage.setItem('tc_comments', JSON.stringify(DB.comments));
+            localStorage.setItem('tc_requests', JSON.stringify(DB.requests));
+            localStorage.setItem('tc_settings', JSON.stringify(DB.settings));
+        };
+
+        let currentUser = null;
+        let isLoginMode = true;
+
+        // Admin Wallets Configuration
+        const ADMIN_WALLETS = {
+            easypaisa: "0300-1234567 (Ali)",
+            jazzcash: "0321-9876543 (Ali)",
+            binance: "UID: 123456789 (Ali)"
+        };
+
+        // --- UTILS ---
+        const getBadgeSVG = () => `
+            <svg class="verified-badge-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" fill="#1DA1F2"/>
+                <path d="M7 12L10 15L17 8" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        `;
+
+        const toast = (msg, type='info') => {
+            const el = document.createElement('div');
+            el.className = 'toast';
+            el.style.borderLeft = `4px solid ${type==='error'?'#EF4444':'#10B981'}`;
+            el.innerHTML = msg;
+            document.getElementById('toast-container').appendChild(el);
+            setTimeout(() => el.remove(), 3000);
+        };
+
+        const formatMoney = (amount) => parseFloat(amount).toLocaleString('en-PK', { minimumFractionDigits: 2 });
+
+        // Calculate User's Average Buy Rate
+        const getUserAvgRate = (uid) => {
+            const buys = DB.requests.filter(r => r.userId === uid && r.type === 'buy' && r.status === 'approved');
+            if(buys.length === 0) return DB.settings.rate; // Fallback if no history
+            const totalPKR = buys.reduce((acc, r) => acc + r.pkr, 0);
+            const totalCoins = buys.reduce((acc, r) => acc + parseFloat(r.amount), 0);
+            return totalPKR / totalCoins;
+        }
+
+        // --- BACKGROUND TIMER ---
+        setInterval(() => {
+            const now = Date.now();
+            let changed = false;
+            DB.requests.forEach(r => {
+                if (r.stage === 'locked' && now >= r.unlockTime) {
+                    r.stage = 'pending';
+                    r.status = 'pending';
+                    changed = true;
+                }
+            });
+            if (changed) {
+                saveDB();
+                if(currentUser) {
+                   if(currentUser.role === 'user') navTo('wallet'); 
+                   else if(currentUser.role === 'admin') adminNav('requests');
+                }
+            }
+        }, 5000);
+
+        // --- AUTH ---
+        function toggleAuthMode() {
+            isLoginMode = !isLoginMode;
+            document.getElementById('auth-toggle-text').innerText = isLoginMode ? "New User? Create Account" : "Already have account? Login";
+            document.querySelector('#auth-screen h1').innerText = isLoginMode ? "🪙 TK COIN" : "📝 Register";
+            document.getElementById('auth-btn').innerText = isLoginMode ? "Login Now" : "Create Account";
+        }
+
+        document.getElementById('auth-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const id = document.getElementById('auth-id').value.trim();
+            const pass = document.getElementById('auth-pass').value.trim();
+            const btn = document.getElementById('auth-btn');
+
+            if (!id || !pass) return toast('Please fill all fields', 'error');
+
+            const originalText = btn.innerText;
+            btn.innerHTML = '<span class="loader"></span> Processing...';
+            
+            setTimeout(() => {
+                if (isLoginMode) {
+                    const user = DB.users.find(u => u.id === id && u.pass === pass);
+                    if (user) {
+                        if (DB.settings.maintenance && user.role !== 'admin') {
+                            btn.innerText = originalText;
+                            return toast('🔧 System Under Maintenance', 'error');
+                        }
+                        loginSuccess(user);
+                    } else {
+                        btn.innerText = originalText;
+                        toast('Invalid credentials', 'error');
+                    }
+                } else {
+                    if (DB.users.find(u => u.id === id)) {
+                        btn.innerText = originalText;
+                        return toast('User already exists', 'error');
+                    }
+                    const newUser = {
+                        id, pass, name: id.split('@')[0], role: 'user', 
+                        balance: 0, verified: false, joined: new Date().toISOString().split('T')[0],
+                        avatar: `https://i.pravatar.cc/150?u=${id}`, refCode: id.substring(0,3).toUpperCase() + Math.floor(Math.random()*100)
+                    };
+                    DB.users.push(newUser);
+                    saveDB();
+                    btn.innerText = originalText;
+                    toast('Account created! Please login.', 'success');
+                    toggleAuthMode();
+                }
+            }, 800);
+        });
+
+        function loginSuccess(user) {
+            currentUser = user;
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('nav-avatar').src = user.avatar;
+            
+            if (user.role === 'admin') {
+                document.getElementById('admin-panel').classList.remove('hidden');
+                adminNav('dashboard');
+            } else {
+                document.getElementById('user-app').classList.remove('hidden');
+                updateHeaderBalance();
+                checkAnnouncement();
+                navTo('home');
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            location.reload();
+        }
+
+        function checkAnnouncement() {
+            if(DB.settings.announcement) {
+                const modal = document.createElement('div');
+                modal.className = 'modal-overlay';
+                modal.innerHTML = `
+                    <div class="modal-box">
+                        <h3 class="text-primary font-bold mb-2">📢 Announcement</h3>
+                        <p class="mb-4" style="color: #ccc;">${DB.settings.announcement}</p>
+                        <button class="btn btn-primary btn-sm" onclick="this.parentElement.parentElement.remove()">Got it</button>
+                    </div>`;
+                document.body.appendChild(modal);
+            }
+        }
+
+        function updateHeaderBalance() {
+            const el = document.getElementById('user-balance-mini');
+            if(el) el.innerText = formatMoney(currentUser.balance) + ' TK';
+        }
+
+        // --- USER APP ROUTER ---
+        function navTo(page) {
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            const index = ['home','wallet','feed','profile'].indexOf(page);
+            if(index >= 0) document.querySelectorAll('.nav-item')[index].classList.add('active');
+            
+            const content = document.getElementById('app-content-area');
+            content.innerHTML = ''; 
+
+            if (page === 'home') renderHome(content);
+            if (page === 'wallet') renderWallet(content);
+            if (page === 'feed') renderFeed(content);
+            if (page === 'profile') renderProfile(content);
+        }
+
+        // --- PAGES ---
+        function renderHome(container) {
+            container.innerHTML = `
+                <div class="balance-card">
+                    <div class="text-sm opacity-75" style="color: #6ee7b7;">Total Balance</div>
+                    <div class="font-bold" style="font-size: 36px; margin: 10px 0; color: white;">${formatMoney(currentUser.balance)} <span class="text-xs">TK</span></div>
+                    <div class="text-xs opacity-75">Current Rate: ${DB.settings.rate} PKR</div>
+                </div>
+                
+                <div class="flex gap-2 mb-4">
+                    <button onclick="navTo('wallet')" class="btn btn-primary">Buy Coins</button>
+                    <button onclick="navTo('wallet')" class="btn btn-outline">Sell Coins</button>
+                </div>
+
+                <h3 class="font-bold mb-2" style="color:white;">Latest Activity</h3>
+                ${renderActivityList()}
+            `;
+        }
+
+        // Helper to Copy Text
+        window.copyText = function(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(text);
+            toast('Copied to clipboard!');
+        }
+
+        // Dynamic UI Updates for Wallet
+        window.updateBuyDetails = function() {
+            const method = document.getElementById('buy-method').value;
+            let displayText = "";
+            if(method === 'easypaisa') displayText = ADMIN_WALLETS.easypaisa;
+            else if(method === 'jazzcash') displayText = ADMIN_WALLETS.jazzcash;
+            else if(method === 'binance') displayText = ADMIN_WALLETS.binance;
+            document.getElementById('buy-admin-num').innerText = displayText;
+        }
+
+        window.updateSellLabel = function() {
+            const method = document.getElementById('sell-method').value;
+            const label = document.getElementById('sell-account-label');
+            const input = document.getElementById('sell-account');
+            
+            if(method === 'easypaisa' || method === 'jazzcash') {
+                label.innerText = "Account Number";
+                input.placeholder = "0300XXXXXXX";
+            } else {
+                label.innerText = "Binance ID / Email";
+                input.placeholder = "UID or Email Address";
+            }
+        }
+
+        // Toggle Urgent Sell Mode
+        window.toggleUrgentSell = function() {
+            const isUrgent = document.getElementById('urgent-check').checked;
+            const durationDiv = document.getElementById('duration-group');
+            const urgentNote = document.getElementById('urgent-note');
+            const urgentNoteText = document.getElementById('urgent-note-text');
+            const rateInfo = document.getElementById('rate-info');
+            
+            // Get User's Average Rate
+            const userAvgRate = getUserAvgRate(currentUser.id);
+
+            if(isUrgent) {
+                durationDiv.classList.add('hidden');
+                urgentNote.classList.remove('hidden');
+                urgentNoteText.innerHTML = `<strong>Urgent Sell:</strong> Rate: <span class="text-white">${userAvgRate.toFixed(2)} PKR</span> (Your Buy Price). 3% Tax will be applied. No waiting time.`;
+                if(rateInfo) rateInfo.innerText = `Rate: ${userAvgRate.toFixed(2)} PKR (Your Buy Price)`;
+            } else {
+                durationDiv.classList.remove('hidden');
+                urgentNote.classList.add('hidden');
+                if(rateInfo) rateInfo.innerText = `Rate: ${DB.settings.rate} PKR (Current)`;
+            }
+            calcSell(); // Recalculate
+        }
+
+        window.calcSell = function() {
+            const coins = parseFloat(document.getElementById('sell-amount').value) || 0;
+            const isUrgent = document.getElementById('urgent-check').checked;
+            const output = document.getElementById('sell-receive');
+
+            if (isUrgent) {
+                // Urgent Logic: User's Buy Rate * 0.97 (3% Tax)
+                const userAvgRate = getUserAvgRate(currentUser.id);
+                const pkr = (coins * userAvgRate) * 0.97;
+                output.value = pkr.toFixed(0) + ' PKR (After 3% Tax)';
+            } else {
+                // Normal Logic
+                const pkr = coins * DB.settings.rate;
+                output.value = pkr.toFixed(0) + ' PKR';
+            }
+        }
+
+        function renderWallet(container) {
+            const myReqs = DB.requests.filter(r => r.userId === currentUser.id).reverse();
+            
+            container.innerHTML = `
+                <!-- BUY SECTION -->
+                <div class="post-card">
+                    <h3 class="font-bold text-primary mb-2">💸 Buy Coins</h3>
+                    <p class="text-xs text-sub mb-3">Select payment method below</p>
+                    <form onsubmit="handleBuy(event)">
+                        <div class="input-group">
+                            <label>Amount (PKR)</label>
+                            <input type="number" id="buy-amount" class="form-control" placeholder="Min ${DB.settings.minBuy}" oninput="calcBuy()" required min="${DB.settings.minBuy}">
+                        </div>
+                        <div class="input-group">
+                            <label>Payment Method</label>
+                            <select id="buy-method" class="form-control" onchange="updateBuyDetails()">
+                                <option value="easypaisa">EasyPaisa</option>
+                                <option value="jazzcash">JazzCash</option>
+                                <option value="binance">Binance</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>You Receive</label>
+                            <input type="text" id="buy-receive" class="form-control" readonly value="0 TK" style="background: #0f172a; color: var(--primary); border-color: var(--primary);">
+                        </div>
+                        <div id="buy-detail-box" class="p-3 rounded mb-3 text-xs text-sub" style="background: #0f172a; border: 1px solid #334155; display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                Send to: <strong id="buy-admin-num" style="color:white;">${ADMIN_WALLETS.easypaisa}</strong>
+                            </div>
+                            <button type="button" onclick="copyText('buy-admin-num')" class="text-xs btn-primary" style="padding:4px 8px; border-radius:4px;">Copy</button>
+                        </div>
+                        <div class="input-group">
+                            <label>Transaction ID</label>
+                            <input type="text" id="buy-trx" class="form-control" placeholder="e.g. 82348ABD" required>
+                        </div>
+                        <button class="btn btn-primary">Submit Request</button>
+                    </form>
+                </div>
+
+                <!-- SELL SECTION -->
+                <div class="post-card">
+                    <h3 class="font-bold text-danger mb-2">🏦 Sell Coins</h3>
+                    
+                    <!-- Urgent Toggle -->
+                    <div class="input-group flex justify-between items-center" style="background: rgba(239,68,68,0.1); padding:10px; border-radius:8px;">
+                        <label style="color:var(--danger); font-size:14px;">⚡ Urgent Sell (Instant)</label>
+                        <label class="switch">
+                            <input type="checkbox" id="urgent-check" onchange="toggleUrgentSell()">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+
+                    <!-- Urgent Note (Hidden by default) -->
+                    <div id="urgent-note" class="hidden mb-2 p-2 rounded text-xs" style="background: rgba(245,158,11,0.1); color: #fbbf24;">
+                        ⚠️ <span id="urgent-note-text">Calculating...</span>
+                    </div>
+
+                    <form onsubmit="handleSell(event)">
+                        <div class="input-group">
+                            <label>Coin Amount</label>
+                            <input type="number" id="sell-amount" class="form-control" placeholder="Max: ${currentUser.balance}" oninput="calcSell()" required max="${currentUser.balance}">
+                        </div>
+                        
+                        <!-- Duration Group (Hidden if Urgent) -->
+                        <div id="duration-group" class="input-group">
+                            <label>Duration</label>
+                            <select id="sell-duration" class="form-control">
+                                <option value="1">Tomorrow (1 Day)</option>
+                                <option value="7">7 Days</option>
+                                <option value="10">10 Days</option>
+                                <option value="30">30 Days</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Receive Via</label>
+                            <select id="sell-method" class="form-control" onchange="updateSellLabel()">
+                                <option value="easypaisa">EasyPaisa</option>
+                                <option value="jazzcash">JazzCash</option>
+                                <option value="binance">Binance</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label id="sell-account-label">Account Number</label>
+                            <input type="text" id="sell-account" class="form-control" placeholder="0300XXXXXXX" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Rate Info</label>
+                            <input type="text" id="rate-info" class="form-control" readonly value="Rate: ${DB.settings.rate} PKR (Current)" style="background: #0f172a; color: #94a3b8;">
+                        </div>
+                        <div class="input-group">
+                            <label>You Will Receive</label>
+                            <input type="text" id="sell-receive" class="form-control" readonly value="0 PKR" style="background: #0f172a; color: var(--danger); border-color: var(--danger);">
+                        </div>
+                        <button class="btn btn-danger">Sell Now</button>
+                    </form>
+                </div>
+
+                <h3 class="font-bold mb-2 mt-4" style="color:white;">History</h3>
+                <div class="post-card" style="padding:0;">
+                    ${myReqs.length ? myReqs.map(r => {
+                        let statusDisplay = r.status;
+                        let extraInfo = '';
+                        
+                        if(r.stage === 'locked') {
+                            const remaining = Math.ceil((r.unlockTime - Date.now()) / (1000 * 60 * 60 * 24));
+                            statusDisplay = 'Locked';
+                            extraInfo = `<div class="text-xs text-warning">⏳ Unlock in: ${remaining} days</div>`;
+                        }
+
+                        if(r.isUrgent) {
+                            extraInfo += `<div class="text-xs text-danger font-bold">⚡ Urgent Sell</div>`;
+                        }
+
+                        return `
+                        <div class="flex justify-between items-center p-3" style="border-bottom: 1px solid var(--border);">
+                            <div>
+                                <div class="font-bold text-sm ${r.type==='buy'?'text-success':'text-danger'}">${r.type.toUpperCase()} ${r.isUrgent ? '⚡' : ''}</div>
+                                <div class="text-xs text-sub">${r.date} • ${r.method || 'Default'}</div>
+                                ${extraInfo}
+                            </div>
+                            <div class="text-right">
+                                <div class="font-bold" style="color:white;">${r.amount} TK</div>
+                                <span class="status-badge status-${r.stage === 'locked' ? 'locked' : r.status}">${statusDisplay}</span>
+                            </div>
+                        </div>`;
+                    }).join('') : '<div class="p-3 text-center text-sub text-sm">No history found</div>'}
+                </div>
+            `;
+            
+            // Init default values
+            setTimeout(() => {
+                updateBuyDetails();
+                updateSellLabel();
+                toggleUrgentSell(); // Initialize rate display
+            }, 50);
+        }
+
+        function renderFeed(container) {
+            container.innerHTML = `
+                <div class="post-card">
+                    <textarea id="post-text" class="form-control" rows="3" placeholder="Share your earnings..."></textarea>
+                    <div class="flex justify-between items-center mt-2">
+                        <select id="post-type" class="form-control" style="width: auto; padding: 8px;">
+                            <option value="normal">General</option>
+                            <option value="proof">Buy/Earning Proof</option>
+                        </select>
+                        <button onclick="createPost()" class="btn btn-primary btn-sm">Post</button>
+                    </div>
+                </div>
+                ${DB.posts.map(p => {
+                    const u = DB.users.find(x => x.id === p.userId) || {};
+                    const postComments = DB.comments.filter(c => c.postId === p.id);
+                    
+                    return `
+                    <div class="post-card ${p.type === 'proof' ? 'post-proof' : ''}">
+                        <div class="post-header">
+                            <img src="${u.avatar || ''}" class="avatar">
+                            <div>
+                                <div class="font-bold text-sm" style="color:white;">
+                                    ${u.name || 'User'} 
+                                    ${u.verified ? getBadgeSVG() : ''}
+                                </div>
+                                <div class="text-xs text-sub">${p.time}</div>
+                            </div>
+                            ${p.type === 'proof' ? '<span class="post-tag tag-proof">Proof</span>' : ''}
+                        </div>
+                        <div class="text-sm mb-2" style="color: #e2e8f0;">${p.content}</div>
+                        <div class="flex gap-4 text-xs text-sub">
+                            <span onclick="likePost(${p.id})" style="cursor:pointer;">👍 ${p.likes} Likes</span>
+                            <span onclick="document.getElementById('comment-box-${p.id}').classList.toggle('hidden')" style="cursor:pointer;">💬 ${postComments.length} Comments</span>
+                        </div>
+
+                        <div id="comment-box-${p.id}" class="comments-section hidden">
+                            <div style="margin-bottom:10px;">
+                                ${postComments.length === 0 ? '<span class="text-xs text-sub">No comments yet.</span>' : 
+                                  postComments.map(c => {
+                                    const cUser = DB.users.find(x => x.id === c.userId) || {};
+                                    return `<div class="comment"><strong>${cUser.name || 'User'}:</strong> ${c.text}</div>`;
+                                  }).join('')
+                                }
+                            </div>
+                            <div class="comment-input-area">
+                                <input type="text" id="input-${p.id}" class="form-control" placeholder="Write a comment..." style="font-size:12px; padding:8px;">
+                                <button onclick="addComment(${p.id})" class="btn btn-primary btn-sm" style="width:auto;">Send</button>
+                            </div>
+                        </div>
+                    </div>
+                `}).join('')}
+            `;
+        }
+
+        function renderProfile(container) {
+            container.innerHTML = `
+                <div class="text-center mt-4">
+                    <img src="${currentUser.avatar}" class="avatar" style="width:80px; height:80px; border: 3px solid var(--primary);">
+                    <h2 class="font-bold mt-2" style="color:white;">
+                        ${currentUser.name} 
+                        ${currentUser.verified ? getBadgeSVG() : ''}
+                    </h2>
+                    <p class="text-sub text-sm">ID: ${currentUser.id}</p>
+                </div>
+                
+                <div class="post-card mt-4">
+                    <div class="flex justify-between py-2" style="border-bottom: 1px solid var(--border);">
+                        <span class="text-sub">Balance</span>
+                        <span class="font-bold" style="color:white;">${formatMoney(currentUser.balance)} TK</span>
+                    </div>
+                    <div class="flex justify-between py-2" style="border-bottom: 1px solid var(--border);">
+                        <span class="text-sub">Referral Code</span>
+                        <span class="font-bold text-primary cursor-pointer" onclick="navigator.clipboard.writeText('${currentUser.refCode}'); toast('Copied!')">${currentUser.refCode} 📋</span>
+                    </div>
+                    <div class="flex justify-between py-2">
+                        <span class="text-sub">Joined</span>
+                        <span class="font-bold" style="color:white;">${currentUser.joined}</span>
+                    </div>
+                </div>
+
+                <button onclick="logout()" class="btn btn-danger mt-4">Logout</button>
+            `;
+        }
+
+        function renderActivityList() {
+            const reqs = DB.requests.filter(r => r.userId === currentUser.id).slice(0,3).reverse();
+            return reqs.map(r => `
+                <div class="post-card flex justify-between items-center" style="margin-bottom:10px; padding:10px;">
+                    <div>
+                        <div class="text-sm font-bold" style="color:white;">${r.type.toUpperCase()} ${r.isUrgent ? '⚡' : ''}</div>
+                        <div class="text-xs text-sub">${r.date}</div>
+                    </div>
+                    <div class="text-sm font-bold ${r.status==='approved'?'text-success': r.stage==='locked'?'text-warning':'text-warning'}">
+                        ${r.stage === 'locked' ? 'Locked' : r.status}
+                    </div>
+                </div>
+            `).join('') || '<div class="text-center text-sm text-sub">No recent activity</div>';
+        }
+
+        // --- WALLET LOGIC ---
+        function calcBuy() {
+            const pkr = parseFloat(document.getElementById('buy-amount').value) || 0;
+            const coins = pkr / DB.settings.rate;
+            document.getElementById('buy-receive').value = coins.toFixed(2) + ' TK';
+        }
+
+        function handleBuy(e) {
+            e.preventDefault();
+            const pkr = parseFloat(document.getElementById('buy-amount').value);
+            const coins = pkr / DB.settings.rate;
+            const trx = document.getElementById('buy-trx').value;
+            const method = document.getElementById('buy-method').value;
+
+            DB.requests.push({
+                id: Date.now(), type: 'buy', userId: currentUser.id, amount: coins.toFixed(2), 
+                pkr, trx, method, status: 'pending', stage: 'pending', date: new Date().toLocaleDateString()
+            });
+            saveDB();
+            toast('Request Submitted! Admin will verify.');
+            navTo('wallet');
+        }
+
+        function handleSell(e) {
+            e.preventDefault();
+            const coins = parseFloat(document.getElementById('sell-amount').value);
+            const isUrgent = document.getElementById('urgent-check').checked;
+            const method = document.getElementById('sell-method').value;
+            const account = document.getElementById('sell-account').value;
+            
+            if(coins > currentUser.balance) return toast('Insufficient Balance', 'error');
+
+            const u = DB.users.find(x => x.id === currentUser.id);
+            u.balance -= coins;
+            currentUser.balance -= coins;
+            updateHeaderBalance();
+
+            if (isUrgent) {
+                // Urgent Sell: Immediate Pending
+                const userAvgRate = getUserAvgRate(currentUser.id);
+                const pkr = (coins * userAvgRate) * 0.97; // Store actual value if needed, but admin pays
+                
+                DB.requests.push({
+                    id: Date.now(), type: 'sell', userId: currentUser.id, amount: coins, 
+                    status: 'pending', stage: 'pending', date: new Date().toLocaleDateString(),
+                    isUrgent: true, method: method, account: account, calculatedRate: userAvgRate
+                });
+                toast('Urgent Sell Requested! Sent to Admin.');
+            } else {
+                // Normal Sell: Lock Coins
+                const durationDays = parseInt(document.getElementById('sell-duration').value);
+                const unlockTime = Date.now() + (durationDays * 24 * 60 * 60 * 1000);
+
+                DB.requests.push({
+                    id: Date.now(), type: 'sell', userId: currentUser.id, amount: coins, 
+                    status: 'locked', stage: 'locked', date: new Date().toLocaleDateString(),
+                    unlockTime: unlockTime, method: method, account: account, isUrgent: false
+                });
+                toast(`Coins locked for ${durationDays} days!`);
+            }
+            saveDB();
+            navTo('wallet');
+        }
+
+        // --- FEED & COMMENT LOGIC ---
+        function createPost() {
+            const txt = document.getElementById('post-text').value;
+            const type = document.getElementById('post-type').value;
+            if(!txt) return;
+            DB.posts.unshift({
+                id: Date.now(), userId: currentUser.id, content: txt, type, time: 'Just now', likes: 0
+            });
+            saveDB();
+            toast('Posted!');
+            navTo('feed');
+        }
+        function likePost(id) {
+            const p = DB.posts.find(x => x.id === id);
+            if(p) { p.likes++; saveDB(); navTo('feed'); }
+        }
+        function addComment(postId) {
+            const input = document.getElementById(`input-${postId}`);
+            const text = input.value.trim();
+            if(!text) return;
+
+            DB.comments.push({
+                id: Date.now(),
+                postId: postId,
+                userId: currentUser.id,
+                text: text,
+                time: 'Just now'
+            });
+            saveDB();
+            input.value = '';
+            renderFeed(document.getElementById('app-content-area'));
+            toast('Comment Added');
+        }
+
+        // --- ADMIN PANEL ---
+        function adminNav(page) {
+            document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+            const el = document.querySelector(`.menu-item[onclick="adminNav('${page}')"]`);
+            if(el) el.classList.add('active');
+
+            const v = document.getElementById('admin-view');
+            
+            if (page === 'dashboard') {
+                const totalUsers = DB.users.filter(u => u.role !== 'admin').length;
+                const pending = DB.requests.filter(r => r.status === 'pending').length;
+                const totalSupply = DB.users.reduce((a,b) => a + (b.role==='admin'?0:b.balance), 0).toFixed(2);
+                
+                v.innerHTML = `
+                    <h2 class="font-bold mb-4" style="color:white;">Dashboard</h2>
+                    <div class="stat-grid">
+                        <div class="stat-card"><div class="text-sub">Total Users</div><div class="font-bold text-xl" style="color:white;">${totalUsers}</div></div>
+                        <div class="stat-card"><div class="text-sub">Pending Requests</div><div class="font-bold text-xl" style="color:#fbbf24;">${pending}</div></div>
+                        <div class="stat-card"><div class="text-sub">Coin Supply</div><div class="font-bold text-xl text-primary">${totalSupply} TK</div></div>
+                        <div class="stat-card"><div class="text-sub">Current Rate</div><div class="font-bold text-xl" style="color:white;">${DB.settings.rate} PKR</div></div>
+                    </div>
+                    <div class="stat-card">
+                        <h3 class="font-bold mb-2" style="color:white;">Create Announcement</h3>
+                        <div class="flex gap-2">
+                            <input type="text" id="admin-anno" class="form-control" placeholder="Message for all users..." value="${DB.settings.announcement || ''}">
+                            <button onclick="setAnnouncement()" class="btn btn-primary" style="width:auto;">Send</button>
+                        </div>
+                        <p class="text-xs text-sub mt-2">This will show as a popup to users on next login.</p>
+                    </div>
+                `;
+            } else if (page === 'requests') {
+                const pending = DB.requests.filter(r => r.status === 'pending');
+                v.innerHTML = `<h2 class="font-bold mb-4" style="color:white;">Pending Requests</h2>
+                    <table class="data-table">
+                        <thead><tr><th>User</th><th>Type</th><th>Amount</th><th>Info</th><th>Action</th></tr></thead>
+                        <tbody>
+                            ${pending.map(r => `
+                                <tr>
+                                    <td>${r.userId}<br><small class="text-sub">${r.date} via ${r.method||'Unknown'}</small></td>
+                                    <td class="${r.type==='buy'?'text-success':'text-danger'} font-bold">${r.type.toUpperCase()} ${r.isUrgent ? '⚡' : ''}</td>
+                                    <td>${r.amount}</td>
+                                    <td><small>${r.trx || r.account || 'N/A'}</small></td>
+                                    <td>
+                                        ${r.type === 'buy' 
+                                            ? `<button onclick="approve(${r.id}, 'buy')" class="btn btn-success btn-sm">✔</button>`
+                                            : `<button onclick="approve(${r.id}, 'sell')" class="btn btn-success btn-sm">Paid ✔</button>`
+                                        }
+                                        <button onclick="reject(${r.id})" class="btn btn-danger btn-sm">✖</button>
+                                    </td>
+                                </tr>
+                            `).join('') || '<tr><td colspan="5" class="text-center text-sub">No pending requests</td></tr>'}
+                        </tbody>
+                    </table>
+                `;
+            } else if (page === 'users') {
+                const users = DB.users.filter(u => u.role !== 'admin');
+                v.innerHTML = `<h2 class="font-bold mb-4" style="color:white;">User Management</h2>
+                    <table class="data-table">
+                        <thead><tr><th>ID</th><th>Name</th><th>Balance</th><th>Status</th><th>Actions</th></tr></thead>
+                        <tbody>
+                            ${users.map(u => `
+                                <tr>
+                                    <td>${u.id}</td>
+                                    <td>${u.name} ${u.verified ? getBadgeSVG() : ''}</td>
+                                    <td>${u.balance.toFixed(2)}</td>
+                                    <td>${u.verified ? '<span class="text-primary">Verified</span>' : 'Normal'}</td>
+                                    <td>
+                                        <button onclick="toggleVerify('${u.id}')" class="btn btn-outline btn-sm">${u.verified?'Unverify':'Verify'}</button>
+                                        <button onclick="delUser('${u.id}')" class="btn btn-danger btn-sm">Block</button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            } else if (page === 'settings') {
+                v.innerHTML = `
+                    <h2 class="font-bold mb-4" style="color:white;">System Settings</h2>
+                    <div class="stat-card" style="max-width:400px;">
+                        <div class="input-group">
+                            <label>Current Coin Rate (PKR)</label>
+                            <input type="number" id="set-rate" class="form-control" value="${DB.settings.rate}">
+                        </div>
+                        <div class="input-group">
+                            <label>Urgent Sell / Buy Rate (PKR) <small class="text-warning">(If calculation fails)</small></label>
+                            <input type="number" id="set-urgent-rate" class="form-control" value="${DB.settings.urgentRate}">
+                        </div>
+                        <div class="input-group">
+                            <label>Maintenance Mode</label>
+                            <select id="set-maint" class="form-control">
+                                <option value="false" ${!DB.settings.maintenance?'selected':''}>OFF (App Open)</option>
+                                <option value="true" ${DB.settings.maintenance?'selected':''}>ON (App Closed)</option>
+                            </select>
+                        </div>
+                        <button onclick="saveSettings()" class="btn btn-primary">Save Changes</button>
+                    </div>
+                `;
+            }
+        }
+
+        // --- ADMIN ACTIONS ---
+        function setAnnouncement() {
+            const txt = document.getElementById('admin-anno').value;
+            DB.settings.announcement = txt;
+            saveDB();
+            toast('Announcement Updated');
+        }
+
+        function approve(id, type) {
+            const r = DB.requests.find(x => x.id === id);
+            if(!r) return;
+            r.status = 'approved';
+            r.stage = 'approved';
+            
+            if(type === 'buy') {
+                const u = DB.users.find(x => x.id === r.userId);
+                if(u) u.balance = parseFloat(u.balance) + parseFloat(r.amount);
+            }
+            saveDB();
+            toast('Request Approved');
+            adminNav('requests');
+        }
+
+        function reject(id) {
+            const r = DB.requests.find(x => x.id === id);
+            if(!r) return;
+            r.status = 'rejected';
+            r.stage = 'rejected';
+            if(r.type === 'sell') {
+                const u = DB.users.find(x => x.id === r.userId);
+                if(u) u.balance = parseFloat(u.balance) + parseFloat(r.amount); // Refund
+            }
+            saveDB();
+            toast('Request Rejected');
+            adminNav('requests');
+        }
+
+        function toggleVerify(id) {
+            const u = DB.users.find(x => x.id === id);
+            if(u) { u.verified = !u.verified; saveDB(); adminNav('users'); }
+        }
+        function delUser(id) {
+            if(confirm('Delete this user?')) {
+                DB.users = DB.users.filter(u => u.id !== id);
+                saveDB();
+                adminNav('users');
+            }
+        }
+        function saveSettings() {
+            const rate = parseFloat(document.getElementById('set-rate').value);
+            const urgentRate = parseFloat(document.getElementById('set-urgent-rate').value);
+            const maint = document.getElementById('set-maint').value === 'true';
+            DB.settings.rate = rate;
+            DB.settings.urgentRate = urgentRate;
+            DB.settings.maintenance = maint;
+            saveDB();
+            toast('Settings Saved');
+        }
+
+        // Init
+    </script>
+</body>
+</html>
