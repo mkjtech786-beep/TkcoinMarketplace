@@ -3,17 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TK COIN</title>
+    <title>TK COIN - Admin Request System</title>
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
     <style>
         :root {
-            --primary: #0056b3; /* Dark Blue */
-            --primary-light: #007bff; /* Bright Blue */
-            --accent: #00d2ff; /* Cyan */
+            --primary: #0056b3;
+            --primary-light: #007bff;
+            --accent: #00d2ff;
             --bg: #f4f7f6;
             --white: #ffffff;
             --text: #333333;
@@ -23,23 +28,18 @@
             --shadow: 0 4px 12px rgba(0, 50, 100, 0.1);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
         body {
             background-color: var(--bg);
             color: var(--text);
             height: 100vh;
-            overflow: hidden; /* App-like feel */
+            overflow: hidden;
             display: flex;
             flex-direction: column;
         }
 
-        /* --- Header --- */
+        /* Header */
         header {
             background: linear-gradient(135deg, var(--primary), var(--primary-light));
             color: var(--white);
@@ -51,410 +51,106 @@
             z-index: 100;
         }
 
-        .brand {
-            font-size: 1.5rem;
-            font-weight: 700;
-            letter-spacing: 1px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        .brand { font-size: 1.5rem; font-weight: 700; letter-spacing: 1px; display: flex; align-items: center; gap: 10px; }
+        .user-balance-header { background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 20px; font-size: 0.9rem; font-weight: 600; }
 
-        .user-balance-header {
-            background: rgba(255,255,255,0.2);
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
+        /* Main */
+        main { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 80px; position: relative; }
+        .page { display: none; animation: fadeIn 0.3s ease; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- Main Content Area --- */
-        main {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            padding-bottom: 80px; /* Space for navbar */
-            position: relative;
-        }
-
-        .page {
-            display: none;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .page.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* --- Components --- */
-        .card {
-            background: var(--white);
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: var(--shadow);
-            margin-bottom: 20px;
-            border: 1px solid rgba(0,0,0,0.05);
-        }
-
-        .btn {
-            background: var(--primary-light);
-            color: var(--white);
-            border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            transition: 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .btn:hover {
-            background: var(--primary);
-            transform: translateY(-2px);
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 2px solid var(--primary-light);
-            color: var(--primary-light);
-        }
-
-        .btn-pro {
-            background: linear-gradient(45deg, #FFD700, #FFA500);
-            color: #fff;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-        }
-
-        .input-group {
-            margin-bottom: 15px;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 0.85rem;
-            color: var(--text-light);
-        }
-
-        .input-group input, .input-group select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 1rem;
-            outline: none;
-        }
-
-        .input-group input:focus {
-            border-color: var(--primary-light);
-        }
-
-        /* --- Market & Wallet --- */
-        .market-stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .stat-box {
-            background: var(--white);
-            padding: 15px;
-            border-radius: 12px;
-            text-align: center;
-            box-shadow: var(--shadow);
-        }
-
-        .stat-value {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--primary);
-        }
-
-        .stat-label {
-            font-size: 0.8rem;
-            color: var(--text-light);
-        }
-
-        .rate-update {
-            background: #e3f2fd;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        /* --- Feed --- */
-        .post {
-            background: var(--white);
-            border-radius: 15px;
-            padding: 15px;
-            margin-bottom: 15px;
-            box-shadow: var(--shadow);
-            position: relative;
-        }
-
-        .post-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: #ddd;
-            margin-right: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: var(--primary);
-        }
-
-        .user-info h4 {
-            font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .badge-pro {
-            background: var(--primary-light);
-            color: white;
-            font-size: 0.6rem;
-            padding: 2px 5px;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            gap: 2px;
-        }
-
-        .post-time {
-            font-size: 0.7rem;
-            color: #999;
-        }
-
-        .post-content {
-            font-size: 0.9rem;
-            margin-bottom: 15px;
-            line-height: 1.4;
-        }
-
-        .post-actions {
-            display: flex;
-            gap: 20px;
-            border-top: 1px solid #eee;
-            padding-top: 10px;
-        }
-
-        .action-btn {
-            background: none;
-            border: none;
-            color: var(--text-light);
-            cursor: pointer;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .action-btn:hover { color: var(--primary); }
-        .action-btn.liked { color: var(--danger); }
+        /* Components */
+        .card { background: var(--white); border-radius: 15px; padding: 20px; box-shadow: var(--shadow); margin-bottom: 20px; border: 1px solid rgba(0,0,0,0.05); }
+        .btn { background: var(--primary-light); color: var(--white); border: none; padding: 12px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn:hover { background: var(--primary); transform: translateY(-2px); }
+        .btn-sm { padding: 6px 12px; font-size: 0.8rem; width: auto; }
+        .btn-success { background: var(--success); }
+        .btn-danger { background: var(--danger); }
+        .btn-outline { background: transparent; border: 2px solid var(--primary-light); color: var(--primary-light); }
+        .btn-pro { background: linear-gradient(45deg, #FFD700, #FFA500); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
         
-        .delete-btn {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            color: var(--danger);
-            cursor: pointer;
-        }
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; margin-bottom: 5px; font-size: 0.85rem; color: var(--text-light); }
+        .input-group input, .input-group select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; outline: none; }
+        .input-group input:focus { border-color: var(--primary-light); }
 
-        /* --- Profile --- */
-        .profile-header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
+        /* Market */
+        .rate-update { background: #e3f2fd; padding: 10px; border-radius: 8px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
 
-        .profile-img {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: var(--primary-light);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            margin: 0 auto 10px;
-            border: 4px solid white;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
+        /* Feed */
+        .post { background: var(--white); border-radius: 15px; padding: 15px; margin-bottom: 15px; box-shadow: var(--shadow); position: relative; }
+        .post-header { display: flex; align-items: center; margin-bottom: 10px; }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; background: #ddd; margin-right: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--primary); }
+        .user-info h4 { font-size: 0.95rem; display: flex; align-items: center; gap: 5px; }
+        .post-time { font-size: 0.7rem; color: #999; }
+        .post-content { font-size: 0.9rem; margin-bottom: 15px; line-height: 1.4; }
+        .delete-btn { position: absolute; top: 15px; right: 15px; color: var(--danger); cursor: pointer; }
 
-        .verified-badge {
-            color: var(--primary-light);
-            margin-left: 5px;
-            font-size: 1.1rem;
-        }
+        /* Profile */
+        .profile-header { text-align: center; margin-bottom: 20px; }
+        .profile-img { width: 80px; height: 80px; border-radius: 50%; background: var(--primary-light); color: white; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 10px; border: 4px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .verified-badge { color: var(--primary-light); margin-left: 5px; font-size: 1.1rem; }
+        
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
+        .stat-item { background: #f9f9f9; padding: 10px; border-radius: 8px; text-align: center; }
+        .stat-val { font-size: 1.1rem; font-weight: bold; color: var(--primary); }
+        .stat-lbl { font-size: 0.7rem; color: #777; }
 
-        .pro-status {
-            display: inline-block;
-            background: #e3f2fd;
-            color: var(--primary);
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-top: 5px;
-        }
+        /* Admin Table */
+        .admin-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        .admin-table th, .admin-table td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; }
+        .admin-table th { background: #f4f4f4; color: #555; }
+        .status-badge { padding: 3px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 600; }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-approved { background: #d4edda; color: #155724; }
+        .status-rejected { background: #f8d7da; color: #721c24; }
 
-        .pro-status.active {
-            background: var(--accent);
-            color: #005f6b;
-        }
+        /* Auth Overlay */
+        .auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .auth-box { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 350px; text-align: center; }
 
-        /* --- Auth Modal --- */
-        .auth-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
+        /* Navbar */
+        nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 90; }
+        .nav-item { text-align: center; color: var(--text-light); cursor: pointer; font-size: 0.8rem; }
+        .nav-item i { font-size: 1.2rem; margin-bottom: 3px; display: block; }
+        .nav-item.active { color: var(--primary-light); }
 
-        .auth-box {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 350px;
-            text-align: center;
-        }
-
-        /* --- Navbar --- */
-        nav {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            background: white;
-            display: flex;
-            justify-content: space-around;
-            padding: 12px 0;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
-            z-index: 90;
-        }
-
-        .nav-item {
-            text-align: center;
-            color: var(--text-light);
-            cursor: pointer;
-            font-size: 0.8rem;
-        }
-
-        .nav-item i {
-            font-size: 1.2rem;
-            margin-bottom: 3px;
-            display: block;
-        }
-
-        .nav-item.active {
-            color: var(--primary-light);
-        }
-
-        /* --- Toast Notification --- */
-        #toast-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 2000;
-        }
-
-        .toast {
-            background: #333;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            font-size: 0.9rem;
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        /* --- Helpers --- */
+        /* Toast */
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 2000; }
+        .toast { background: #333; color: white; padding: 12px 20px; border-radius: 8px; margin-bottom: 10px; font-size: 0.9rem; animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         .hidden { display: none !important; }
-        .text-blue { color: var(--primary); }
-        .text-sm { font-size: 0.8rem; }
-        .mt-2 { margin-top: 10px; }
-        
-        /* Withdrawal Options */
-        .withdraw-option {
-            border: 1px solid #ddd;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .withdraw-option:hover { background: #f9f9f9; }
+        .withdraw-option { border: 1px solid #ddd; padding: 10px; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: 0.2s; }
         .withdraw-option.selected { border-color: var(--primary-light); background: #e3f2fd; }
-
     </style>
 </head>
 <body>
 
-    <!-- Toast Container -->
+    <!-- Toast -->
     <div id="toast-container"></div>
 
-    <!-- Auth Overlay (Login/Register) -->
+    <!-- Auth -->
     <div id="auth-overlay" class="auth-overlay">
         <div class="auth-box">
             <h2 class="text-blue" style="margin-bottom: 5px;">TK COIN</h2>
-            <p style="font-size: 0.8rem; color: #777; margin-bottom: 20px;">Login to continue</p>
-            
-            <div class="input-group">
-                <input type="text" id="login-username" placeholder="Username">
-            </div>
-            <div class="input-group">
-                <input type="password" id="login-password" placeholder="Password">
-            </div>
+            <p style="font-size: 0.8rem; color: #777; margin-bottom: 20px;">Admin Request System</p>
+            <div class="input-group"><input type="text" id="login-username" placeholder="Username"></div>
+            <div class="input-group"><input type="password" id="login-password" placeholder="Password"></div>
             <button class="btn" onclick="app.login()">Login</button>
             <button class="btn btn-outline mt-2" onclick="app.toggleRegister()">Create Account</button>
-            <p class="text-sm mt-2" style="color:#999;">(Admin: admin / admin)</p>
         </div>
     </div>
 
     <!-- Header -->
-    <header id="main-header">
-        <div class="brand">
-            <i class="fa-brands fa-bitcoin"></i> TK COIN
-        </div>
-        <div class="user-balance-header">
-            <i class="fa-solid fa-coins"></i> <span id="header-balance">0.00</span>
-        </div>
+    <header id="main-header" class="hidden">
+        <div class="brand"><i class="fa-brands fa-bitcoin"></i> TK COIN</div>
+        <div class="user-balance-header"><i class="fa-solid fa-coins"></i> <span id="header-balance">0.00</span></div>
     </header>
 
-    <!-- Main Content -->
+    <!-- Main -->
     <main>
-        
-        <!-- Feed Page -->
+        <!-- Feed -->
         <div id="page-feed" class="page">
             <div class="card">
                 <textarea id="new-post-content" rows="3" placeholder="What's on your mind?" style="width:100%; border:1px solid #ddd; padding:10px; border-radius:8px; resize:none;"></textarea>
@@ -463,35 +159,21 @@
                     <button class="btn" style="width:auto; padding: 8px 20px;" onclick="app.createPost()">Post</button>
                 </div>
             </div>
-            
-            <div id="feed-container">
-                <!-- Posts injected here -->
-            </div>
+            <div id="feed-container"></div>
             <div id="feed-limit-reached" class="hidden" style="text-align:center; padding:20px; color:#777;">
-                <i class="fa-solid fa-lock"></i><br>
-                Only 3 posts visible for Normal users.<br>
+                <i class="fa-solid fa-lock"></i><br>Only 3 posts visible for Normal users.<br>
                 <b><a href="#" onclick="app.navTo('profile')" class="text-blue">Upgrade to PRO</a> to see all.</b>
             </div>
         </div>
 
-        <!-- Market Page -->
+        <!-- Market -->
         <div id="page-market" class="page">
-            <!-- Admin Control for Price -->
-            <div id="admin-controls" class="card hidden" style="border: 1px solid var(--primary);">
-                <h4 class="text-blue"><i class="fa-solid fa-gear"></i> Admin Settings</h4>
-                <div class="input-group" style="display:flex; gap:10px;">
-                    <input type="number" id="admin-rate-input" placeholder="New Price">
-                    <button class="btn" style="width:auto;" onclick="app.updateRate()">Update</button>
-                </div>
-            </div>
-
             <div class="card">
                 <h3 class="text-blue">Market Place</h3>
                 <div class="rate-update">
                     <span>Current Rate:</span>
-                    <span style="font-weight:bold; font-size:1.2rem;">PKR <span id="current-rate">10.00</span> / Coin</span>
+                    <span style="font-weight:bold; font-size:1.2rem;">PKR <span id="current-rate">...</span> / Coin</span>
                 </div>
-
                 <div class="input-group">
                     <label>Payment Method</label>
                     <select id="payment-method">
@@ -500,36 +182,41 @@
                         <option value="binance">Binance</option>
                     </select>
                 </div>
-
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                    <button class="btn btn-outline" onclick="app.openBuyModal()">Buy Coins</button>
-                    <button class="btn" onclick="app.openSellModal()">Sell / Withdraw</button>
+                    <button class="btn btn-outline" onclick="app.openBuyModal()">Deposit (Buy)</button>
+                    <button class="btn" onclick="app.openSellModal()">Withdraw (Sell)</button>
                 </div>
             </div>
 
-            <!-- Transaction History -->
             <div class="card">
                 <h4>Recent Transactions</h4>
-                <div id="transaction-list" style="margin-top:10px; font-size:0.85rem;">
-                    <!-- Transactions injected here -->
-                    <p class="text-light">No transactions yet.</p>
-                </div>
+                <div id="transaction-list" style="margin-top:10px; font-size:0.85rem;"></div>
             </div>
         </div>
 
-        <!-- Profile Page -->
+        <!-- Profile -->
         <div id="page-profile" class="page">
             <div class="card profile-header">
-                <div class="profile-img">
-                    <i class="fa-solid fa-user"></i>
-                </div>
+                <div class="profile-img"><i class="fa-solid fa-user"></i></div>
                 <h2 id="profile-name">User Name</h2>
-                <div id="profile-badge-container"></div> <!-- Badge injected here -->
+                <div id="profile-badge-container"></div>
                 <div id="pro-tag" class="pro-status">NORMAL USER</div>
-                <p class="mt-2"><i class="fa-solid fa-wallet text-blue"></i> Balance: <b id="profile-balance">0.00</b> TK</p>
+                
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-val" id="profile-balance">0.00</div>
+                        <div class="stat-lbl">COIN BALANCE</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-val" id="profile-pkr">PKR 0.00</div>
+                        <div class="stat-lbl">ESTIMATED PKR</div>
+                    </div>
+                </div>
+                <div class="stat-item" style="margin-top:5px; width:100%;">
+                    <span class="stat-lbl">Current Rate: </span> <span style="font-weight:bold; color:var(--primary);" id="profile-rate">0.00</span>
+                </div>
             </div>
 
-            <!-- Pro Features -->
             <div class="card" id="pro-upgrade-card">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <div>
@@ -544,76 +231,100 @@
                 </div>
             </div>
 
-            <div class="card hidden" id="pro-features-card">
-                <h4 class="text-blue"><i class="fa-solid fa-crown"></i> Pro Features Active</h4>
-                <p class="text-sm mt-2">You enjoy 0% tax on instant withdrawals and unlimited community access.</p>
+            <button class="btn btn-outline" onclick="app.logout()">Logout</button>
+        </div>
+
+        <!-- Admin Page -->
+        <div id="page-admin" class="page">
+            <h3 class="text-blue" style="margin-bottom:15px;"><i class="fa-solid fa-user-shield"></i> Admin Dashboard</h3>
+            
+            <!-- Admin Controls -->
+            <div class="card">
+                <h4>Settings</h4>
+                <div class="input-group" style="display:flex; gap:10px; align-items:center;">
+                    <label style="margin:0; white-space:nowrap;">Update Rate:</label>
+                    <input type="number" id="admin-rate-input" placeholder="New Price" style="flex:1;">
+                    <button class="btn btn-sm" onclick="app.updateRate()">Update</button>
+                </div>
             </div>
 
-            <button class="btn btn-outline" onclick="app.logout()">Logout</button>
+            <!-- Requests -->
+            <div class="card">
+                <h4>Pending Requests <span id="req-count" style="background:red; color:white; padding:2px 6px; border-radius:50%; font-size:0.7rem;">0</span></h4>
+                <div style="overflow-x:auto;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Type</th>
+                                <th>Details</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-requests-list"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- User List -->
+            <div class="card">
+                <h4>User List</h4>
+                <div style="overflow-x:auto;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Balance (Coins)</th>
+                                <th>Role</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-users-list"></tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
     </main>
 
-    <!-- Bottom Nav -->
-    <nav id="main-nav">
-        <div class="nav-item active" onclick="app.navTo('feed')">
-            <i class="fa-solid fa-users"></i>
-            <span>Community</span>
-        </div>
-        <div class="nav-item" onclick="app.navTo('market')">
-            <i class="fa-solid fa-shop"></i>
-            <span>Market</span>
-        </div>
-        <div class="nav-item" onclick="app.navTo('profile')">
-            <i class="fa-solid fa-user"></i>
-            <span>Profile</span>
-        </div>
+    <!-- Navbar -->
+    <nav id="main-nav" class="hidden">
+        <div class="nav-item active" onclick="app.navTo('feed')"><i class="fa-solid fa-users"></i><span>Community</span></div>
+        <div class="nav-item" onclick="app.navTo('market')"><i class="fa-solid fa-shop"></i><span>Market</span></div>
+        <div class="nav-item" onclick="app.navTo('profile')"><i class="fa-solid fa-user"></i><span>Profile</span></div>
+        <!-- Admin Icon (Hidden unless Admin) -->
+        <div class="nav-item hidden" id="nav-admin" onclick="app.navTo('admin')"><i class="fa-solid fa-lock"></i><span>Admin</span></div>
     </nav>
 
-    <!-- Modals (Hidden by default) -->
-    
-    <!-- Buy Modal -->
+    <!-- Modals -->
     <div id="modal-buy" class="auth-overlay hidden">
         <div class="auth-box">
-            <h3>Buy TK Coins</h3>
+            <h3>Deposit Request</h3>
             <p class="text-sm text-light">Rate: PKR <span id="modal-buy-rate">0</span></p>
-            <div class="input-group">
-                <label>Amount (PKR)</label>
-                <input type="number" id="buy-amount-pkr" placeholder="e.g. 500">
-            </div>
-            <p class="text-sm">You will receive: <b id="buy-est-coins">0</b> Coins</p>
-            <button class="btn mt-2" onclick="app.processBuy()">Confirm Buy</button>
+            <div class="input-group"><label>Amount (PKR)</label><input type="number" id="buy-amount-pkr" placeholder="e.g. 500"></div>
+            <p class="text-sm">You will request: <b id="buy-est-coins">0</b> Coins</p>
+            <p class="text-sm text-light" style="margin-top:5px;">Request will be sent to Admin.</p>
+            <button class="btn mt-2" onclick="app.requestBuy()">Send Request</button>
             <button class="btn btn-outline mt-2" onclick="app.closeModals()">Cancel</button>
         </div>
     </div>
 
-    <!-- Withdraw/Sell Modal -->
     <div id="modal-withdraw" class="auth-overlay hidden">
         <div class="auth-box">
-            <h3>Withdraw Coins</h3>
+            <h3>Withdraw Request</h3>
+            <div class="input-group"><label>Coins to Withdraw</label><input type="number" id="withdraw-amount" placeholder="Coins" oninput="app.calcWithdraw()"></div>
             
-            <div class="input-group">
-                <label>Coins to Withdraw</label>
-                <input type="number" id="withdraw-amount" placeholder="Coins" oninput="app.calcWithdraw()">
-            </div>
-
-            <div class="input-group">
-                <label>Withdraw Type</label>
+            <div class="input-group"><label>Withdraw Type</label>
                 <div class="withdraw-option selected" onclick="app.selectWithdrawType('instant', this)">
-                    <b>Instant Withdraw</b>
-                    <div class="text-sm text-light">Gets purchase price. <span id="instant-tax-label">3% Tax</span></div>
+                    <b>Instant Withdraw</b><div class="text-sm text-light">Gets purchase price. <span id="instant-tax-label">3% Tax</span></div>
                 </div>
                 <div class="withdraw-option" onclick="app.selectWithdrawType('hold1', this)">
-                    <b>Hold (1 Day)</b>
-                    <div class="text-sm text-light">Gets current market price. 0% Tax.</div>
+                    <b>Hold (1 Day)</b><div class="text-sm text-light">Gets current market price. 0% Tax.</div>
                 </div>
                 <div class="withdraw-option" onclick="app.selectWithdrawType('hold7', this)">
-                    <b>Hold (7 Days)</b>
-                    <div class="text-sm text-light">Gets current market price. 0% Tax.</div>
+                    <b>Hold (7 Days)</b><div class="text-sm text-light">Gets current market price. 0% Tax.</div>
                 </div>
                 <div class="withdraw-option" onclick="app.selectWithdrawType('hold10', this)">
-                    <b>Hold (10 Days)</b>
-                    <div class="text-sm text-light">Gets current market price. 0% Tax.</div>
+                    <b>Hold (10 Days)</b><div class="text-sm text-light">Gets current market price. 0% Tax.</div>
                 </div>
             </div>
 
@@ -623,529 +334,405 @@
                 <div class="text-sm text-light" id="withdraw-basis-msg">Based on Purchase Price</div>
             </div>
 
-            <button class="btn" onclick="app.processWithdraw()">Withdraw</button>
+            <button class="btn" onclick="app.requestWithdraw()">Request Withdraw</button>
             <button class="btn btn-outline mt-2" onclick="app.closeModals()">Cancel</button>
         </div>
     </div>
 
     <script>
-        /**
-         * TK COIN APPLICATION LOGIC
-         * Uses LocalStorage to mock Firebase functionality.
-         */
-
-        const STORAGE_KEY = 'tk_coin_db_v1';
-        const CURRENT_USER_KEY = 'tk_coin_user';
-
-        // Initial Data Structure
-        const defaultDB = {
-            users: [],
-            posts: [
-                { id: 1, user: 'Admin', content: 'Welcome to TK Coin! Buy and sell easily.', timestamp: Date.now(), likes: 0, comments: [] },
-                { id: 2, user: 'User1', content: 'Just bought my first coins. Easy!', timestamp: Date.now() - 10000, likes: 5, comments: [] },
-                { id: 3, user: 'User2', content: 'When is the next rate update?', timestamp: Date.now() - 20000, likes: 1, comments: [] },
-                { id: 4, user: 'User3', content: 'Pro features are amazing.', timestamp: Date.now() - 30000, likes: 2, comments: [] },
-            ],
-            coinRate: 10.00, // PKR per coin
-            transactions: []
+        // --- FIREBASE CONFIGURATION ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyB7atEHWnOo_EzCuFxBRg4xWF51x4atfRQ",
+            authDomain: "wingo-new-pro.firebaseapp.com",
+            databaseURL: "https://wingo-new-pro-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "wingo-new-pro",
+            storageBucket: "wingo-new-pro.firebasestorage.app",
+            messagingSenderId: "574707809146",
+            appId: "1:574707809146:web:fb0d53fc0a202c4d2934c3",
+            measurementId: "G-WED3TVXE62"
         };
 
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+
+        // --- APP LOGIC ---
         class App {
             constructor() {
-                this.db = JSON.parse(localStorage.getItem(STORAGE_KEY)) || defaultDB;
-                this.currentUser = JSON.parse(sessionStorage.getItem(CURRENT_USER_KEY)) || null;
+                this.currentUser = null;
+                this.userData = null; 
+                this.marketRate = 10.00;
                 this.withdrawType = 'instant';
-                
-                this.init();
+                this.posts = [];
+                this.requests = []; // Admin requests
+
+                this.initListeners();
             }
 
-            saveDB() {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(this.db));
-            }
+            initListeners() {
+                // Auth State
+                auth.onAuthStateChanged(user => {
+                    if (user) {
+                        this.currentUser = user;
+                        this.fetchUserData(user.uid);
+                        document.getElementById('auth-overlay').classList.add('hidden');
+                        document.getElementById('main-header').classList.remove('hidden');
+                        document.getElementById('main-nav').classList.remove('hidden');
+                    } else {
+                        this.currentUser = null;
+                        this.userData = null;
+                        document.getElementById('auth-overlay').classList.remove('hidden');
+                        document.getElementById('main-header').classList.add('hidden');
+                        document.getElementById('main-nav').classList.add('hidden');
+                    }
+                });
 
-            saveSession() {
-                if (this.currentUser) {
-                    sessionStorage.setItem(CURRENT_USER_KEY, JSON.stringify(this.currentUser));
-                } else {
-                    sessionStorage.removeItem(CURRENT_USER_KEY);
-                }
-            }
+                // Market Rate
+                db.ref('market/rate').on('value', snapshot => {
+                    const val = snapshot.val();
+                    if (val) {
+                        this.marketRate = parseFloat(val);
+                        document.getElementById('current-rate').innerText = this.marketRate.toFixed(2);
+                        document.getElementById('modal-buy-rate').innerText = this.marketRate.toFixed(2);
+                        document.getElementById('profile-rate').innerText = this.marketRate.toFixed(2);
+                        this.calcWithdraw(); 
+                        if(this.userData) this.updateProfilePKR();
+                    }
+                });
 
-            init() {
-                if (this.currentUser) {
-                    this.showApp();
-                } else {
-                    document.getElementById('auth-overlay').classList.remove('hidden');
-                }
-                
-                // Input listeners
-                document.getElementById('buy-amount-pkr').addEventListener('input', (e) => {
-                    const pkr = parseFloat(e.target.value) || 0;
-                    document.getElementById('buy-est-coins').innerText = (pkr / this.db.coinRate).toFixed(2);
+                // Posts
+                db.ref('posts').orderByChild('timestamp').on('value', snapshot => {
+                    this.posts = [];
+                    snapshot.forEach(child => this.posts.push({ id: child.key, ...child.val() }));
+                    this.posts.reverse(); 
+                    this.renderFeed();
+                });
+
+                // Requests (Admin & User listening)
+                db.ref('requests').orderByChild('timestamp').on('value', snapshot => {
+                    this.requests = [];
+                    snapshot.forEach(child => {
+                        const r = { id: child.key, ...child.val() };
+                        this.requests.push(r);
+                    });
+                    this.requests.reverse();
+                    this.renderAdminRequests();
+                });
+
+                // Admin Users List
+                db.ref('users').on('value', snapshot => {
+                    this.renderAdminUsers(snapshot.val());
                 });
             }
 
-            /* --- Auth --- */
-            login() {
-                const userIn = document.getElementById('login-username').value;
-                const passIn = document.getElementById('login-password').value;
-
-                if (!userIn || !passIn) return this.toast('Please fill all fields', 'error');
-
-                // Admin Hardcoded Check
-                if (userIn.toLowerCase() === 'admin' && passIn === 'admin') {
-                    this.currentUser = { username: 'Admin', role: 'admin', isPro: true, balance: 999999 };
-                    this.saveSession();
-                    this.showApp();
-                    return;
-                }
-
-                // User Check
-                const user = this.db.users.find(u => u.username === userIn && u.password === passIn);
-                if (user) {
-                    this.currentUser = user;
-                    this.saveSession();
-                    this.showApp();
-                } else {
-                    this.toast('Invalid credentials', 'error');
-                }
+            // --- AUTH ---
+            async login() {
+                const username = document.getElementById('login-username').value.trim().toLowerCase();
+                const password = document.getElementById('login-password').value;
+                if (!username || !password) return this.toast('Fill all fields', 'error');
+                const email = `${username}@tkcoin.app`;
+                try {
+                    await auth.signInWithEmailAndPassword(email, password);
+                    this.toast('Logged in', 'success');
+                } catch (error) { this.toast(error.message, 'error'); }
             }
 
-            toggleRegister() {
-                const userIn = prompt("Enter desired username:");
-                if(!userIn) return;
-                const passIn = prompt("Enter password:");
-                if(!passIn) return;
-
-                if (this.db.users.find(u => u.username === userIn)) {
-                    this.toast('Username already exists', 'error');
-                    return;
-                }
-
-                const newUser = {
-                    username: userIn,
-                    password: passIn,
-                    role: 'user',
-                    isPro: false,
-                    balance: 0,
-                    purchaseHistory: [] // Stores { amount, rate, date } for cost basis logic
-                };
-
-                this.db.users.push(newUser);
-                this.saveDB();
-                this.toast('Account created! Please login.', 'success');
+            async toggleRegister() {
+                const username = document.getElementById('login-username').value.trim().toLowerCase();
+                const password = document.getElementById('login-password').value;
+                if (!username || !password) return this.toast('Fill fields first', 'error');
+                const email = `${username}@tkcoin.app`;
+                try {
+                    const cred = await auth.createUserWithEmailAndPassword(email, password);
+                    const isAdmin = (username === 'admin');
+                    await db.ref('users/' + cred.user.uid).set({
+                        username: username, email: email, balance: isAdmin ? 99999 : 0,
+                        isPro: isAdmin, role: isAdmin ? 'admin' : 'user', purchaseHistory: [], transactions: []
+                    });
+                    this.toast('Account created!', 'success');
+                } catch (error) { this.toast(error.message, 'error'); }
             }
 
-            logout() {
-                this.currentUser = null;
-                this.saveSession();
-                location.reload();
+            logout() { auth.signOut(); }
+
+            // --- DATA ---
+            fetchUserData(uid) {
+                db.ref('users/' + uid).on('value', snapshot => {
+                    this.userData = snapshot.val();
+                    if (this.userData) {
+                        this.renderHeader();
+                        this.renderProfile();
+                        this.renderMarket();
+                        
+                        // Admin Nav Visibility
+                        const adminNav = document.getElementById('nav-admin');
+                        if(this.userData.role === 'admin') adminNav.classList.remove('hidden');
+                        else adminNav.classList.add('hidden');
+                    }
+                });
             }
 
-            showApp() {
-                document.getElementById('auth-overlay').classList.add('hidden');
-                this.renderHeader();
-                this.navTo('feed');
-                this.renderProfile(); // Pre-load profile data
+            updateProfilePKR() {
+                if(!this.userData) return;
+                const pkr = this.userData.balance * this.marketRate;
+                document.getElementById('profile-pkr').innerText = 'PKR ' + pkr.toFixed(2);
             }
 
-            /* --- Navigation --- */
+            // --- NAVIGATION ---
             navTo(pageId) {
                 document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
                 document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-                
                 document.getElementById(`page-${pageId}`).classList.add('active');
                 
-                // Highlight nav
                 if(pageId === 'feed') document.querySelectorAll('.nav-item')[0].classList.add('active');
                 if(pageId === 'market') document.querySelectorAll('.nav-item')[1].classList.add('active');
                 if(pageId === 'profile') document.querySelectorAll('.nav-item')[2].classList.add('active');
-
-                if (pageId === 'feed') this.renderFeed();
-                if (pageId === 'market') this.renderMarket();
-                if (pageId === 'profile') this.renderProfile();
-            }
-
-            renderHeader() {
-                document.getElementById('header-balance').innerText = this.currentUser.balance.toFixed(2);
-            }
-
-            /* --- Market Logic --- */
-            renderMarket() {
-                document.getElementById('current-rate').innerText = this.db.coinRate.toFixed(2);
-                document.getElementById('modal-buy-rate').innerText = this.db.coinRate.toFixed(2);
-
-                // Admin Controls
-                const adminControls = document.getElementById('admin-controls');
-                if (this.currentUser.role === 'admin') {
-                    adminControls.classList.remove('hidden');
-                } else {
-                    adminControls.classList.add('hidden');
-                }
-
-                // Transaction History (Mock)
-                const list = document.getElementById('transaction-list');
-                list.innerHTML = '';
-                if(this.currentUser.transactions && this.currentUser.transactions.length > 0) {
-                    this.currentUser.transactions.slice().reverse().forEach(t => {
-                        const div = document.createElement('div');
-                        div.style.padding = "8px 0";
-                        div.style.borderBottom = "1px solid #eee";
-                        div.innerHTML = `
-                            <div style="display:flex; justify-content:space-between;">
-                                <span style="font-weight:600;">${t.type.toUpperCase()}</span>
-                                <span class="${t.type === 'buy' ? 'text-blue' : 'text-success'}">${t.amount > 0 ? '+' : ''}${t.amount} TK</span>
-                            </div>
-                            <div class="text-sm text-light">${new Date(t.date).toLocaleDateString()}</div>
-                        `;
-                        list.appendChild(div);
-                    });
-                } else {
-                    list.innerHTML = '<p class="text-light">No transactions found.</p>';
-                }
-            }
-
-            updateRate() {
-                if (this.currentUser.role !== 'admin') return;
-                const newRate = parseFloat(document.getElementById('admin-rate-input').value);
-                if (newRate > 0) {
-                    this.db.coinRate = newRate;
-                    this.saveDB();
-                    this.renderMarket();
-                    this.toast('Rate updated successfully', 'success');
-                }
-            }
-
-            openBuyModal() {
-                document.getElementById('modal-buy').classList.remove('hidden');
-                document.getElementById('buy-amount-pkr').value = '';
-                document.getElementById('buy-est-coins').innerText = '0';
-            }
-
-            processBuy() {
-                const pkr = parseFloat(document.getElementById('buy-amount-pkr').value);
-                if (!pkr || pkr <= 0) return this.toast('Invalid amount', 'error');
-
-                const coins = pkr / this.db.coinRate;
+                if(pageId === 'admin') document.getElementById('nav-admin').classList.add('active');
                 
-                // Update User Balance
-                this.currentUser.balance += coins;
-                
-                // Track Purchase History for Cost Basis (Prompt Requirement)
-                this.currentUser.purchaseHistory.push({
-                    coins: coins,
-                    rate: this.db.coinRate,
-                    date: Date.now()
-                });
-
-                // Add Transaction Record
-                if(!this.currentUser.transactions) this.currentUser.transactions = [];
-                this.currentUser.transactions.push({
-                    type: 'buy',
-                    amount: coins,
-                    date: Date.now()
-                });
-
-                this.updateUserRecord();
-                this.closeModals();
-                this.renderHeader();
-                this.renderMarket(); // Refresh history
-                this.toast(`Successfully bought ${coins.toFixed(2)} TK Coins`, 'success');
+                if(pageId === 'feed') this.renderFeed();
+                if(pageId === 'market') this.renderMarket();
+                if(pageId === 'profile') this.renderProfile();
             }
 
-            /* --- Withdraw Logic (The Complex Part) --- */
-            openSellModal() {
-                document.getElementById('modal-withdraw').classList.remove('hidden');
-                document.getElementById('withdraw-amount').value = '';
-                document.getElementById('withdraw-est-pkr').innerText = '0.00';
-                
-                // Update Tax label based on Pro status
-                const taxLabel = document.getElementById('instant-tax-label');
-                taxLabel.innerText = this.currentUser.isPro ? "0% Tax (Pro)" : "3% Tax";
-                
-                this.selectWithdrawType('instant', document.querySelector('.withdraw-option'));
-            }
+            renderHeader() { if(!this.userData) return; document.getElementById('header-balance').innerText = parseFloat(this.userData.balance).toFixed(2); }
 
-            selectWithdrawType(type, el) {
-                this.withdrawType = type;
-                document.querySelectorAll('.withdraw-option').forEach(d => d.classList.remove('selected'));
-                el.classList.add('selected');
-                this.calcWithdraw();
-            }
-
-            calcWithdraw() {
-                const coins = parseFloat(document.getElementById('withdraw-amount').value) || 0;
-                if (coins <= 0) return;
-
-                let pkrAmount = 0;
-                let msg = "";
-
-                if (this.withdrawType === 'instant') {
-                    // Logic: "jab unable kre to us ko wohin price mily jis me us ne khareeda tha"
-                    // We use the Average Purchase Price (Cost Basis)
-                    // Simple FIFO or Average Cost logic. Let's use Average Cost for simplicity.
-                    
-                    let totalCoinsOwned = 0;
-                    let totalValuePaid = 0;
-
-                    // If user has no history (manual balance added by admin?), fall back to current rate
-                    if (!this.currentUser.purchaseHistory || this.currentUser.purchaseHistory.length === 0) {
-                         pkrAmount = coins * this.db.coinRate;
-                         msg = "Based on Current Rate (No History)";
-                    } else {
-                        // Calculate Average Cost Basis
-                        this.currentUser.purchaseHistory.forEach(h => {
-                            totalCoinsOwned += h.coins;
-                            totalValuePaid += (h.coins * h.rate);
-                        });
-                        const avgBuyRate = totalValuePaid / totalCoinsOwned;
-                        pkrAmount = coins * avgBuyRate;
-                        msg = `Based on Purchase Price: ${avgBuyRate.toFixed(2)}`;
-                    }
-
-                    // Apply Tax: Normal 3%, Pro 0%
-                    if (!this.currentUser.isPro) {
-                        const tax = pkrAmount * 0.03;
-                        pkrAmount = pkrAmount - tax;
-                        msg += " (Minus 3% Tax)";
-                    }
-
-                } else {
-                    // Logic: Hold (1, 7, 10 days) -> Uses CURRENT Market Price
-                    pkrAmount = coins * this.db.coinRate;
-                    msg = `Based on Current Rate: ${this.db.coinRate.toFixed(2)}`;
-                }
-
-                document.getElementById('withdraw-est-pkr').innerText = pkrAmount.toFixed(2);
-                document.getElementById('withdraw-basis-msg').innerText = msg;
-            }
-
-            processWithdraw() {
-                const coins = parseFloat(document.getElementById('withdraw-amount').value);
-                if (coins <= 0) return this.toast('Invalid amount', 'error');
-                if (coins > this.currentUser.balance) return this.toast('Insufficient balance', 'error');
-
-                // Calculate Final PKR using the calc logic again
-                this.calcWithdraw();
-                const finalPkrStr = document.getElementById('withdraw-est-pkr').innerText;
-                const finalPkr = parseFloat(finalPkrStr);
-
-                // Deduct Coins
-                this.currentUser.balance -= coins;
-
-                // Reduce purchase history (Proportional removal to maintain Avg Cost Accuracy, simplified here)
-                // In a real app, you'd adjust the history stack. Here we just keep the record.
-
-                // Add Transaction
-                if(!this.currentUser.transactions) this.currentUser.transactions = [];
-                this.currentUser.transactions.push({
-                    type: 'withdraw',
-                    amount: -coins,
-                    pkr: finalPkr,
-                    method: this.withdrawType,
-                    date: Date.now()
-                });
-
-                this.updateUserRecord();
-                this.closeModals();
-                this.renderHeader();
-                this.renderMarket();
-                this.toast(`Withdrawal Requested! PKR ${finalPkrStr}`, 'success');
-            }
-
-            /* --- Feed Logic --- */
+            // --- FEED ---
             renderFeed() {
-                const container = document.getElementById('feed-container');
-                container.innerHTML = '';
-                
-                const posts = this.db.posts.sort((a,b) => b.timestamp - a.timestamp);
-                let limit = posts.length;
-                let showLimitMsg = false;
+                const container = document.getElementById('feed-container'); container.innerHTML = '';
+                if (!this.userData) return;
+                const isPro = this.userData.isPro || this.userData.role === 'admin';
+                const isNormal = !isPro;
 
-                // Post Input Logic (Limit 1 per day for normal)
+                const today = new Date().toDateString();
+                const postsToday = this.posts.filter(p => p.uid === this.currentUser.uid && new Date(p.timestamp).toDateString() === today).length;
+
                 const postInput = document.getElementById('new-post-content');
                 const postLimitMsg = document.getElementById('post-limit-msg');
                 
-                if (this.currentUser.role !== 'admin') {
-                    // Check posts today
-                    const today = new Date().toDateString();
-                    const postsToday = posts.filter(p => p.user === this.currentUser.username && new Date(p.timestamp).toDateString() === today).length;
-                    
-                    if (this.currentUser.isPro) {
-                        postLimitMsg.innerText = "Unlimited Posts (Pro)";
-                        postInput.disabled = false;
-                    } else {
-                        postLimitMsg.innerText = `Posted: ${postsToday}/1 today`;
-                        if (postsToday >= 1) {
-                            postInput.disabled = true;
-                            postInput.placeholder = "Daily limit reached (1 post/day).";
-                        } else {
-                            postInput.disabled = false;
-                        }
+                if (this.userData.role === 'admin') { postInput.disabled = false; postLimitMsg.innerText = "Admin Unlimited"; }
+                else if (isPro) { postInput.disabled = false; postLimitMsg.innerText = "Unlimited Posts (Pro)"; }
+                else { postInput.disabled = (postsToday >= 1); postLimitMsg.innerText = `Posted: ${postsToday}/1 today`; }
 
-                        // View Limit (3 posts)
-                        if (posts.length > 3) {
-                            limit = 3;
-                            showLimitMsg = true;
-                        }
-                    }
-                } else {
-                    postInput.disabled = false;
-                    postLimitMsg.innerText = "Admin Unlimited";
-                }
+                let limit = this.posts.length;
+                let showLimitMsg = (isNormal && this.posts.length > 3);
+                if (showLimitMsg) limit = 3;
+                document.getElementById('feed-limit-reached').classList.toggle('hidden', !showLimitMsg);
 
-                // Render Posts
-                for (let i = 0; i < limit; i++) {
-                    const p = posts[i];
+                for(let i=0; i<limit; i++) {
+                    const p = this.posts[i];
                     const el = document.createElement('div');
                     el.className = 'post';
-                    
-                    // Check if post author is Pro (mock check against db users)
-                    const authorObj = this.db.users.find(u => u.username === p.user);
-                    const isAuthorPro = authorObj ? authorObj.isPro : false;
-                    const isAdminPost = p.user === 'Admin';
-
                     el.innerHTML = `
-                        <div class="post-header">
-                            <div class="avatar">${p.user.charAt(0).toUpperCase()}</div>
-                            <div class="user-info">
-                                <h4>
-                                    ${p.user} 
-                                    ${isAuthorPro || isAdminPost ? '<i class="fa-solid fa-circle-check verified-badge"></i>' : ''}
-                                </h4>
-                                <div class="post-time">${new Date(p.timestamp).toLocaleDateString()}</div>
-                            </div>
+                        <div class="post-header"><div class="avatar">${p.username.charAt(0).toUpperCase()}</div>
+                            <div class="user-info"><h4>${p.username} ${p.username==='Admin'?'<i class="fa-solid fa-circle-check verified-badge"></i>':''}</h4><div class="post-time">${new Date(p.timestamp).toLocaleDateString()}</div></div>
                         </div>
                         <div class="post-content">${p.content}</div>
-                        <div class="post-actions">
-                            <button class="action-btn" onclick="app.likePost(${p.id})">
-                                <i class="fa-regular fa-heart"></i> ${p.likes}
-                            </button>
-                            <button class="action-btn">
-                                <i class="fa-regular fa-comment"></i> ${p.comments.length}
-                            </button>
-                        </div>
-                        ${(this.currentUser.role === 'admin') ? `<i class="fa-solid fa-trash delete-btn" onclick="app.deletePost(${p.id})"></i>` : ''}
+                        <div class="post-actions"><button class="action-btn" onclick="app.likePost('${p.id}')"><i class="fa-regular fa-heart"></i> ${p.likes || 0}</button></div>
+                        ${this.userData.role === 'admin' ? `<i class="fa-solid fa-trash delete-btn" onclick="app.deletePost('${p.id}')"></i>` : ''}
                     `;
                     container.appendChild(el);
                 }
-
-                const limitMsg = document.getElementById('feed-limit-reached');
-                if (showLimitMsg) limitMsg.classList.remove('hidden');
-                else limitMsg.classList.add('hidden');
             }
 
             createPost() {
                 const content = document.getElementById('new-post-content').value;
-                if (!content.trim()) return;
-
-                const newPost = {
-                    id: Date.now(),
-                    user: this.currentUser.username,
-                    content: content,
-                    timestamp: Date.now(),
-                    likes: 0,
-                    comments: []
-                };
-
-                this.db.posts.push(newPost);
-                this.saveDB();
-                document.getElementById('new-post-content').value = '';
-                this.renderFeed();
-                this.toast('Post created!', 'success');
+                if(!content.trim()) return;
+                db.ref('posts').push({
+                    uid: this.currentUser.uid, username: this.userData.username, content: content,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP, likes: 0
+                }).then(() => { document.getElementById('new-post-content').value = ''; this.toast('Posted!', 'success'); });
             }
 
-            deletePost(id) {
-                if(this.currentUser.role !== 'admin') return;
-                if(confirm("Delete this post?")) {
-                    this.db.posts = this.db.posts.filter(p => p.id !== id);
-                    this.saveDB();
-                    this.renderFeed();
-                    this.toast('Post deleted.', 'success');
-                }
+            deletePost(id) { if(this.userData.role !== 'admin') return; if(confirm("Delete?")) { db.ref('posts/'+id).remove().then(() => this.toast('Deleted', 'success')); } }
+            likePost(id) { db.ref('posts/'+id+'/likes').transaction(count => (count || 0) + 1); }
+
+            // --- MARKET (REQUESTS) ---
+            renderMarket() {
+                document.getElementById('transaction-list').innerHTML = '';
+                const txs = this.userData.transactions;
+                if (txs) {
+                    Object.values(txs).reverse().forEach(t => {
+                        const div = document.createElement('div'); div.style.padding = "8px 0"; div.style.borderBottom = "1px solid #eee";
+                        div.innerHTML = `<div style="display:flex; justify-content:space-between;"><span style="font-weight:600;">${t.type.toUpperCase()}</span><span class="${t.type==='buy'?'text-blue':'text-success'}">${t.amount>0?'+':''}${parseFloat(t.amount).toFixed(2)} TK</span></div><div class="text-sm text-light">${new Date(t.date).toLocaleDateString()}</div>`;
+                        document.getElementById('transaction-list').appendChild(div);
+                    });
+                } else { document.getElementById('transaction-list').innerHTML = '<p class="text-light">No transactions found.</p>'; }
             }
 
-            likePost(id) {
-                const post = this.db.posts.find(p => p.id === id);
-                if(post) {
-                    post.likes++;
-                    this.saveDB();
-                    this.renderFeed();
-                }
-            }
+            updateRate() { if(this.userData.role !== 'admin') return; const newRate = parseFloat(document.getElementById('admin-rate-input').value); if(newRate > 0) { db.ref('market/rate').set(newRate); this.toast('Rate updated', 'success'); } }
 
-            /* --- Profile Logic --- */
-            renderProfile() {
-                document.getElementById('profile-name').innerText = this.currentUser.username;
-                document.getElementById('profile-balance').innerText = this.currentUser.balance.toFixed(2);
+            // --- BUY / WITHDRAW LOGIC ---
+            openBuyModal() { document.getElementById('modal-buy').classList.remove('hidden'); document.getElementById('buy-amount-pkr').value = ''; document.getElementById('buy-est-coins').innerText = '0'; }
+            
+            requestBuy() {
+                const pkr = parseFloat(document.getElementById('buy-amount-pkr').value);
+                if(!pkr || pkr <= 0) return;
+                const coins = pkr / this.marketRate;
                 
-                const badgeContainer = document.getElementById('profile-badge-container');
-                const proTag = document.getElementById('pro-tag');
-                const upgradeCard = document.getElementById('pro-upgrade-card');
-                const activeCard = document.getElementById('pro-features-card');
+                // Push to Requests
+                db.ref('requests').push({
+                    type: 'deposit', userId: this.currentUser.uid, username: this.userData.username,
+                    amountCoins: coins, amountPKR: pkr, method: document.getElementById('payment-method').value,
+                    status: 'pending', timestamp: Date.now()
+                }).then(() => { this.closeModals(); this.toast('Deposit Request Sent to Admin', 'success'); });
+            }
 
-                if (this.currentUser.isPro) {
-                    proTag.innerText = "PRO USER";
-                    proTag.classList.add('active');
-                    badgeContainer.innerHTML = '<i class="fa-solid fa-circle-check verified-badge" style="font-size:1.5rem;"></i>';
-                    upgradeCard.classList.add('hidden');
-                    activeCard.classList.remove('hidden');
-                } else {
-                    proTag.innerText = "NORMAL USER";
-                    proTag.classList.remove('active');
-                    badgeContainer.innerHTML = '';
-                    upgradeCard.classList.remove('hidden');
-                    activeCard.classList.add('hidden');
-                }
+            openSellModal() {
+                document.getElementById('modal-withdraw').classList.remove('hidden');
+                document.getElementById('withdraw-amount').value = ''; document.getElementById('withdraw-est-pkr').innerText = '0.00';
+                const taxLabel = document.getElementById('instant-tax-label'); taxLabel.innerText = this.userData.isPro ? "0% Tax (Pro)" : "3% Tax";
+                this.selectWithdrawType('instant', document.querySelector('.withdraw-option'));
+            }
+
+            selectWithdrawType(type, el) {
+                this.withdrawType = type; document.querySelectorAll('.withdraw-option').forEach(d => d.classList.remove('selected')); el.classList.add('selected'); this.calcWithdraw();
+            }
+
+            calcWithdraw() {
+                const coins = parseFloat(document.getElementById('withdraw-amount').value) || 0; if(coins <= 0) return;
+                let pkrAmount = 0; let msg = "";
+                if(this.withdrawType === 'instant') {
+                    let totalCoinsOwned = 0, totalValuePaid = 0;
+                    const hist = this.userData.purchaseHistory;
+                    if(hist && Object.keys(hist).length > 0) {
+                        Object.values(hist).forEach(h => { totalCoinsOwned += parseFloat(h.coins); totalValuePaid += (parseFloat(h.coins) * parseFloat(h.rate)); });
+                        const avgBuyRate = totalValuePaid / totalCoinsOwned; pkrAmount = coins * avgBuyRate; msg = `Based on Purchase Price: ${avgBuyRate.toFixed(2)}`;
+                    } else { pkrAmount = coins * this.marketRate; msg = "Based on Current Rate (No History)"; }
+                    if(!this.userData.isPro) { const tax = pkrAmount * 0.03; pkrAmount -= tax; msg += " (Minus 3% Tax)"; }
+                } else { pkrAmount = coins * this.marketRate; msg = `Based on Current Rate: ${this.marketRate.toFixed(2)}`; }
+                document.getElementById('withdraw-est-pkr').innerText = pkrAmount.toFixed(2); document.getElementById('withdraw-basis-msg').innerText = msg;
+            }
+
+            requestWithdraw() {
+                const coins = parseFloat(document.getElementById('withdraw-amount').value);
+                if(coins <= 0) return; if(coins > this.userData.balance) return this.toast('Insufficient balance', 'error');
+                this.calcWithdraw();
+                const pkrStr = document.getElementById('withdraw-est-pkr').innerText;
+                
+                db.ref('requests').push({
+                    type: 'withdraw', userId: this.currentUser.uid, username: this.userData.username,
+                    amountCoins: coins, amountPKR: pkrStr, method: document.getElementById('payment-method').value, // Payment method for where to send money
+                    status: 'pending', timestamp: Date.now(), withdrawType: this.withdrawType
+                }).then(() => { this.closeModals(); this.toast('Withdraw Request Sent', 'success'); });
+            }
+
+            // --- PROFILE ---
+            renderProfile() {
+                document.getElementById('profile-name').innerText = this.userData.username;
+                document.getElementById('profile-balance').innerText = parseFloat(this.userData.balance).toFixed(2);
+                this.updateProfilePKR(); // Recalculate PKR value
+
+                const proTag = document.getElementById('pro-tag'); const upgradeCard = document.getElementById('pro-upgrade-card'); const badge = document.getElementById('profile-badge-container');
+                if (this.userData.isPro || this.userData.role === 'admin') {
+                    proTag.innerText = "PRO USER"; proTag.classList.add('active'); badge.innerHTML = '<i class="fa-solid fa-circle-check verified-badge" style="font-size:1.5rem;"></i>'; upgradeCard.classList.add('hidden');
+                } else { proTag.innerText = "NORMAL USER"; proTag.classList.remove('active'); badge.innerHTML = ''; upgradeCard.classList.remove('hidden'); }
             }
 
             buyPro() {
-                if(this.currentUser.isPro) return;
-                if(confirm("Buy Pro Membership for 500 Coins? (Simulated)")) {
-                    if(this.currentUser.balance >= 500) {
-                        this.currentUser.balance -= 500;
-                        this.currentUser.isPro = true;
-                        this.updateUserRecord();
-                        this.renderProfile();
-                        this.renderHeader();
+                if(this.userData.isPro) return;
+                if(confirm("Buy Pro Membership for 500 Coins? (Instant Internal Upgrade)")) {
+                    if(this.userData.balance >= 500) {
+                        db.ref('users/'+this.currentUser.uid+'/balance').set(this.userData.balance - 500);
+                        db.ref('users/'+this.currentUser.uid+'/isPro').set(true);
                         this.toast('Upgraded to PRO!', 'success');
-                    } else {
-                        this.toast('Insufficient Coins. Need 500 TK.', 'error');
+                    } else { this.toast('Need 500 Coins', 'error'); }
+                }
+            }
+
+            // --- ADMIN FUNCTIONS ---
+            renderAdminRequests() {
+                const list = document.getElementById('admin-requests-list'); list.innerHTML = '';
+                const pending = this.requests.filter(r => r.status === 'pending');
+                document.getElementById('req-count').innerText = pending.length;
+
+                pending.forEach(r => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><b>${r.username}</b><br><small class="text-light">${new Date(r.timestamp).toLocaleTimeString()}</small></td>
+                        <td>
+                            <span class="status-badge ${r.type==='deposit'?'status-approved':'status-pending'}">${r.type.toUpperCase()}</span>
+                        </td>
+                        <td>
+                            ${r.type==='deposit' ? `Req: ${r.amountCoins.toFixed(2)} Coins` : `Sell: ${r.amountCoins} Coins`}
+                            <br> <span style="color:var(--primary); font-weight:bold;">PKR ${r.amountPKR}</span>
+                            <br><small>${r.method}</small>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-success" onclick="app.approveRequest('${r.id}', '${r.type}', '${r.userId}', ${r.amountCoins})"><i class="fa-solid fa-check"></i></button>
+                            <button class="btn btn-sm btn-danger" onclick="app.rejectRequest('${r.id}')"><i class="fa-solid fa-xmark"></i></button>
+                        </td>
+                    `;
+                    list.appendChild(tr);
+                });
+                if(pending.length === 0) list.innerHTML = '<tr><td colspan="4" style="text-align:center;">No pending requests</td></tr>';
+            }
+
+            renderAdminUsers(usersObj) {
+                if(!usersObj) return;
+                const list = document.getElementById('admin-users-list'); list.innerHTML = '';
+                Object.values(usersObj).forEach(u => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${u.username}</td>
+                        <td>${parseFloat(u.balance).toFixed(2)}</td>
+                        <td>${u.role} ${u.isPro?'<i class="fa-solid fa-crown" style="color:gold;"></i>':''}</td>
+                    `;
+                    list.appendChild(tr);
+                });
+            }
+
+            approveRequest(reqId, type, userId, amountCoins) {
+                if(!confirm("Approve this request?")) return;
+                
+                // 1. Update Request Status
+                db.ref('requests/'+reqId).update({ status: 'approved' });
+
+                // 2. Update User Balance
+                db.ref('users/'+userId).once('value', snapshot => {
+                    const user = snapshot.val();
+                    const currentBal = parseFloat(user.balance) || 0;
+
+                    if(type === 'deposit') {
+                        // Add coins
+                        const newBal = currentBal + parseFloat(amountCoins);
+                        db.ref('users/'+userId+'/balance').set(newBal);
+                        
+                        // Add transaction
+                        const txRef = db.ref('users/'+userId+'/transactions').push();
+                        txRef.set({ type: 'buy', amount: amountCoins, date: Date.now() });
+                    } 
+                    else if (type === 'withdraw') {
+                        // Deduct coins
+                        if(currentBal >= amountCoins) {
+                            db.ref('users/'+userId+'/balance').set(currentBal - parseFloat(amountCoins));
+                            const txRef = db.ref('users/'+userId+'/transactions').push();
+                            txRef.set({ type: 'withdraw', amount: -amountCoins, date: Date.now() });
+                        }
                     }
+                });
+                this.toast('Request Approved', 'success');
+            }
+
+            rejectRequest(reqId) {
+                if(confirm("Reject this request?")) {
+                    db.ref('requests/'+reqId).update({ status: 'rejected' });
+                    this.toast('Request Rejected', 'info');
                 }
             }
 
-            /* --- Utilities --- */
-            updateUserRecord() {
-                // Update user in the 'users' array in DB
-                const index = this.db.users.findIndex(u => u.username === this.currentUser.username);
-                if (index !== -1) {
-                    this.db.users[index] = this.currentUser;
-                } else if (this.currentUser.role === 'admin') {
-                    // Admin not in user list, don't save
-                }
-                this.saveDB();
-                this.saveSession(); // Refresh session
-            }
-
-            closeModals() {
-                document.querySelectorAll('.auth-overlay').forEach(el => el.classList.add('hidden'));
-            }
-
-            toast(msg, type = 'info') {
-                const container = document.getElementById('toast-container');
-                const div = document.createElement('div');
-                div.className = 'toast';
-                div.style.borderLeft = `5px solid ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#007bff'}`;
-                div.innerText = msg;
-                container.appendChild(div);
-                setTimeout(() => div.remove(), 3000);
+            // --- UTILS ---
+            closeModals() { document.querySelectorAll('.auth-overlay').forEach(el => el.classList.add('hidden')); }
+            toast(msg, type='info') {
+                const container = document.getElementById('toast-container'); const div = document.createElement('div');
+                div.className = 'toast'; div.style.borderLeft = `5px solid ${type==='success'?'#28a745':type==='error'?'#dc3545':'#007bff'}`;
+                div.innerText = msg; container.appendChild(div); setTimeout(() => div.remove(), 3000);
             }
         }
 
-        // Initialize App
         const app = new App();
-
+        document.getElementById('buy-amount-pkr').addEventListener('input', (e) => {
+            const pkr = parseFloat(e.target.value) || 0; document.getElementById('buy-est-coins').innerText = (pkr / (app.marketRate || 10)).toFixed(2);
+        });
     </script>
 </body>
 </html>
