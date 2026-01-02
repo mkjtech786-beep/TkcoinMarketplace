@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TK COIN - Trading & Community</title>
+    <title>TK COIN - HOLD & EARN</title>
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -42,7 +42,7 @@
 
         /* --- Navigation --- */
         .nav-bar { position: fixed; bottom: 0; width: 100%; max-width: 480px; background: var(--white); display: flex; justify-content: space-around; padding: 12px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 100; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-light); text-decoration: none; font-size: 0.75rem; cursor: pointer; transition: 0.3s; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-light); text-decoration: none; font-size: 0.7rem; cursor: pointer; transition: 0.3s; flex: 1; }
         .nav-item.active { color: var(--primary); font-weight: 600; }
         .nav-item .material-icons-round { font-size: 24px; margin-bottom: 2px; }
 
@@ -57,17 +57,13 @@
         input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; background: #f9f9f9; transition: 0.3s; }
         input:focus, select:focus { border-color: var(--primary); outline: none; background: #fff; }
         
-        /* Checkbox */
-        .checkbox-group { display: flex; align-items: flex-start; gap: 10px; font-size: 0.85rem; color: #555; margin-top: 15px; text-align: left; }
-        .checkbox-group input { width: auto; margin-top: 3px; }
-        .tnc-link { color: var(--primary); text-decoration: underline; cursor: pointer; }
-
         .btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1rem; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
         .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(0,86,179,0.3); }
         .btn-primary:hover { background: var(--secondary); }
         .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); margin-top: 10px; }
         .btn-danger { background: var(--danger); color: white; }
         .btn-sm { padding: 6px 12px; font-size: 0.8rem; width: auto; }
+        .btn-text { background: none; color: var(--primary); width: auto; padding: 0; display: inline; font-size: 0.9rem; text-decoration: underline; }
 
         /* --- Auth Screen --- */
         #auth-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); z-index: 200; display: flex; justify-content: center; align-items: center; padding: 20px; overflow-y: auto; }
@@ -75,6 +71,15 @@
         .auth-tabs { display: flex; margin-bottom: 20px; border-bottom: 2px solid #eee; }
         .auth-tab { flex: 1; padding: 10px; cursor: pointer; font-weight: 600; color: #999; }
         .auth-tab.active { color: var(--primary); border-bottom: 2px solid var(--primary); margin-bottom: -2px; }
+        
+        .checkbox-group { display: flex; align-items: flex-start; gap: 10px; margin-top: 15px; font-size: 0.8rem; color: #555; text-align: left; }
+        .checkbox-group input { width: auto; margin-top: 3px; }
+
+        /* --- Modals --- */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 300; display: none; justify-content: center; align-items: center; padding: 20px; }
+        .modal-content { background: white; padding: 25px; border-radius: 12px; width: 100%; max-width: 400px; max-height: 80vh; overflow-y: auto; text-align: left; }
+        .modal-title { font-weight: 700; margin-bottom: 15px; color: var(--primary); font-size: 1.2rem; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .modal-body p { font-size: 0.9rem; line-height: 1.6; margin-bottom: 10px; color: #444; }
 
         /* --- Market Cards --- */
         .market-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
@@ -86,25 +91,55 @@
         .copy-btn { background: none; border: none; color: var(--primary); cursor: pointer; font-weight: bold; }
 
         /* --- History List --- */
-        .history-item { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #ccc; }
+        .history-item { background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 4px solid #ddd; }
         .history-item.deposit { border-left-color: var(--success); }
-        .history-item.withdraw { border-left-color: var(--warning); }
-        .history-header { display: flex; justify-content: space-between; font-weight: 600; margin-bottom: 5px; }
-        .history-detail { font-size: 0.85rem; color: #555; margin-bottom: 3px; }
-        .status-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; }
+        .history-item.withdraw { border-left-color: var(--primary); }
+        .hist-head { display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .hist-amount { font-weight: bold; font-size: 1.1rem; }
+        .hist-date { font-size: 0.8rem; color: #888; }
+        .hist-detail { font-size: 0.85rem; color: #555; margin-bottom: 5px; }
+        .status-badge { padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; float: right; }
         .status-pending { background: #fff3cd; color: #856404; }
         .status-approved { background: #d4edda; color: #155724; }
         .status-rejected { background: #f8d7da; color: #721c24; }
 
-        /* --- About Section --- */
-        .about-box { background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; line-height: 1.6; text-align: justify; }
-        .about-box h4 { color: var(--primary); margin-bottom: 10px; border-bottom: 2px solid #eee; padding-bottom: 5px; }
+        /* --- Community Feed --- */
+        .post-create { background: #fff; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .post-card { background: #fff; padding: 15px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: relative; }
+        .post-header { display: flex; align-items: center; margin-bottom: 10px; }
+        .user-avatar { width: 40px; height: 40px; background: #eee; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--primary); margin-right: 10px; }
+        .user-name { font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 5px; }
+        .badge-pro { color: var(--primary); font-size: 1.1rem; }
+        .post-time { font-size: 0.75rem; color: #999; display: block; margin-top: 2px; }
+        .post-content { font-size: 0.95rem; line-height: 1.5; color: #333; margin-bottom: 10px; }
+        .post-actions { display: flex; gap: 15px; border-top: 1px solid #eee; padding-top: 10px; }
+        .action-btn { background: none; border: none; color: #666; cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 0.9rem; }
+        .action-btn.liked { color: var(--danger); }
+        .delete-btn { position: absolute; top: 15px; right: 15px; color: var(--danger); background: none; border: none; cursor: pointer; }
+        
+        /* Comments Section */
+        .comments-section { background: #f9f9f9; padding: 10px; border-radius: 8px; margin-top: 10px; display: none; }
+        .comments-section.show { display: block; }
+        .comment-item { padding: 8px 0; border-bottom: 1px solid #eee; font-size: 0.85rem; }
+        .comment-user { font-weight: bold; color: var(--primary); }
+        .comment-input-wrapper { display: flex; gap: 5px; margin-top: 10px; }
+        .comment-input { padding: 8px; font-size: 0.85rem; }
+
+        /* --- Profile --- */
+        .profile-header { text-align: center; padding: 20px 0; }
+        .profile-pic { width: 80px; height: 80px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 10px; border: 3px solid var(--primary-light); }
+        .pro-tag { background: var(--primary); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 5px; margin-top: 5px; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .stat-box { background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center; }
+        .stat-val { font-size: 1.2rem; font-weight: 700; color: var(--primary); }
+        .stat-label { font-size: 0.8rem; color: #777; }
 
         /* --- Admin --- */
         .admin-panel { background: #fff; padding: 15px; border-radius: 12px; margin-bottom: 15px; border-left: 4px solid var(--primary); }
         .request-item { background: #f9f9f9; padding: 12px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #eee; }
         .req-actions { display: flex; gap: 5px; margin-top: 10px; }
-        
+        .req-detail { font-size: 0.85rem; color: #555; margin-bottom: 4px; }
+
         /* --- Toast Notification --- */
         #toast-container { position: fixed; top: 20px; right: 20px; z-index: 1000; }
         .toast { background: #333; color: white; padding: 12px 24px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: slideIn 0.3s; display: flex; align-items: center; gap: 10px; }
@@ -120,7 +155,40 @@
 </head>
 <body>
 
-    <!-- Auth Screen (Login/Signup) -->
+    <!-- Modals -->
+    <!-- Terms & Conditions Modal -->
+    <div id="tc-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-title">Terms & Conditions</div>
+            <div class="modal-body">
+                <p>Welcome to <strong>TK COIN</strong>.</p>
+                <p>By using this application, you agree to the following terms:</p>
+                <p>1. TK Coin is a digital asset platform operating under Singapore regulations.</p>
+                <p>2. All deposit and withdrawal requests are subject to verification by the Admin.</p>
+                <p>3. Normal users are subject to a 3% tax on instant withdrawals.</p>
+                <p>4. Pro users enjoy zero tax and unlimited posting privileges.</p>
+                <p>5. Misuse of the platform or fraudulent activities will result in a permanent ban.</p>
+            </div>
+            <button class="btn btn-primary" style="margin-top:15px;" onclick="app.closeModal('tc-modal')">I Understand</button>
+        </div>
+    </div>
+
+    <!-- About Modal -->
+    <div id="about-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-title">About TK COIN</div>
+            <div class="modal-body">
+                <p><strong>TK COIN</strong> is a premier digital currency trading platform.</p>
+                <p><strong>Company:</strong> TK COIN PTE LTD</p>
+                <p><strong>Location:</strong> Singapore</p>
+                <p>We provide a secure and fast environment for buying, selling, and trading TK Coins. Our mission is to make digital asset trading accessible to everyone in Pakistan and beyond.</p>
+                <p>Version 2.0</p>
+            </div>
+            <button class="btn btn-primary" style="margin-top:15px;" onclick="app.closeModal('about-modal')">Close</button>
+        </div>
+    </div>
+
+    <!-- Auth Screen -->
     <div id="auth-screen">
         <div class="auth-card">
             <h2 style="text-align: center; color: var(--primary); margin-bottom: 20px;">TK COIN</h2>
@@ -138,14 +206,11 @@
                 <div class="form-group">
                     <input type="password" id="login-pass" placeholder="Password">
                 </div>
-                
-                <!-- Terms Checkbox -->
                 <div class="checkbox-group">
-                    <input type="checkbox" id="login-tnc">
-                    <label for="login-tnc" style="margin:0;">I agree to the <span class="tnc-link" onclick="app.showModal('terms')">Terms & Conditions</span> of TK Coin.</label>
+                    <input type="checkbox" id="login-tc">
+                    <div>I agree to the <span class="btn-text" onclick="app.openModal('tc-modal')">Terms & Conditions</span></div>
                 </div>
-
-                <button class="btn btn-primary" style="margin-top:20px;" onclick="app.login()">Login</button>
+                <button class="btn btn-primary" style="margin-top:15px;" onclick="app.login()">Login</button>
             </div>
 
             <!-- Signup Form -->
@@ -159,14 +224,11 @@
                 <div class="form-group">
                     <input type="password" id="reg-pass" placeholder="Password">
                 </div>
-
-                <!-- Terms Checkbox -->
                 <div class="checkbox-group">
-                    <input type="checkbox" id="reg-tnc">
-                    <label for="reg-tnc" style="margin:0;">I agree to the <span class="tnc-link" onclick="app.showModal('terms')">Terms & Conditions</span> of TK Coin.</label>
+                    <input type="checkbox" id="reg-tc">
+                    <div>I agree to the <span class="btn-text" onclick="app.openModal('tc-modal')">Terms & Conditions</span></div>
                 </div>
-
-                <button class="btn btn-primary" style="margin-top:20px;" onclick="app.signup()">Create Account</button>
+                <button class="btn btn-primary" style="margin-top:15px;" onclick="app.signup()">Create Account</button>
             </div>
         </div>
     </div>
@@ -221,10 +283,10 @@
                     <input type="number" id="buy-pkr" placeholder="Enter PKR amount" oninput="app.calcBuy()">
                 </div>
 
-                <!-- TRX ID Input -->
                 <div class="form-group">
                     <label>Transaction ID (TRX ID)</label>
-                    <input type="text" id="deposit-trx" placeholder="e.g. 847392849...">
+                    <input type="text" id="deposit-trx" placeholder="e.g. 83920123">
+                    <p class="text-small" style="margin-top:5px;">Enter the reference number from your app.</p>
                 </div>
                 
                 <div style="background: #e3f2fd; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
@@ -233,7 +295,7 @@
                 </div>
 
                 <button class="btn btn-primary" onclick="app.requestDeposit()">Submit Deposit Request</button>
-                <p class="text-small" style="margin-top: 10px; text-align: center;">Admin will verify TRX ID and add coins manually.</p>
+                <p class="text-small" style="margin-top: 10px; text-align: center;">Admin will verify your TRX ID.</p>
             </div>
 
             <!-- SELL TAB -->
@@ -246,7 +308,6 @@
                     </select>
                 </div>
 
-                <!-- Hold Options -->
                 <div id="hold-options" class="hidden form-group">
                     <label>Select Hold Duration</label>
                     <select id="hold-days">
@@ -285,7 +346,6 @@
         <section id="feed-section" class="section">
             <h3 style="margin-bottom: 15px;">Community Feed</h3>
             
-            <!-- Post Creator -->
             <div class="post-create">
                 <textarea id="post-content" rows="2" placeholder="What's on your mind?"></textarea>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
@@ -294,15 +354,21 @@
                 </div>
             </div>
 
-            <!-- Posts List -->
             <div id="posts-container"></div>
-            
             <div id="feed-limit-msg" class="hidden" style="text-align: center; padding: 20px; color: #666;">
-                <p>You are viewing the latest 3 posts. <span style="color:var(--primary); font-weight:bold; cursor:pointer;" onclick="app.navToProfile()">Buy Pro</span> to view all.</p>
+                <p>View limit reached. <span style="color:var(--primary); font-weight:bold; cursor:pointer;" onclick="app.navToProfile()">Buy Pro</span>.</p>
             </div>
         </section>
 
-        <!-- 3. PROFILE -->
+        <!-- 3. HISTORY (NEW) -->
+        <section id="history-section" class="section">
+            <h3 style="margin-bottom: 15px;">My Transactions</h3>
+            <div id="history-list">
+                <!-- History Items Injected JS -->
+            </div>
+        </section>
+
+        <!-- 4. PROFILE -->
         <section id="profile-section" class="section">
             <div class="profile-header">
                 <div class="profile-pic" id="profile-avatar">U</div>
@@ -321,7 +387,8 @@
                 </div>
             </div>
 
-            <!-- Buy Pro Card -->
+            <button class="btn btn-outline" style="margin-bottom:10px;" onclick="app.openModal('about-modal')">About TK COIN</button>
+
             <div id="pro-upgrade-card" class="admin-panel" style="border-left-color: var(--pro-gold);">
                 <h4 style="color: var(--pro-gold);">Upgrade to PRO</h4>
                 <ul class="text-small" style="margin: 10px 0; padding-left: 20px;">
@@ -333,19 +400,18 @@
                 <button class="btn btn-primary btn-sm" onclick="app.buyPro()">Buy Pro (500 TK)</button>
             </div>
 
-            <!-- Transaction History -->
-            <div class="admin-panel" style="border-left-color: var(--secondary);">
-                <h4>Transaction History</h4>
-                <div id="history-container" style="margin-top:15px;">
-                    <!-- History Injected JS -->
-                    <p class="text-small">No transactions found.</p>
+            <div class="admin-panel">
+                <h4>Current Rates</h4>
+                <div style="display:flex; justify-content:space-between; margin-top:10px;">
+                    <span>1 TK Coin = </span>
+                    <span class="text-bold"><span id="profile-rate">0</span> PKR</span>
                 </div>
             </div>
 
             <button class="btn btn-outline" onclick="app.logout()">Logout</button>
         </section>
 
-        <!-- 4. ADMIN PANEL -->
+        <!-- 5. ADMIN PANEL -->
         <section id="admin-section" class="section">
             <h3 style="color: var(--primary);">Admin Dashboard</h3>
             
@@ -355,7 +421,6 @@
                     <label>Tk Coin Rate (PKR)</label>
                     <input type="number" id="admin-rate" value="8">
                 </div>
-                
                 <label style="margin-top:10px;">Deposit Numbers</label>
                 <div class="form-group">
                     <label style="font-weight:400; font-size:0.8rem;">EasyPaisa</label>
@@ -369,7 +434,6 @@
                     <label style="font-weight:400; font-size:0.8rem;">Binance ID</label>
                     <input type="text" id="admin-binance" value="Je74475'-6">
                 </div>
-
                 <button class="btn btn-primary btn-sm" onclick="app.updateSettings()">Update Settings</button>
             </div>
 
@@ -381,37 +445,6 @@
             <div class="admin-panel">
                 <h4>Withdrawal Requests</h4>
                 <div id="admin-withdraw-list"></div>
-            </div>
-
-            <div class="admin-panel">
-                <h4>User Management</h4>
-                <div id="admin-user-list"></div>
-            </div>
-        </section>
-
-        <!-- 5. ABOUT SECTION -->
-        <section id="about-section" class="section">
-            <h3 style="margin-bottom: 15px;">About TK COIN</h3>
-            <div class="about-box">
-                <h4>Welcome to TK COIN</h4>
-                <p>TK COIN is a premier Singapore-based financial technology company dedicated to revolutionizing the digital trading landscape. We provide a secure, fast, and user-friendly platform for buying and selling digital assets.</p>
-                <br>
-                <h4>Our Mission</h4>
-                <p>To empower users with seamless financial freedom through cutting-edge blockchain technology and transparent trading mechanisms.</p>
-                <br>
-                <h4>Why Choose Us?</h4>
-                <ul style="padding-left: 20px; font-size: 0.9rem;">
-                    <li>Secure Transactions</li>
-                    <li>Instant Exchange Rates</li>
-                    <li>24/7 Community Support</li>
-                    <li>Pro Features for Traders</li>
-                </ul>
-            </div>
-            
-            <div class="about-box" style="background: var(--primary-light); border: 1px solid var(--primary);">
-                <h4 style="color: var(--primary);">Contact Us</h4>
-                <p>Email: support@tkcoin.com</p>
-                <p>Address: Singapore Business District, SG</p>
             </div>
         </section>
 
@@ -425,13 +458,13 @@
                 <span class="material-icons-round">groups</span>
                 Feed
             </a>
+            <a class="nav-item" onclick="app.nav('history', this)">
+                <span class="material-icons-round">history</span>
+                History
+            </a>
             <a class="nav-item" onclick="app.nav('profile', this)">
                 <span class="material-icons-round">person</span>
                 Profile
-            </a>
-            <a class="nav-item" onclick="app.nav('about', this)">
-                <span class="material-icons-round">info</span>
-                About
             </a>
             <a class="nav-item hidden" id="admin-nav-link" onclick="app.nav('admin', this)">
                 <span class="material-icons-round">admin_panel_settings</span>
@@ -440,31 +473,7 @@
         </nav>
     </div>
 
-    <!-- Modal for Terms -->
-    <div id="terms-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:300; justify-content:center; align-items:center; padding:20px;">
-        <div style="background:white; padding:25px; border-radius:12px; max-width:400px; max-height:80vh; overflow-y:auto;">
-            <h3 style="color:var(--primary); margin-bottom:15px;">Terms & Conditions</h3>
-            <p style="font-size:0.9rem; color:#555; line-height:1.5; margin-bottom:20px;">
-                Welcome to TK COIN. By using this platform, you agree to the following terms:
-                <br><br>
-                1. <strong>Usage:</strong> TK COIN is a digital currency trading platform. Use it responsibly.
-                <br>
-                2. <strong>Transactions:</strong> All deposit and withdrawal requests are subject to verification. TRX IDs must be valid.
-                <br>
-                3. <strong>Account Security:</strong> You are responsible for maintaining the confidentiality of your account credentials.
-                <br>
-                4. <strong>Fees:</strong> Certain transactions may incur taxes or processing fees as defined in the Pro/Normal user plans.
-                <br>
-                5. <strong>Liability:</strong> TK COIN (Singapore) is not liable for any losses arising from market volatility or unauthorized access to your account.
-            </p>
-            <button class="btn btn-primary" onclick="app.hideModal('terms')">I Understand</button>
-        </div>
-    </div>
-
     <script>
-        /**
-         * FIREBASE CONFIGURATION
-         */
         const firebaseConfig = {
             apiKey: "AIzaSyB7atEHWnOo_EzCuFxBRg4xWF51x4atfRQ",
             authDomain: "wingo-new-pro.firebaseapp.com",
@@ -476,19 +485,9 @@
             measurementId: "G-WED3TVXE62"
         };
 
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        const db = firebase.database();
-
-        /**
-         * APP STATE & DATA HANDLING
-         * Using LocalStorage to simulate backend for immediate usability.
-         */
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         
         const MOCK_DB_KEY = 'tkcoin_db_v3';
-        
-        // Default Initial State
         const initialState = {
             users: [],
             posts: [],
@@ -508,100 +507,45 @@
                 this.data = JSON.parse(localStorage.getItem(MOCK_DB_KEY)) || initialState;
                 this.currentUser = JSON.parse(localStorage.getItem('tk_user')) || null;
             }
-
-            save() {
-                localStorage.setItem(MOCK_DB_KEY, JSON.stringify(this.data));
-            }
-
+            save() { localStorage.setItem(MOCK_DB_KEY, JSON.stringify(this.data)); }
             saveUser() {
                 localStorage.setItem('tk_user', JSON.stringify(this.currentUser));
-                this.updateUserInDb();
-            }
-
-            updateUserInDb() {
                 const idx = this.data.users.findIndex(u => u.email === this.currentUser.email);
-                if (idx !== -1) {
-                    this.data.users[idx] = this.currentUser;
-                    this.save();
-                }
+                if (idx !== -1) { this.data.users[idx] = this.currentUser; this.save(); }
             }
-
-            getPosts() {
-                return this.data.posts.sort((a, b) => new Date(b.date) - new Date(a.date));
-            }
-
+            getPosts() { return this.data.posts.sort((a, b) => new Date(b.date) - new Date(a.date)); }
             addPost(content) {
-                const post = {
-                    id: Date.now(),
-                    uid: this.currentUser.email,
-                    name: this.currentUser.name,
-                    isPro: this.currentUser.isPro,
-                    content: content,
-                    likedBy: [], 
-                    comments: [], 
-                    date: new Date().toISOString()
-                };
-                this.data.posts.push(post);
-                this.save();
-                return post;
+                const post = { id: Date.now(), uid: this.currentUser.email, name: this.currentUser.name, isPro: this.currentUser.isPro, content: content, likedBy: [], comments: [], date: new Date().toISOString() };
+                this.data.posts.push(post); this.save(); return post;
             }
-
-            deletePost(id) {
-                this.data.posts = this.data.posts.filter(p => p.id !== id);
-                this.save();
-            }
-
+            deletePost(id) { this.data.posts = this.data.posts.filter(p => p.id !== id); this.save(); }
             toggleLike(id) {
                 const post = this.data.posts.find(p => p.id === id);
                 if(post) {
                     const email = this.currentUser.email;
-                    if(post.likedBy.includes(email)) {
-                        post.likedBy = post.likedBy.filter(e => e !== email); 
-                    } else {
-                        post.likedBy.push(email); 
-                    }
+                    post.likedBy = post.likedBy.includes(email) ? post.likedBy.filter(e => e !== email) : [...post.likedBy, email];
                     this.save();
                 }
             }
-
             addComment(id, text) {
                 const post = this.data.posts.find(p => p.id === id);
                 if(post && text.trim() !== "") {
-                    post.comments.push({
-                        uid: this.currentUser.email,
-                        name: this.currentUser.name,
-                        text: text,
-                        date: new Date().toISOString()
-                    });
+                    post.comments.push({ uid: this.currentUser.email, name: this.currentUser.name, text: text, date: new Date().toISOString() });
                     this.save();
                 }
             }
-
-            addRequest(req) {
-                this.data.requests.push(req);
-                this.save();
-            }
-
-            getPendingRequests() {
-                return this.data.requests.filter(r => r.status === 'pending');
-            }
-
+            addRequest(req) { this.data.requests.push(req); this.save(); }
+            getPendingRequests() { return this.data.requests.filter(r => r.status === 'pending'); }
             getRate() { return this.data.settings.rate; }
-            
-            updateSettings(newRate, easypaisa, jazzcash, binance) {
+            updateSettings(newRate, ep, jc, bin) {
                 this.data.settings.rate = Number(newRate);
-                this.data.settings.depositNums.easypaisa = easypaisa;
-                this.data.settings.depositNums.jazzcash = jazzcash;
-                this.data.settings.depositNums.binance = binance;
+                this.data.settings.depositNums = { easypaisa: ep, jazzcash: jc, binance: bin };
                 this.save();
             }
         }
 
         const dataService = new DataService();
 
-        /**
-         * UI CONTROLLER
-         */
         const app = {
             init: () => {
                 if(dataService.currentUser) {
@@ -609,6 +553,14 @@
                     document.getElementById('main-app').classList.remove('hidden');
                     app.loadUI();
                 }
+            },
+
+            // --- Modals ---
+            openModal: (id) => {
+                document.getElementById(id).style.display = 'flex';
+            },
+            closeModal: (id) => {
+                document.getElementById(id).style.display = 'none';
             },
 
             toggleAuth: (mode) => {
@@ -623,38 +575,19 @@
                 }
             },
 
-            showModal: (id) => {
-                document.getElementById(id + '-modal').style.display = 'flex';
-            },
-            hideModal: (id) => {
-                document.getElementById(id + '-modal').style.display = 'none';
-            },
-
             signup: () => {
                 const name = document.getElementById('reg-name').value;
                 const email = document.getElementById('reg-email').value.toLowerCase();
                 const pass = document.getElementById('reg-pass').value;
-                const tnc = document.getElementById('reg-tnc').checked;
+                const tc = document.getElementById('reg-tc').checked;
 
                 if(!name || !email || !pass) return app.toast('Fill all fields', 'error');
-                if(!tnc) return app.toast('Please accept Terms & Conditions', 'error');
+                if(!tc) return app.toast('Please agree to Terms & Conditions', 'error');
+                if(dataService.data.users.find(u => u.email === email)) return app.toast('Email already registered', 'error');
 
-                if(dataService.data.users.find(u => u.email === email)) {
-                    return app.toast('Email already registered', 'error');
-                }
-
-                const user = {
-                    email: email,
-                    name: name,
-                    balance: 0,
-                    isPro: false,
-                    joinDate: new Date().toISOString(),
-                    lastPostDate: null
-                };
-                
+                const user = { email: email, name: name, balance: 0, isPro: false, joinDate: new Date().toISOString(), lastPostDate: null };
                 dataService.data.users.push(user);
                 dataService.save();
-                
                 dataService.currentUser = user;
                 dataService.saveUser();
                 
@@ -666,18 +599,13 @@
 
             login: () => {
                 const email = document.getElementById('login-email').value.toLowerCase();
-                const tnc = document.getElementById('login-tnc').checked;
-
-                if(!tnc) return app.toast('Please accept Terms & Conditions', 'error');
+                const tc = document.getElementById('login-tc').checked;
+                
+                if(!email) return app.toast('Please enter email', 'error');
+                if(!tc) return app.toast('Please agree to Terms & Conditions', 'error');
 
                 if (email === 'admin@tkcoin.com') {
-                    const adminUser = {
-                        email: 'admin@tkcoin.com',
-                        name: 'Admin',
-                        balance: 999999,
-                        isPro: true,
-                        isAdmin: true
-                    };
+                    const adminUser = { email: 'admin@tkcoin.com', name: 'Admin', balance: 999999, isPro: true, isAdmin: true };
                     dataService.currentUser = adminUser;
                     dataService.saveUser();
                     document.getElementById('auth-screen').classList.add('hidden');
@@ -693,10 +621,10 @@
                     dataService.saveUser();
                     document.getElementById('auth-screen').classList.add('hidden');
                     document.getElementById('main-app').classList.remove('hidden');
-                    app.toast(`Welcome back, ${user.name}!`, 'success');
+                    app.toast(`Welcome back!`, 'success');
                     app.loadUI();
                 } else {
-                    app.toast('User not found. Please Sign Up.', 'error');
+                    app.toast('User not found. Sign Up first.', 'error');
                 }
             },
 
@@ -709,28 +637,16 @@
             loadUI: () => {
                 const user = dataService.currentUser;
                 const rate = dataService.getRate();
-
                 document.getElementById('user-balance').innerText = user.balance.toFixed(2);
                 document.getElementById('header-rate').innerText = rate;
                 
                 const statusEl = document.getElementById('user-status-display');
-                if(user.isPro) {
-                    statusEl.innerText = "PRO MEMBER";
-                    statusEl.style.background = "var(--pro-gold)";
-                    statusEl.style.color = "#000";
-                } else {
-                    statusEl.innerText = "NORMAL USER";
-                    statusEl.style.background = "rgba(0,0,0,0.2)";
-                    statusEl.style.color = "#fff";
-                }
+                statusEl.innerText = user.isPro ? "PRO MEMBER" : "NORMAL USER";
+                statusEl.style.background = user.isPro ? "var(--pro-gold)" : "rgba(0,0,0,0.2)";
+                statusEl.style.color = user.isPro ? "#000" : "#fff";
 
-                if(user.isAdmin) {
-                    document.getElementById('admin-nav-link').classList.remove('hidden');
-                } else {
-                    document.getElementById('admin-nav-link').classList.add('hidden');
-                }
-
-                // Profile Info
+                document.getElementById('admin-nav-link').classList.toggle('hidden', !user.isAdmin);
+                
                 document.getElementById('profile-name').innerText = user.name;
                 document.getElementById('profile-avatar').innerText = user.name.charAt(0).toUpperCase();
                 document.getElementById('profile-balance').innerText = user.balance;
@@ -738,13 +654,8 @@
                 document.getElementById('profile-posts').innerText = dataService.data.posts.filter(p => p.uid === user.email).length;
 
                 const badgeContainer = document.getElementById('profile-badge-container');
-                badgeContainer.innerHTML = '';
-                if(user.isPro) {
-                    badgeContainer.innerHTML = `<div class="pro-tag"><span class="material-icons-round" style="font-size:14px;">verified</span> PRO USER</div>`;
-                    document.getElementById('pro-upgrade-card').classList.add('hidden');
-                } else {
-                    document.getElementById('pro-upgrade-card').classList.remove('hidden');
-                }
+                badgeContainer.innerHTML = user.isPro ? `<div class="pro-tag"><span class="material-icons-round" style="font-size:14px;">verified</span> PRO USER</div>` : '';
+                document.getElementById('pro-upgrade-card').classList.toggle('hidden', user.isPro);
 
                 // Market Data
                 document.getElementById('admin-rate').value = rate;
@@ -753,32 +664,23 @@
                 document.getElementById('admin-binance').value = dataService.data.settings.depositNums.binance;
                 app.updateDepositInfo();
                 
-                // Feed Data
                 app.renderFeed();
-                
-                // History Data
                 app.renderHistory();
-                
-                // Admin Data
-                if(user.isAdmin) {
-                    app.renderAdmin();
-                }
+                if(user.isAdmin) app.renderAdmin();
             },
 
             nav: (sectionId, el) => {
                 document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
                 document.getElementById(sectionId + '-section').classList.add('active');
-                
                 document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
                 el.classList.add('active');
-
                 if(sectionId === 'profile') app.loadUI();
                 if(sectionId === 'feed') app.renderFeed();
+                if(sectionId === 'history') app.renderHistory();
                 if(sectionId === 'admin') app.renderAdmin();
             },
 
-            // --- MARKET LOGIC ---
-
+            // --- Market ---
             switchMarketTab: (tab) => {
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
                 event.target.classList.add('active');
@@ -791,34 +693,26 @@
                     app.updateWithdrawUI(); 
                 }
             },
-
             updateDepositInfo: () => {
                 const method = document.getElementById('deposit-method').value;
-                const nums = dataService.data.settings.depositNums;
-                document.getElementById('deposit-number-display').innerText = nums[method];
+                document.getElementById('deposit-number-display').innerText = dataService.data.settings.depositNums[method];
             },
-
             copyDepositNumber: () => {
-                const num = document.getElementById('deposit-number-display').innerText;
-                navigator.clipboard.writeText(num);
-                app.toast('Copied to clipboard!', 'success');
+                navigator.clipboard.writeText(document.getElementById('deposit-number-display').innerText);
+                app.toast('Copied!', 'success');
             },
-
             calcBuy: () => {
                 const pkr = parseFloat(document.getElementById('buy-pkr').value) || 0;
-                const rate = dataService.getRate();
-                const coins = (pkr / rate).toFixed(2);
-                document.getElementById('calc-coins').innerText = coins + " TK";
+                document.getElementById('calc-coins').innerText = (pkr / dataService.getRate()).toFixed(2) + " TK";
             },
-
             requestDeposit: () => {
                 const pkr = parseFloat(document.getElementById('buy-pkr').value);
-                const trxId = document.getElementById('deposit-trx').value;
                 const method = document.getElementById('deposit-method').value;
                 const number = dataService.data.settings.depositNums[method];
+                const trxId = document.getElementById('deposit-trx').value;
 
                 if(!pkr || pkr < 100) return app.toast('Minimum deposit 100 PKR', 'error');
-                if(!trxId) return app.toast('Please enter TRX ID', 'error');
+                if(!trxId) return app.toast('Please enter Transaction ID', 'error');
 
                 const req = {
                     id: Date.now(),
@@ -827,57 +721,33 @@
                     amount: pkr,
                     method: method,
                     number: number,
-                    trxId: trxId, // New Field
+                    trxId: trxId, // NEW
                     status: 'pending',
                     date: new Date().toISOString()
                 };
                 dataService.addRequest(req);
-                app.toast('Deposit request sent to Admin', 'success');
+                app.toast('Deposit Request Sent', 'success');
                 document.getElementById('buy-pkr').value = '';
                 document.getElementById('deposit-trx').value = '';
                 app.calcBuy();
             },
-
             updateWithdrawUI: () => {
                 const type = document.getElementById('withdraw-type').value;
-                const holdOpts = document.getElementById('hold-options');
-                if(type === 'hold') {
-                    holdOpts.classList.remove('hidden');
-                } else {
-                    holdOpts.classList.add('hidden');
-                }
+                document.getElementById('hold-options').classList.toggle('hidden', type !== 'hold');
                 app.calcSell();
             },
-
             calcSell: () => {
                 const coins = parseFloat(document.getElementById('sell-coins').value) || 0;
                 const type = document.getElementById('withdraw-type').value;
                 const rate = dataService.getRate();
-                
-                let tax = 0;
-                let finalPkr = 0;
-
-                const totalVal = coins * rate;
-
-                if(type === 'instant') {
-                    if(!dataService.currentUser.isPro) {
-                        tax = totalVal * 0.03; 
-                    }
-                } else {
-                    tax = 0; 
-                }
-
-                finalPkr = totalVal - tax;
-
+                let tax = (type === 'instant' && !dataService.currentUser.isPro) ? (coins * rate) * 0.03 : 0;
                 document.getElementById('sell-tax').innerText = tax.toFixed(2) + " PKR";
-                document.getElementById('calc-pkr').innerText = finalPkr.toFixed(2) + " PKR";
+                document.getElementById('calc-pkr').innerText = ((coins * rate) - tax).toFixed(2) + " PKR";
             },
-
             requestWithdraw: () => {
                 const coins = parseFloat(document.getElementById('sell-coins').value);
                 const account = document.getElementById('withdraw-account').value;
                 const type = document.getElementById('withdraw-type').value;
-                
                 if(!coins || coins <= 0) return app.toast('Invalid amount', 'error');
                 if(coins > dataService.currentUser.balance) return app.toast('Insufficient Balance', 'error');
                 if(!account) return app.toast('Enter Account Details', 'error');
@@ -887,24 +757,11 @@
 
                 let releaseDate = null;
                 if(type === 'hold') {
-                    const days = parseInt(document.getElementById('hold-days').value);
-                    const d = new Date();
-                    d.setDate(d.getDate() + days);
+                    const d = new Date(); d.setDate(d.getDate() + parseInt(document.getElementById('hold-days').value));
                     releaseDate = d.toISOString();
                 }
 
-                const req = {
-                    id: Date.now(),
-                    type: 'withdraw',
-                    uid: dataService.currentUser.email,
-                    amount: coins,
-                    account: account,
-                    withdrawType: type,
-                    status: 'pending',
-                    releaseDate: releaseDate,
-                    date: new Date().toISOString()
-                };
-
+                const req = { id: Date.now(), type: 'withdraw', uid: dataService.currentUser.email, amount: coins, account: account, withdrawType: type, status: 'pending', releaseDate: releaseDate, date: new Date().toISOString() };
                 dataService.addRequest(req);
                 app.toast('Withdrawal Requested', 'success');
                 app.loadUI();
@@ -912,117 +769,76 @@
                 app.calcSell();
             },
 
-            // --- HISTORY LOGIC ---
-
+            // --- History ---
             renderHistory: () => {
-                const container = document.getElementById('history-container');
+                const container = document.getElementById('history-list');
+                container.innerHTML = '';
                 const myReqs = dataService.data.requests.filter(r => r.uid === dataService.currentUser.email).sort((a,b) => new Date(b.date) - new Date(a.date));
                 
-                if(myReqs.length === 0) {
-                    container.innerHTML = '<p class="text-small">No transactions found.</p>';
-                    return;
-                }
+                if(myReqs.length === 0) container.innerHTML = '<p class="text-small" style="text-align:center">No transactions yet.</p>';
 
-                container.innerHTML = '';
                 myReqs.forEach(r => {
-                    const date = new Date(r.date).toLocaleDateString();
                     const isDep = r.type === 'deposit';
-                    const typeClass = isDep ? 'deposit' : 'withdraw';
-                    const typeLabel = isDep ? 'Deposit (PKR)' : 'Withdraw (TK)';
+                    const date = new Date(r.date).toLocaleDateString();
+                    const statusClass = r.status === 'pending' ? 'status-pending' : (r.status === 'approved' ? 'status-approved' : 'status-rejected');
                     
-                    // Status styling
-                    let statusClass = 'status-pending';
-                    if(r.status === 'approved') statusClass = 'status-approved';
-                    if(r.status === 'rejected') statusClass = 'status-rejected';
-
-                    let extraInfo = '';
+                    let details = '';
                     if(isDep) {
-                        extraInfo = `<div class="history-detail">TRX ID: ${r.trxId}</div>`;
+                        details = `Method: ${r.method.toUpperCase()}<br>TRX ID: ${r.trxId}`;
                     } else {
-                        extraInfo = `<div class="history-detail">To: ${r.account}</div>`;
+                        details = `Type: ${r.withdrawType === 'hold' ? 'Hold Withdraw' : 'Instant'}<br>To: ${r.account}`;
                     }
 
-                    const html = `
-                        <div class="history-item ${typeClass}">
-                            <div class="history-header">
-                                <span>${typeLabel}</span>
+                    container.innerHTML += `
+                        <div class="history-item ${isDep ? 'deposit' : 'withdraw'}">
+                            <div class="hist-head">
+                                <span class="text-bold">${isDep ? 'Deposit' : 'Withdrawal'}</span>
                                 <span class="status-badge ${statusClass}">${r.status}</span>
                             </div>
-                            <div class="history-detail">Amount: ${r.amount}</div>
-                            ${extraInfo}
-                            <div class="history-detail" style="color:#999;">Date: ${date}</div>
+                            <div class="hist-amount">${isDep ? '+' : '-'}${r.amount} ${isDep ? 'PKR' : 'TK'}</div>
+                            <div class="hist-detail">${details}</div>
+                            <div class="hist-date">${date}</div>
                         </div>
                     `;
-                    container.innerHTML += html;
                 });
             },
 
-            // --- COMMUNITY LOGIC ---
-
+            // --- Feed ---
             createPost: () => {
                 const user = dataService.currentUser;
                 const content = document.getElementById('post-content').value;
-
-                if(!user.isPro) {
-                    const today = new Date().toDateString();
-                    if(user.lastPostDate === today) {
-                        return app.toast('Normal users can only post 1 time per day. Buy Pro!', 'error');
-                    }
-                }
-
+                if(!user.isPro && user.lastPostDate === new Date().toDateString()) return app.toast('Limit reached. Buy Pro!', 'error');
                 if(!content.trim()) return app.toast('Write something first', 'error');
-
-                const post = dataService.addPost(content);
-                
+                dataService.addPost(content);
                 user.lastPostDate = new Date().toDateString();
                 dataService.saveUser();
-
                 document.getElementById('post-content').value = '';
                 app.renderFeed();
-                app.toast('Posted successfully', 'success');
+                app.toast('Posted!', 'success');
             },
-
             renderFeed: () => {
                 const container = document.getElementById('posts-container');
                 container.innerHTML = '';
-                
                 let posts = dataService.getPosts();
                 const user = dataService.currentUser;
-                const isAdmin = user.isAdmin;
-
-                if(!user.isPro && !isAdmin) {
-                    posts = posts.slice(0, 3);
-                    document.getElementById('feed-limit-msg').classList.remove('hidden');
-                } else {
-                    document.getElementById('feed-limit-msg').classList.add('hidden');
-                }
+                if(!user.isPro && !user.isAdmin) { posts = posts.slice(0, 3); document.getElementById('feed-limit-msg').classList.remove('hidden'); }
+                else { document.getElementById('feed-limit-msg').classList.add('hidden'); }
 
                 posts.forEach(post => {
-                    const date = new Date(post.date).toLocaleDateString();
-                    const badge = post.isPro ? '<span class="material-icons-round badge-pro">verified</span>' : '';
-                    const deleteBtn = isAdmin ? `<button class="delete-btn" onclick="app.deletePost(${post.id})"><span class="material-icons-round">delete</span></button>` : '';
-
                     const isLiked = post.likedBy.includes(user.email);
                     const likeClass = isLiked ? 'liked' : '';
                     const likeIcon = isLiked ? 'thumb_up' : 'thumb_up_off_alt';
+                    let commentsHtml = post.comments.map(c => `<div class="comment-item"><span class="comment-user">${c.name}:</span> ${c.text}</div>`).join('');
+                    const deleteBtn = user.isAdmin ? `<button class="delete-btn" onclick="app.deletePost(${post.id})"><span class="material-icons-round">delete</span></button>` : '';
 
-                    let commentsHtml = '';
-                    post.comments.forEach(c => {
-                        commentsHtml += `
-                            <div class="comment-item">
-                                <span class="comment-user">${c.name}:</span> ${c.text}
-                            </div>
-                        `;
-                    });
-
-                    const html = `
+                    container.innerHTML += `
                         <div class="post-card">
                             ${deleteBtn}
                             <div class="post-header">
                                 <div class="user-avatar">${post.name.charAt(0).toUpperCase()}</div>
                                 <div>
-                                    <div class="user-name">${post.name} ${badge}</div>
-                                    <span class="post-time">${date}</span>
+                                    <div class="user-name">${post.name} ${post.isPro ? '<span class="material-icons-round badge-pro">verified</span>' : ''}</div>
+                                    <span class="post-time">${new Date(post.date).toLocaleDateString()}</span>
                                 </div>
                             </div>
                             <div class="post-content">${post.content}</div>
@@ -1037,219 +853,127 @@
                             <div id="comments-${post.id}" class="comments-section">
                                 ${commentsHtml}
                                 <div class="comment-input-wrapper">
-                                    <input type="text" id="comment-input-${post.id}" class="comment-input" placeholder="Write a comment...">
+                                    <input type="text" id="comment-input-${post.id}" class="comment-input" placeholder="Comment...">
                                     <button class="btn btn-primary btn-sm" onclick="app.postComment(${post.id})">Send</button>
                                 </div>
                             </div>
                         </div>
                     `;
-                    container.innerHTML += html;
                 });
             },
-
-            deletePost: (id) => {
-                if(confirm('Delete this post?')) {
-                    dataService.deletePost(id);
-                    app.renderFeed();
-                    app.toast('Post deleted', 'success');
-                }
-            },
-
-            toggleLike: (id) => {
-                dataService.toggleLike(id);
-                app.renderFeed();
-            },
-
-            toggleComments: (id) => {
-                const el = document.getElementById(`comments-${id}`);
-                el.classList.toggle('show');
-            },
-
+            deletePost: (id) => { if(confirm('Delete?')) { dataService.deletePost(id); app.renderFeed(); app.toast('Deleted', 'success'); } },
+            toggleLike: (id) => { dataService.toggleLike(id); app.renderFeed(); },
+            toggleComments: (id) => { document.getElementById(`comments-${id}`).classList.toggle('show'); },
             postComment: (id) => {
                 const input = document.getElementById(`comment-input-${id}`);
-                const text = input.value;
-                if(text) {
-                    dataService.addComment(id, text);
-                    app.renderFeed();
-                    setTimeout(() => {
-                        document.getElementById(`comments-${id}`).classList.add('show');
-                    }, 50);
-                }
+                if(input.value) { dataService.addComment(id, input.value); app.renderFeed(); setTimeout(() => document.getElementById(`comments-${id}`).classList.add('show'), 50); }
             },
 
-            // --- PROFILE LOGIC ---
-
+            // --- Profile ---
             buyPro: () => {
-                const cost = 500;
-                if(dataService.currentUser.balance < cost) {
-                    return app.toast('Insufficient Balance. Need 500 TK.', 'error');
-                }
-                
-                if(confirm('Buy Pro Membership for 500 TK?')) {
-                    dataService.currentUser.balance -= cost;
+                if(dataService.currentUser.balance < 500) return app.toast('Need 500 TK', 'error');
+                if(confirm('Buy Pro for 500 TK?')) {
+                    dataService.currentUser.balance -= 500;
                     dataService.currentUser.isPro = true;
                     dataService.saveUser();
                     app.loadUI();
-                    app.toast('Upgraded to PRO! Enjoy unlimited features.', 'success');
+                    app.toast('Upgraded to PRO!', 'success');
                 }
             },
+            navToProfile: () => { document.querySelectorAll('.nav-item')[3].click(); },
 
-            navToProfile: () => {
-                document.querySelectorAll('.nav-item')[2].click();
-            },
-
-            // --- ADMIN LOGIC ---
-
+            // --- Admin ---
             renderAdmin: () => {
                 const reqs = dataService.getPendingRequests();
                 const dList = document.getElementById('admin-deposit-list');
                 const wList = document.getElementById('admin-withdraw-list');
-                const uList = document.getElementById('admin-user-list');
-                
-                dList.innerHTML = '';
-                wList.innerHTML = '';
-                uList.innerHTML = '';
-
-                if(reqs.length === 0) {
-                    dList.innerHTML = '<p class="text-small">No pending requests.</p>';
-                    wList.innerHTML = '<p class="text-small">No pending requests.</p>';
-                }
+                dList.innerHTML = ''; wList.innerHTML = '';
+                if(reqs.length === 0) { dList.innerHTML = '<p class="text-small">No pending requests.</p>'; wList.innerHTML = '<p class="text-small">No pending requests.</p>'; }
 
                 reqs.forEach(r => {
                     const date = new Date(r.date).toLocaleDateString();
-                    let actionHtml = '';
-                    
                     if(r.type === 'deposit') {
-                        const rate = dataService.getRate();
-                        const coinsToAdd = (r.amount / rate).toFixed(2);
-                        
-                        // Show TRX ID, Method, Number as requested
-                        actionHtml = `
-                            <div class="req-actions">
-                                <button class="btn btn-primary btn-sm" onclick="app.approveReq(${r.id}, ${coinsToAdd})">Approve (+${coinsToAdd} TK)</button>
-                                <button class="btn btn-danger btn-sm" onclick="app.rejectReq(${r.id})">Reject</button>
-                            </div>
-                        `;
+                        const coinsToAdd = (r.amount / dataService.getRate()).toFixed(2);
                         dList.innerHTML += `
                             <div class="request-item">
                                 <div class="text-bold">User: ${r.uid}</div>
-                                <div>Method: ${r.method.toUpperCase()}</div>
-                                <div>Number: ${r.number}</div>
-                                <div>Amount: ${r.amount} PKR</div>
-                                <div style="color:var(--primary); font-weight:bold;">TRX ID: ${r.trxId}</div>
-                                <div style="font-size:0.8rem; color:#777;">Date: ${date}</div>
-                                ${actionHtml}
+                                <div class="req-detail">Amount: ${r.amount} PKR</div>
+                                <div class="req-detail">Method: ${r.method.toUpperCase()}</div>
+                                <div class="req-detail">TRX ID: <strong>${r.trxId}</strong></div>
+                                <div class="req-detail">Number: ${r.number}</div>
+                                <div class="req-actions">
+                                    <button class="btn btn-primary btn-sm" onclick="app.approveReq(${r.id}, ${coinsToAdd})">Approve (+${coinsToAdd} TK)</button>
+                                    <button class="btn btn-danger btn-sm" onclick="app.rejectReq(${r.id})">Reject</button>
+                                </div>
                             </div>
                         `;
                     } else if (r.type === 'withdraw') {
-                        const rate = dataService.getRate();
-                        const pkrToSend = (r.amount * rate).toFixed(2);
-                        
-                        let lockInfo = r.withdrawType === 'hold' ? `<br><span style="color:orange">Lock until ${new Date(r.releaseDate).toLocaleDateString()}</span>` : '';
-
-                        actionHtml = `
-                            <div class="req-actions">
-                                <button class="btn btn-primary btn-sm" onclick="app.approveWithdraw(${r.id})">Approved & Sent</button>
-                                <button class="btn btn-danger btn-sm" onclick="app.rejectWithdraw(${r.id}, ${r.amount})">Reject (Refund)</button>
-                            </div>
-                        `;
+                        const pkrToSend = (r.amount * dataService.getRate()).toFixed(2);
                         wList.innerHTML += `
                             <div class="request-item">
                                 <div class="text-bold">User: ${r.uid}</div>
-                                <div>Amount: ${r.amount} TK (${pkrToSend} PKR)</div>
-                                <div>To: ${r.account}</div>
-                                ${lockInfo}
-                                ${actionHtml}
+                                <div class="req-detail">Amount: ${r.amount} TK (${pkrToSend} PKR)</div>
+                                <div class="req-detail">To: ${r.account}</div>
+                                <div class="req-actions">
+                                    <button class="btn btn-primary btn-sm" onclick="app.approveWithdraw(${r.id})">Paid</button>
+                                    <button class="btn btn-danger btn-sm" onclick="app.rejectWithdraw(${r.id}, ${r.amount})">Reject (Refund)</button>
+                                </div>
                             </div>
                         `;
                     }
                 });
-
-                dataService.data.users.forEach(u => {
-                    uList.innerHTML += `
-                        <div class="request-item" style="display:flex; justify-content:space-between; align-items:center;">
-                            <div>
-                                <div class="text-bold">${u.email} ${u.isPro ? '👑' : ''}</div>
-                                <div class="text-small">Bal: ${u.balance} TK</div>
-                            </div>
-                        </div>
-                    `;
-                });
             },
-
             updateSettings: () => {
-                const rate = document.getElementById('admin-rate').value;
-                const ep = document.getElementById('admin-easypaisa').value;
-                const jc = document.getElementById('admin-jazzcash').value;
-                const bin = document.getElementById('admin-binance').value;
-                
-                dataService.updateSettings(rate, ep, jc, bin);
-                app.toast('Settings Updated', 'success');
+                dataService.updateSettings(
+                    document.getElementById('admin-rate').value,
+                    document.getElementById('admin-easypaisa').value,
+                    document.getElementById('admin-jazzcash').value,
+                    document.getElementById('admin-binance').value
+                );
+                app.toast('Updated', 'success');
                 app.loadUI();
             },
-
             approveReq: (id, coins) => {
-                const reqIndex = dataService.data.requests.findIndex(r => r.id === id);
-                if(reqIndex > -1) {
-                    const req = dataService.data.requests[reqIndex];
-                    const userIndex = dataService.data.users.findIndex(u => u.email === req.uid);
-                    if(userIndex > -1) {
-                        dataService.data.users[userIndex].balance += parseFloat(coins);
-                    }
-                    dataService.data.requests[reqIndex].status = 'approved';
+                const req = dataService.data.requests.find(r => r.id === id);
+                if(req) {
+                    const uIdx = dataService.data.users.findIndex(u => u.email === req.uid);
+                    if(uIdx > -1) dataService.data.users[uIdx].balance += parseFloat(coins);
+                    req.status = 'approved';
                     dataService.save();
                     app.renderAdmin();
-                    app.toast('Deposit Approved', 'success');
+                    app.toast('Approved', 'success');
                 }
             },
-
             rejectReq: (id) => {
-                const reqIndex = dataService.data.requests.findIndex(r => r.id === id);
-                if(reqIndex > -1) {
-                    dataService.data.requests[reqIndex].status = 'rejected';
-                    dataService.save();
-                    app.renderAdmin();
-                    app.toast('Deposit Rejected', 'error');
-                }
+                const req = dataService.data.requests.find(r => r.id === id);
+                if(req) { req.status = 'rejected'; dataService.save(); app.renderAdmin(); app.toast('Rejected', 'error'); }
             },
-
             approveWithdraw: (id) => {
-                const reqIndex = dataService.data.requests.findIndex(r => r.id === id);
-                if(reqIndex > -1) {
-                    dataService.data.requests[reqIndex].status = 'approved';
-                    dataService.save();
-                    app.renderAdmin();
-                    app.toast('Withdraw Marked as Paid', 'success');
-                }
+                const req = dataService.data.requests.find(r => r.id === id);
+                if(req) { req.status = 'approved'; dataService.save(); app.renderAdmin(); app.toast('Paid', 'success'); }
             },
-
             rejectWithdraw: (id, coins) => {
-                if(confirm('Reject withdrawal and refund coins to user?')) {
-                    const reqIndex = dataService.data.requests.findIndex(r => r.id === id);
-                    if(reqIndex > -1) {
-                        const userIndex = dataService.data.users.findIndex(u => u.email === dataService.data.requests[reqIndex].uid);
-                        if(userIndex > -1) {
-                            dataService.data.users[userIndex].balance += parseFloat(coins);
-                        }
-                        dataService.data.requests[reqIndex].status = 'rejected';
+                if(confirm('Refund?')) {
+                    const req = dataService.data.requests.find(r => r.id === id);
+                    if(req) {
+                        const uIdx = dataService.data.users.findIndex(u => u.email === req.uid);
+                        if(uIdx > -1) dataService.data.users[uIdx].balance += parseFloat(coins);
+                        req.status = 'rejected';
                         dataService.save();
                         app.renderAdmin();
-                        app.toast('Withdraw Rejected & Refunded', 'warning');
+                        app.toast('Refunded', 'warning');
                     }
                 }
             },
-
             toast: (msg, type = 'success') => {
                 const c = document.getElementById('toast-container');
                 const t = document.createElement('div');
                 t.className = `toast ${type}`;
-                t.innerHTML = type === 'success' ? '<span class="material-icons-round">check_circle</span>' : '<span class="material-icons-round">error</span>';
-                t.innerHTML += `<span>${msg}</span>`;
+                t.innerHTML = (type === 'success' ? '<span class="material-icons-round">check_circle</span>' : '<span class="material-icons-round">error</span>') + `<span>${msg}</span>`;
                 c.appendChild(t);
                 setTimeout(() => t.remove(), 3000);
             }
         };
-
         app.init();
     </script>
 </body>
