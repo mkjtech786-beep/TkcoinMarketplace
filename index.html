@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TK COIN - HOLD & EARN</title>
+    <title>TK COIN - HOLD TO EARN</title>
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -38,7 +38,7 @@
         .balance-card { background: rgba(255,255,255,0.15); padding: 15px; border-radius: 12px; backdrop-filter: blur(5px); }
         .balance-label { font-size: 0.8rem; opacity: 0.9; }
         .balance-value { font-size: 1.8rem; font-weight: 700; }
-        .pkr-rate { font-size: 0.9rem; color: var(--primary-light); }
+        .balance-pkr { font-size: 1.2rem; font-weight: 600; margin-top: 5px; color: var(--primary-light); opacity: 0.9; }
 
         /* --- Navigation --- */
         .nav-bar { position: fixed; bottom: 0; width: 100%; max-width: 480px; background: var(--white); display: flex; justify-content: space-around; padding: 12px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 100; }
@@ -242,8 +242,9 @@
             </div>
             <div class="balance-card">
                 <div class="balance-label">Total Balance</div>
-                <div class="balance-value"><span id="user-balance">0.00</span> <span style="font-size:1rem;">TK</span></div>
-                <div class="pkr-rate">Rate: 1 TK = <span id="header-rate">0</span> PKR</div>
+                <div class="balance-value"><span id="user-balance">0.00</span> <span style="font-size:1.2rem;">TK</span></div>
+                <!-- Changed: Removed Rate Line, Added PKR Value -->
+                <div class="balance-pkr">PKR <span id="user-pkr-val">0.00</span></div>
             </div>
         </header>
 
@@ -360,7 +361,7 @@
             </div>
         </section>
 
-        <!-- 3. HISTORY (NEW) -->
+        <!-- 3. HISTORY -->
         <section id="history-section" class="section">
             <h3 style="margin-bottom: 15px;">My Transactions</h3>
             <div id="history-list">
@@ -493,7 +494,7 @@
             posts: [],
             requests: [], 
             settings: {
-                rate: 10, 
+                rate: 91.07, // Updated rate to match example roughly
                 depositNums: {
                     easypaisa: "1456",
                     jazzcash: "95688",
@@ -555,13 +556,8 @@
                 }
             },
 
-            // --- Modals ---
-            openModal: (id) => {
-                document.getElementById(id).style.display = 'flex';
-            },
-            closeModal: (id) => {
-                document.getElementById(id).style.display = 'none';
-            },
+            openModal: (id) => { document.getElementById(id).style.display = 'flex'; },
+            closeModal: (id) => { document.getElementById(id).style.display = 'none'; },
 
             toggleAuth: (mode) => {
                 document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
@@ -637,8 +633,11 @@
             loadUI: () => {
                 const user = dataService.currentUser;
                 const rate = dataService.getRate();
+                
+                // Update Header Balance & PKR Value
                 document.getElementById('user-balance').innerText = user.balance.toFixed(2);
-                document.getElementById('header-rate').innerText = rate;
+                const pkrTotal = (user.balance * rate).toFixed(2);
+                document.getElementById('user-pkr-val').innerText = pkrTotal;
                 
                 const statusEl = document.getElementById('user-status-display');
                 statusEl.innerText = user.isPro ? "PRO MEMBER" : "NORMAL USER";
@@ -721,7 +720,7 @@
                     amount: pkr,
                     method: method,
                     number: number,
-                    trxId: trxId, // NEW
+                    trxId: trxId,
                     status: 'pending',
                     date: new Date().toISOString()
                 };
