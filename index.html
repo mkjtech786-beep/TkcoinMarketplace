@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TK COIN - Admin Request System</title>
+    <title>TK COIN - Final Update</title>
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Fonts -->
@@ -75,6 +75,13 @@
         .input-group input, .input-group select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; outline: none; }
         .input-group input:focus { border-color: var(--primary-light); }
 
+        /* Payment Info Box */
+        .payment-info-box { background: #f0f8ff; border: 1px dashed var(--primary); padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        .payment-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 0.9rem; }
+        .payment-row:last-child { margin-bottom: 0; }
+        .copy-btn { background: #eee; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; color: #333; font-size: 0.75rem; }
+        .copy-btn:hover { background: #ddd; }
+
         /* Market */
         .rate-update { background: #e3f2fd; padding: 10px; border-radius: 8px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
 
@@ -134,7 +141,7 @@
     <div id="auth-overlay" class="auth-overlay">
         <div class="auth-box">
             <h2 class="text-blue" style="margin-bottom: 5px;">TK COIN</h2>
-            <p style="font-size: 0.8rem; color: #777; margin-bottom: 20px;">Admin Request System</p>
+            <p style="font-size: 0.8rem; color: #777; margin-bottom: 20px;">Secure Login</p>
             <div class="input-group"><input type="text" id="login-username" placeholder="Username"></div>
             <div class="input-group"><input type="password" id="login-password" placeholder="Password"></div>
             <button class="btn" onclick="app.login()">Login</button>
@@ -174,14 +181,33 @@
                     <span>Current Rate:</span>
                     <span style="font-weight:bold; font-size:1.2rem;">PKR <span id="current-rate">...</span> / Coin</span>
                 </div>
-                <div class="input-group">
-                    <label>Payment Method</label>
-                    <select id="payment-method">
-                        <option value="easypaisa">Easypaisa</option>
-                        <option value="jazzcash">JazzCash</option>
-                        <option value="binance">Binance</option>
-                    </select>
+                
+                <!-- Dynamic Deposit Numbers Display -->
+                <div class="payment-info-box">
+                    <h4 style="font-size:0.9rem; margin-bottom:10px; color:var(--primary);">Send Money to:</h4>
+                    <div class="payment-row">
+                        <span><b>Easypaisa:</b></span>
+                        <div>
+                            <span id="disp-easy">Loading...</span>
+                            <button class="copy-btn" onclick="app.copyText(document.getElementById('disp-easy').innerText)">Copy</button>
+                        </div>
+                    </div>
+                    <div class="payment-row">
+                        <span><b>JazzCash:</b></span>
+                        <div>
+                            <span id="disp-jazz">Loading...</span>
+                            <button class="copy-btn" onclick="app.copyText(document.getElementById('disp-jazz').innerText)">Copy</button>
+                        </div>
+                    </div>
+                    <div class="payment-row">
+                        <span><b>Binance ID:</b></span>
+                        <div>
+                            <span id="disp-binance">Loading...</span>
+                            <button class="copy-btn" onclick="app.copyText(document.getElementById('disp-binance').innerText)">Copy</button>
+                        </div>
+                    </div>
                 </div>
+
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
                     <button class="btn btn-outline" onclick="app.openBuyModal()">Deposit (Buy)</button>
                     <button class="btn" onclick="app.openSellModal()">Withdraw (Sell)</button>
@@ -246,6 +272,16 @@
                     <input type="number" id="admin-rate-input" placeholder="New Price" style="flex:1;">
                     <button class="btn btn-sm" onclick="app.updateRate()">Update</button>
                 </div>
+            </div>
+
+            <!-- Admin Deposit Numbers Settings -->
+            <div class="card">
+                <h4>Deposit Numbers Settings</h4>
+                <p class="text-sm text-light" style="margin-bottom:10px;">Set the numbers where users will send money.</p>
+                <div class="input-group"><label>Easypaisa Number</label><input type="text" id="admin-easy" placeholder="0300..."></div>
+                <div class="input-group"><label>JazzCash Number</label><input type="text" id="admin-jazz" placeholder="0301..."></div>
+                <div class="input-group"><label>Binance ID (Pay ID)</label><input type="text" id="admin-binance" placeholder="Binance Pay ID"></div>
+                <button class="btn btn-sm btn-success" onclick="app.saveDepositNumbers()">Save Numbers</button>
             </div>
 
             <!-- Requests -->
@@ -364,7 +400,8 @@
                 this.marketRate = 10.00;
                 this.withdrawType = 'instant';
                 this.posts = [];
-                this.requests = []; // Admin requests
+                this.requests = []; 
+                this.appSettings = { easypaisa: '03001234567', jazzcash: '03007654321', binance: '123456789' }; // Default Fallback
 
                 this.initListeners();
             }
@@ -400,6 +437,15 @@
                     }
                 });
 
+                // App Settings (Deposit Numbers)
+                db.ref('appSettings/depositNumbers').on('value', snapshot => {
+                    if(snapshot.exists()) {
+                        this.appSettings = snapshot.val();
+                    }
+                    this.renderDepositNumbers();
+                    this.renderAdminSettings(); // Fill admin inputs
+                });
+
                 // Posts
                 db.ref('posts').orderByChild('timestamp').on('value', snapshot => {
                     this.posts = [];
@@ -408,7 +454,7 @@
                     this.renderFeed();
                 });
 
-                // Requests (Admin & User listening)
+                // Requests
                 db.ref('requests').orderByChild('timestamp').on('value', snapshot => {
                     this.requests = [];
                     snapshot.forEach(child => {
@@ -419,7 +465,7 @@
                     this.renderAdminRequests();
                 });
 
-                // Admin Users List
+                // Users
                 db.ref('users').on('value', snapshot => {
                     this.renderAdminUsers(snapshot.val());
                 });
@@ -430,11 +476,17 @@
                 const username = document.getElementById('login-username').value.trim().toLowerCase();
                 const password = document.getElementById('login-password').value;
                 if (!username || !password) return this.toast('Fill all fields', 'error');
+                
                 const email = `${username}@tkcoin.app`;
+                
                 try {
+                    // Try login first
                     await auth.signInWithEmailAndPassword(email, password);
                     this.toast('Logged in', 'success');
-                } catch (error) { this.toast(error.message, 'error'); }
+                } catch (error) {
+                    // If user not found, show error. User must click "Create Account".
+                    this.toast('Login failed. Try creating account.', 'error');
+                }
             }
 
             async toggleRegister() {
@@ -450,7 +502,13 @@
                         isPro: isAdmin, role: isAdmin ? 'admin' : 'user', purchaseHistory: [], transactions: []
                     });
                     this.toast('Account created!', 'success');
-                } catch (error) { this.toast(error.message, 'error'); }
+                } catch (error) { 
+                    if(error.code === 'auth/email-already-in-use') {
+                        this.toast('User already exists. Try Login.', 'error');
+                    } else {
+                        this.toast(error.message, 'error');
+                    }
+                }
             }
 
             logout() { auth.signOut(); }
@@ -463,8 +521,6 @@
                         this.renderHeader();
                         this.renderProfile();
                         this.renderMarket();
-                        
-                        // Admin Nav Visibility
                         const adminNav = document.getElementById('nav-admin');
                         if(this.userData.role === 'admin') adminNav.classList.remove('hidden');
                         else adminNav.classList.add('hidden');
@@ -495,6 +551,37 @@
             }
 
             renderHeader() { if(!this.userData) return; document.getElementById('header-balance').innerText = parseFloat(this.userData.balance).toFixed(2); }
+
+            // --- DEPOSIT NUMBERS ---
+            renderDepositNumbers() {
+                document.getElementById('disp-easy').innerText = this.appSettings.easypaisa || 'Not Set';
+                document.getElementById('disp-jazz').innerText = this.appSettings.jazzcash || 'Not Set';
+                document.getElementById('disp-binance').innerText = this.appSettings.binance || 'Not Set';
+            }
+
+            renderAdminSettings() {
+                document.getElementById('admin-easy').value = this.appSettings.easypaisa || '';
+                document.getElementById('admin-jazz').value = this.appSettings.jazzcash || '';
+                document.getElementById('admin-binance').value = this.appSettings.binance || '';
+            }
+
+            saveDepositNumbers() {
+                const easy = document.getElementById('admin-easy').value;
+                const jazz = document.getElementById('admin-jazz').value;
+                const binance = document.getElementById('admin-binance').value;
+                
+                db.ref('appSettings/depositNumbers').set({
+                    easypaisa: easy, jazzcash: jazz, binance: binance
+                }).then(() => {
+                    this.toast('Deposit numbers updated!', 'success');
+                });
+            }
+
+            copyText(text) {
+                navigator.clipboard.writeText(text).then(() => {
+                    this.toast('Copied to clipboard!', 'success');
+                });
+            }
 
             // --- FEED ---
             renderFeed() {
@@ -569,10 +656,9 @@
                 if(!pkr || pkr <= 0) return;
                 const coins = pkr / this.marketRate;
                 
-                // Push to Requests
                 db.ref('requests').push({
                     type: 'deposit', userId: this.currentUser.uid, username: this.userData.username,
-                    amountCoins: coins, amountPKR: pkr, method: document.getElementById('payment-method').value,
+                    amountCoins: coins, amountPKR: pkr, method: 'Manual', // Admin sees this
                     status: 'pending', timestamp: Date.now()
                 }).then(() => { this.closeModals(); this.toast('Deposit Request Sent to Admin', 'success'); });
             }
@@ -611,7 +697,7 @@
                 
                 db.ref('requests').push({
                     type: 'withdraw', userId: this.currentUser.uid, username: this.userData.username,
-                    amountCoins: coins, amountPKR: pkrStr, method: document.getElementById('payment-method').value, // Payment method for where to send money
+                    amountCoins: coins, amountPKR: pkrStr, method: 'Manual',
                     status: 'pending', timestamp: Date.now(), withdrawType: this.withdrawType
                 }).then(() => { this.closeModals(); this.toast('Withdraw Request Sent', 'success'); });
             }
@@ -620,7 +706,7 @@
             renderProfile() {
                 document.getElementById('profile-name').innerText = this.userData.username;
                 document.getElementById('profile-balance').innerText = parseFloat(this.userData.balance).toFixed(2);
-                this.updateProfilePKR(); // Recalculate PKR value
+                this.updateProfilePKR(); 
 
                 const proTag = document.getElementById('pro-tag'); const upgradeCard = document.getElementById('pro-upgrade-card'); const badge = document.getElementById('profile-badge-container');
                 if (this.userData.isPro || this.userData.role === 'admin') {
@@ -649,18 +735,9 @@
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
                         <td><b>${r.username}</b><br><small class="text-light">${new Date(r.timestamp).toLocaleTimeString()}</small></td>
-                        <td>
-                            <span class="status-badge ${r.type==='deposit'?'status-approved':'status-pending'}">${r.type.toUpperCase()}</span>
-                        </td>
-                        <td>
-                            ${r.type==='deposit' ? `Req: ${r.amountCoins.toFixed(2)} Coins` : `Sell: ${r.amountCoins} Coins`}
-                            <br> <span style="color:var(--primary); font-weight:bold;">PKR ${r.amountPKR}</span>
-                            <br><small>${r.method}</small>
-                        </td>
-                        <td>
-                            <button class="btn btn-sm btn-success" onclick="app.approveRequest('${r.id}', '${r.type}', '${r.userId}', ${r.amountCoins})"><i class="fa-solid fa-check"></i></button>
-                            <button class="btn btn-sm btn-danger" onclick="app.rejectRequest('${r.id}')"><i class="fa-solid fa-xmark"></i></button>
-                        </td>
+                        <td><span class="status-badge ${r.type==='deposit'?'status-approved':'status-pending'}">${r.type.toUpperCase()}</span></td>
+                        <td>${r.type==='deposit' ? `Req: ${r.amountCoins.toFixed(2)} Coins` : `Sell: ${r.amountCoins} Coins`}<br> <span style="color:var(--primary); font-weight:bold;">PKR ${r.amountPKR}</span></td>
+                        <td><button class="btn btn-sm btn-success" onclick="app.approveRequest('${r.id}', '${r.type}', '${r.userId}', ${r.amountCoins})"><i class="fa-solid fa-check"></i></button><button class="btn btn-sm btn-danger" onclick="app.rejectRequest('${r.id}')"><i class="fa-solid fa-xmark"></i></button></td>
                     `;
                     list.appendChild(tr);
                 });
@@ -672,37 +749,22 @@
                 const list = document.getElementById('admin-users-list'); list.innerHTML = '';
                 Object.values(usersObj).forEach(u => {
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${u.username}</td>
-                        <td>${parseFloat(u.balance).toFixed(2)}</td>
-                        <td>${u.role} ${u.isPro?'<i class="fa-solid fa-crown" style="color:gold;"></i>':''}</td>
-                    `;
+                    tr.innerHTML = `<td>${u.username}</td><td>${parseFloat(u.balance).toFixed(2)}</td><td>${u.role} ${u.isPro?'<i class="fa-solid fa-crown" style="color:gold;"></i>':''}</td>`;
                     list.appendChild(tr);
                 });
             }
 
             approveRequest(reqId, type, userId, amountCoins) {
                 if(!confirm("Approve this request?")) return;
-                
-                // 1. Update Request Status
                 db.ref('requests/'+reqId).update({ status: 'approved' });
-
-                // 2. Update User Balance
                 db.ref('users/'+userId).once('value', snapshot => {
-                    const user = snapshot.val();
-                    const currentBal = parseFloat(user.balance) || 0;
-
+                    const user = snapshot.val(); const currentBal = parseFloat(user.balance) || 0;
                     if(type === 'deposit') {
-                        // Add coins
-                        const newBal = currentBal + parseFloat(amountCoins);
-                        db.ref('users/'+userId+'/balance').set(newBal);
-                        
-                        // Add transaction
+                        db.ref('users/'+userId+'/balance').set(currentBal + parseFloat(amountCoins));
                         const txRef = db.ref('users/'+userId+'/transactions').push();
                         txRef.set({ type: 'buy', amount: amountCoins, date: Date.now() });
                     } 
                     else if (type === 'withdraw') {
-                        // Deduct coins
                         if(currentBal >= amountCoins) {
                             db.ref('users/'+userId+'/balance').set(currentBal - parseFloat(amountCoins));
                             const txRef = db.ref('users/'+userId+'/transactions').push();
