@@ -7,7 +7,7 @@
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <!-- Google Fonts -->
+    <!-- Google Fonts (Added Urdu Font) -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
 
@@ -100,8 +100,41 @@
         .modal-title { font-weight: 700; margin-bottom: 15px; color: var(--primary); font-size: 1.2rem; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
         .modal-body p { font-size: 0.9rem; line-height: 1.6; margin-bottom: 10px; color: var(--text-main); }
 
+        /* --- CHART STYLES --- */
+        .chart-card { background: var(--bg-card); padding: 15px; border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 20px; border: 1px solid var(--border); position: relative; overflow: hidden; }
+        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .chart-title { font-size: 0.9rem; font-weight: 600; color: var(--primary); }
+        .chart-date { font-size: 0.8rem; color: var(--text-sec); background: var(--bg-body); padding: 4px 8px; border-radius: 4px; }
+        .chart-row { display: flex; align-items: center; margin-top: 5px; }
+        .price-big { font-size: 1.8rem; font-weight: 700; color: var(--primary); }
+        .trend-icon { font-size: 2rem; margin: 0 5px; }
+        .trend-up { color: var(--success); animation: pulse 2s infinite; }
+        .trend-down { color: var(--danger); animation: pulse 2s infinite; }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .bar-chart { display: flex; gap: 4px; height: 60px; align-items: flex-end; margin-top: 10px; }
+        .chart-bar { width: 8%; background: var(--bg-body); border-radius: 4px 4px 0; transition: height 0.5s ease-in-out, background-color 0.3s ease; position: relative; overflow: hidden; }
+        .chart-bar::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: rgba(255,255,255,0.5); }
+        .chart-bar.active { box-shadow: 0 0 10px rgba(0,0,0,0.2); z-index: 10; border: 1px solid rgba(0,0,0,0.1); }
+        .chart-bar.up { background: var(--success); }
+        .chart-bar.down { background: var(--danger); }
+        .chart-bar.live { border: 2px solid var(--primary); animation: live-pulse 1.5s infinite; }
+        .chart-bar.live::after { height: 100%; background: var(--primary); opacity: 0.5; }
+
+        @keyframes live-pulse {
+            0% { opacity: 0.3; }
+            50% { opacity: 1; }
+            100% { opacity: 0.3; }
+        }
+
+        /* Market Styles */
         .market-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab-btn { flex: 1; padding: 10px; border-radius: 8px; border: none; background: var(--bg-card); color: var(--text-sec); border: 1px solid var(--border); font-weight: 600; cursor: pointer; }
+        .tab-btn { flex: 1; padding: 10px; border-radius: 8px; border: none; background: var(--bg-card); color: var(--text-sec); border: 1px solid var(--border); font-weight: 600; cursor: pointer; transition: background 0.2s; }
         .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
         .method-card { background: var(--primary-light); padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #bbdefb; }
         .method-info strong { display: block; color: var(--primary); }
@@ -119,6 +152,7 @@
         .status-approved { background: #d4edda; color: #155724; }
         .status-rejected { background: #f8d7da; color: #721c24; }
 
+        /* Community Feed Styles */
         .post-create { background: var(--bg-card); padding: 15px; border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 20px; color: var(--text-main); }
         .post-card { background: var(--bg-card); padding: 15px; border-radius: 12px; margin-bottom: 15px; box-shadow: var(--shadow); position: relative; color: var(--text-main); }
         .post-header { display: flex; align-items: center; margin-bottom: 10px; }
@@ -134,7 +168,7 @@
         
         /* Bot Comment Style */
         .bot-comment { background: #e8f5e9; padding: 8px; border-radius: 4px; border-left: 2px solid #ffd700; margin-bottom: 5px; font-size: 0.85rem; }
-        .bot-badge { background: #ffd700; color: black; font-size: 0.6rem; padding: 2px 5px; border-radius: 4px; font-weight: bold; margin-left: 5px; text-transform: uppercase; }
+        .bot-badge { background: #ffd700; color: black; font-size: 0.6rem; padding: 2px 5px; border-radius: 4px; font-weight: bold; margin-left: 5px; }
 
         .comments-section { background: var(--bg-body); padding: 10px; border-radius: 8px; margin-top: 10px; display: none; }
         .comments-section.show { display: block; }
@@ -143,6 +177,7 @@
         .comment-input-wrapper { display: flex; gap: 5px; margin-top: 10px; }
         .comment-input { padding: 8px; font-size: 0.85rem; }
 
+        /* Profile Styles */
         .profile-header { text-align: center; padding: 20px 0; position: relative; }
         .theme-toggle { position: absolute; top: 0; right: 0; background: var(--bg-card); border: 1px solid var(--border); padding: 8px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-main); box-shadow: var(--shadow); }
         .profile-pic { width: 80px; height: 80px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 10px; border: 3px solid var(--primary-light); }
@@ -211,7 +246,7 @@
                 <p><span data-i18n="company_lbl">Company:</span> TK COIN PTE LTD</p>
                 <p><span data-i18n="location_lbl">Location:</span> <span data-i18n="location_val">Singapore</span></p>
                 <p data-i18n="mission">We provide a secure and fast environment for buying, selling, and trading TK Coins.</p>
-                <p>Version 2.3 (Bot Update)</p>
+                <p>Version 2.4 (Live Auto Chart)</p>
             </div>
             <button class="btn btn-primary" style="margin-top:15px;" onclick="app.closeModal('about-modal')">Close</button>
         </div>
@@ -281,11 +316,34 @@
 
         <!-- 1. MARKETPLACE -->
         <section id="market-section" class="section active">
+            
+            <!-- LIVE AUTO CHART -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div>
+                        <span class="chart-title" data-i18n="live_rate">Live Rate (Auto)</span>
+                    </div>
+                    <div>
+                        <span class="material-icons-round trend-icon" id="chart-trend-icon">trending_up</span>
+                    </div>
+                    <div class="chart-date" id="chart-date">Loading...</div>
+                </div>
+                
+                <div class="chart-row">
+                    <span class="price-big" id="live-price-display">0.00</span>
+                </div>
+
+                <div class="bar-chart" id="bar-chart-container">
+                    <!-- Bars injected by JS -->
+                </div>
+            </div>
+
             <h3 style="margin-bottom: 15px;" data-i18n="marketplace">Marketplace</h3>
             <div class="market-tabs">
-                <button class="tab-btn active" onclick="app.switchMarketTab('buy')" data-i18n="buy_tk">Buy TK</button>
-                <button class="tab-btn" onclick="app.switchMarketTab('sell')" data-i18n="sell_withdraw">Sell / Withdraw</button>
+                <button class="tab-btn active" id="btn-buy" onclick="app.switchMarketTab('buy')" data-i18n="buy_tk">Buy TK</button>
+                <button class="tab-btn" id="btn-sell" onclick="app.switchMarketTab('sell')" data-i18n="sell_withdraw">Sell / Withdraw</button>
             </div>
+            
             <div id="buy-tab">
                 <div class="form-group">
                     <label data-i18n="select_method">Select Payment Method</label>
@@ -458,7 +516,7 @@
                 <h4 data-i18n="settings">Settings</h4>
                 <div class="form-group">
                     <label>Tk Coin Rate (PKR)</label>
-                    <input type="number" id="admin-rate" value="8">
+                    <input type="number" id="admin-rate" value="8" oninput="app.manualUpdatePrice(this.value)">
                 </div>
                 <label style="margin-top:10px;" data-i18n="deposit_nums">Deposit Numbers</label>
                 <div class="form-group">
@@ -477,7 +535,6 @@
             </div>
             <div class="admin-panel">
                 <h4 data-i18n="dep_req">Deposit Requests</h4>
-                <p class="text-small" style="color:var(--text-sec);" data-i18n="pending_req">Yeh deposits/withdraws mein yeh hai</p>
                 <div id="admin-deposit-list"></div>
             </div>
             <div class="admin-panel">
@@ -580,7 +637,8 @@
                 location_val: "Singapore",
                 mission: "We provide a secure and fast environment for buying, selling, and trading TK Coins.",
                 auto_comment_btn: "Auto Comment",
-                post_placeholder: "What's on your mind?"
+                post_placeholder: "What's on your mind?",
+                live_rate: "Live Rate (Auto)"
             },
             ur: {
                 login: "لاگ ان کریں",
@@ -649,10 +707,7 @@
                 mission: "ہم ٹی کے سکے خریدنے، بیچنے اور ٹریڈ کرنے کے لیے محفوظ اور تیز ماحول فراہم کرتے ہیں۔",
                 auto_comment_btn: "آٹو کمنٹ",
                 post_placeholder: "آپ کے ذہن میں کیا ہے؟",
-                // New History Strings
-                deposit_desc_ep: "EasyPaisa / JazzCash se PKR amount aa jaye",
-                withdraw_desc_binance: "Jab aap Binance selete karein to $USDT aa jaye",
-                pending_req: "Deposits/Withdraws mein yeh hai"
+                live_rate: "لائیو ریٹ (آٹو)"
             }
         };
 
@@ -668,7 +723,8 @@
         };
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         
-        const MOCK_DB_KEY = 'tkcoin_db_v9'; // v9 for Bot Update
+        // CHANGE KEY TO v10 FOR NEW DATABASE
+        const MOCK_DB_KEY = 'tkcoin_db_v10'; 
         const initialState = {
             users: [],
             posts: [],
@@ -688,7 +744,6 @@
                     this.data = initialState;
                     localStorage.removeItem(MOCK_DB_KEY);
                 }
-
                 try {
                     this.currentUser = JSON.parse(localStorage.getItem('tk_user')) || null;
                 } catch (e) {
@@ -712,7 +767,6 @@
             toggleLike(id) {
                 const post = this.data.posts.find(p => p.id === id);
                 if(post) {
-                    // If Admin, we handle directly in controller to avoid array issues with unlimited likes
                     if(!this.currentUser.isAdmin) {
                         const email = this.currentUser.email;
                         post.likedBy = post.likedBy.includes(email) ? post.likedBy.filter(e => e !== email) : [...post.likedBy, email];
@@ -741,29 +795,17 @@
         const app = {
             currentLang: 'en',
             botNames: ['Ali', 'Zeeshan', 'Smad', 'Ahmed', 'Usman', 'Bilal', 'Hassan', 'Kamran', 'Farhan', 'Rizwan'],
-            commentBank: {
-                profit: [
-                    "Huge profit on TK Coin! 🚀",
-                    "Best platform ever for TK Coin! 💎",
-                    "Short term gain incoming! 📈",
-                    "TK Coin is the future! 🌕"
-                ],
-                short: [
-                    "Hold for short term! 🛑",
-                    "Scalp trade confirmed. ✅"
-                ],
-                long: [
-                    "Long hold for big wins! 🕐",
-                    "TK Coin is the gold standard! ✨"
-                ],
-                general: [
-                    "TK COIN Official: Verified Post ✅",
-                    "Good trading!",
-                    "Verified content."
-                ]
-            },
-
+            liveChartInterval: null,
+            chartHistory: [],
+            
             init: () => {
+                // Set Date
+                const now = new Date();
+                const dateStr = app.currentLang === 'ur' 
+                    ? `آج ${now.toLocaleDateString('ur-PK')}` 
+                    : `Today ${now.toLocaleDateString()}`;
+                document.getElementById('chart-date').innerText = dateStr;
+
                 const theme = localStorage.getItem('tk_theme');
                 if(theme === 'dark') document.body.classList.add('dark-mode');
                 app.updateThemeIcon();
@@ -772,6 +814,7 @@
                     document.getElementById('auth-screen').classList.add('hidden');
                     document.getElementById('main-app').classList.remove('hidden');
                     app.loadUI();
+                    app.initLiveChart(); // Start Chart
                 }
             },
             toggleTheme: () => {
@@ -799,82 +842,106 @@
             },
             generateRefCode: () => Math.random().toString(36).substring(2, 8).toUpperCase(),
             
-            // BOT LIKE LOGIC
-            triggerBotLike: (postId) => {
-                // Random delay 5-20 seconds (30000ms - 10000ms)
-                const delay = Math.floor(Math.random() * 15000) + 5000;
+            // --- LIVE CHART SYSTEM ---
+            initLiveChart: () => {
+                // Initialize chart with current price
+                const rate = dataService.getRate();
+                app.livePrice = rate;
                 
-                setTimeout(() => {
-                    const post = dataService.data.posts.find(p => p.id === postId);
-                    if(post) {
-                        // Cap at 90 likes
-                        const currentLikes = post.likedBy.length;
-                        if(currentLikes < 90) {
-                            // Increase by random amount 2-5
-                            const likesToAdd = Math.floor(Math.random() * 4) + 2;
-                            const randomName = app.botNames[Math.floor(Math.random() * app.botNames.length)];
-                            
-                            for(let i=0; i<likesToAdd; i++) {
-                                post.likedBy.push("bot_like_" + randomName);
-                            }
-                            post.likes = post.likedBy.length;
-                            dataService.save();
-                            app.renderFeed(); // Update UI
-                            app.toast(`${randomName} liked your post!`, 'success');
-                        }
-                    }
-                }, delay);
+                // Create fake history (10 bars)
+                // Start slightly below current price
+                for(let i=0; i<9; i++) {
+                    app.chartHistory.push(rate * (0.9 + (i * 0.01)));
+                }
+                app.chartHistory.push(rate); // Add current
+
+                app.renderChart();
+
+                // Start Auto Operation Loop
+                if(app.liveChartInterval) clearInterval(app.liveChartInterval);
+                app.liveChartInterval = setInterval(() => {
+                    app.simulateMarket();
+                }, 3000); // Update every 3 seconds
+            },
+            simulateMarket: () => {
+                // Fluctuate price slightly (-0.2% to +0.2%)
+                const change = (Math.random() - 0.5) * 0.04;
+                const oldPrice = app.livePrice;
+                app.livePrice = app.livePrice + (app.livePrice * change);
+                
+                // Update History Array (Shift left, add new right)
+                app.chartHistory.shift();
+                app.chartHistory.push(app.livePrice);
+
+                app.renderChart();
+            },
+            manualUpdatePrice: (newPrice) => {
+                app.livePrice = Number(newPrice);
+                // Refresh history to new baseline
+                app.chartHistory = [];
+                for(let i=0; i<10; i++) {
+                    app.chartHistory.push(app.livePrice * (0.9 + (i * 0.01)));
+                }
+                app.renderChart();
+                app.toast('Chart Updated', 'success');
+            },
+            renderChart: () => {
+                const container = document.getElementById('bar-chart-container');
+                container.innerHTML = '';
+                
+                // Normalize bars for height (min height 20%, max 100%)
+                const min = Math.min(...app.chartHistory, app.livePrice);
+                const max = Math.max(...app.chartHistory, app.livePrice);
+                const range = max - min || 1;
+
+                app.chartHistory.forEach((p, index) => {
+                    const height = 20 + ((p - min) / range) * 80; // Scale 20-100
+                    const isLive = (index === 9); // Last one is live
+                    const isUp = p > app.chartHistory[index-1];
+                    
+                    let className = 'chart-bar';
+                    if(isLive) className += ' live';
+                    else if (isUp) className += ' up';
+                    else className += ' down';
+
+                    // RTL Support
+                    const directionClass = app.currentLang === 'ur' ? 'dir-rtl' : '';
+
+                    container.innerHTML += `
+                        <div class="${className} ${directionClass}" style="height: ${height}%"></div>
+                    `;
+                });
             },
 
-            // BOT COMMENT LOGIC
-            triggerBotComment: (postId, postContent) => {
-                const delay = Math.floor(Math.random() * 8000) + 2000; // 2-10s delay
+            // BOT ACTIVITY SYSTEM
+            triggerBotActivity: (postId, content) => {
+                // Random delay 2-5 seconds
+                const delay = Math.floor(Math.random() * 3000) + 2000;
                 
                 setTimeout(() => {
+                    const randomName = app.botNames[Math.floor(Math.random() * app.botNames.length)];
+                    
+                    // 1. Add Like
                     const post = dataService.data.posts.find(p => p.id === postId);
                     if(post) {
-                        const randomName = app.botNames[Math.floor(Math.random() * app.botNames.length)];
-                        const lowerContent = postContent.toLowerCase();
-                        let msg = "";
-
-                        if(lowerContent.includes('tk coin') || lowerContent.includes('tkcoin')) {
-                            // High priority keyword
-                            msg = "TK COIN Official: Verified Post ✅";
-                        } else if (lowerContent.includes('profit')) {
-                            // Profit keyword
-                            if(lowerContent.includes('short')) {
-                                const shortMsg = app.commentBank.short[Math.floor(Math.random() * app.commentBank.short.length)];
-                                msg = shortMsg;
-                            } else {
-                                const longMsg = app.commentBank.long[Math.floor(Math.random() * app.commentBank.long.length)];
-                                msg = longMsg;
-                            }
-                        } else if (lowerContent.includes('short')) {
-                            // Short term keyword
-                            const shortMsg = app.commentBank.short[Math.floor(Math.random() * app.commentBank.short.length)];
-                            msg = shortMsg;
-                        } else if (lowerContent.includes('long')) {
-                            // Long term keyword
-                            const longMsg = app.commentBank.long[Math.floor(Math.random() * app.commentBank.long.length)];
-                            msg = longMsg;
-                        } else {
-                            // General
-                            const generalMsg = app.commentBank.general[Math.floor(Math.random() * app.commentBank.general.length)];
-                            msg = generalMsg;
-                        }
-
-                        if(msg) {
-                            const commentObj = {
+                        post.likedBy.push('bot_like_' + randomName); 
+                        dataService.save();
+                        
+                        // 2. Check for TK Coin Keyword for Auto Comment
+                        if(content.toLowerCase().includes('tk coin')) {
+                            const botComment = {
                                 uid: 'bot_system',
                                 name: randomName,
-                                text: msg,
+                                text: "TK COIN Official: Verified Post ✅",
                                 date: new Date().toISOString()
                             };
-                            post.comments.push(commentObj);
+                            post.comments.push(botComment);
                             dataService.save();
-                            app.renderFeed();
                             app.toast(`Bot Comment by ${randomName}`, 'success');
                         }
+                        
+                        // Refresh UI
+                        app.renderFeed();
                     }
                 }, delay);
             },
@@ -983,7 +1050,6 @@
                 document.getElementById('profile-rate').innerText = rate;
                 document.getElementById('profile-posts').innerText = dataService.data.posts.filter(p => p.uid === user.email).length;
 
-                // --- Referral UI ---
                 document.getElementById('my-referral-code').innerText = user.referralCode || 'N/A';
                 const refList = document.getElementById('referral-list');
                 refList.innerHTML = '';
@@ -1001,7 +1067,6 @@
                     refList.innerHTML = '<p class="text-small" style="text-align:center">No invites yet.</p>';
                 }
 
-                // --- Win/Loss Calculation ---
                 const investment = user.totalInvestmentPKR || 0;
                 const currentVal = user.balance * rate;
                 const pnl = currentVal - investment;
@@ -1039,12 +1104,17 @@
                 if(sectionId === 'admin') app.renderAdmin();
             },
             switchMarketTab: (tab) => {
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                event.target.classList.add('active');
+                const btnBuy = document.getElementById('btn-buy');
+                const btnSell = document.getElementById('btn-sell');
+                
                 if(tab === 'buy') {
+                    btnBuy.classList.add('active');
+                    btnSell.classList.remove('active');
                     document.getElementById('buy-tab').classList.remove('hidden');
                     document.getElementById('sell-tab').classList.add('hidden');
                 } else {
+                    btnSell.classList.add('active');
+                    btnBuy.classList.remove('active');
                     document.getElementById('buy-tab').classList.add('hidden');
                     document.getElementById('sell-tab').classList.remove('hidden');
                     app.updateWithdrawUI(); 
@@ -1158,8 +1228,7 @@
                 app.toast('Posted!', 'success');
 
                 // --- TRIGGER BOT ACTIVITY ---
-                app.triggerBotLike(post.id);
-                app.triggerBotComment(post.id, content);
+                app.triggerBotActivity(post.id, content);
             },
             renderFeed: () => {
                 const container = document.getElementById('posts-container');
@@ -1172,7 +1241,19 @@
                     const isLiked = post.likedBy.includes(user.email);
                     const likeClass = isLiked ? 'liked' : '';
                     const likeIcon = isLiked ? 'thumb_up' : 'thumb_up_off_alt';
-                    let commentsHtml = post.comments.map(c => `<div class="comment-item"><span class="comment-user">${c.name}:</span> ${c.text}</div>`).join('');
+                    let commentsHtml = '';
+                    post.comments.forEach(c => {
+                        const isBot = c.uid === 'bot_system';
+                        const botStyle = isBot ? 'bot-comment' : '';
+                        const botBadge = isBot ? `<span class="bot-badge">BOT</span>` : '';
+                        
+                        commentsHtml += `
+                            <div class="comment-item ${botStyle}">
+                                <span class="comment-user">${c.name} ${botBadge}</span>: ${c.text}
+                            </div>
+                        `;
+                    });
+
                     const deleteBtn = user.isAdmin ? `<button class="delete-btn" onclick="app.deletePost(${post.id})"><span class="material-icons-round">delete</span></button>` : '';
                     
                     // Admin Auto Comment Button
@@ -1217,26 +1298,14 @@
             toggleLike: (id) => {
                 const user = dataService.currentUser;
                 if(user.isAdmin) {
-                    // Admin Unlimited Like: Simply increment counter
                     const post = dataService.data.posts.find(p => p.id === id);
                     if(post) {
-                        const currentLikes = post.likedBy.length;
-                        if(currentLikes < 90) {
-                             // Add random likes
-                            const likesToAdd = Math.floor(Math.random() * 4) + 2;
-                            const randomName = app.botNames[Math.floor(Math.random() * app.botNames.length)];
-                            
-                            for(let i=0; i<likesToAdd; i++) {
-                                post.likedBy.push("bot_like_" + randomName);
-                            }
-                            post.likes = post.likedBy.length;
-                            dataService.save();
-                            app.renderFeed();
-                            app.toast(`${randomName} liked your post!`, 'success');
-                        }
+                        post.likedBy.push("admin_boost_" + Date.now());
+                        post.likes = post.likedBy.length;
+                        dataService.save();
+                        app.renderFeed();
                     }
                 } else {
-                    // User Logic: Toggle
                     dataService.toggleLike(id);
                     app.renderFeed();
                 }
@@ -1257,20 +1326,16 @@
                 }
             },
             adminAutoComment: (id) => {
-                const post = dataService.data.posts.find(p => p.id === id);
-                if(post) {
-                    const text = "TK COIN Official: Verified Post ✅";
-                    const commentObj = {
-                        uid: 'bot_system',
-                        name: 'Admin',
-                        text: text,
-                        date: new Date().toISOString()
-                    };
-                    post.comments.push(commentObj);
-                    dataService.save();
-                    app.renderFeed();
-                    app.toast('Auto Comment Posted', 'success');
-                }
+                const text = "TK COIN Official: Verified Post ✅";
+                const commentObj = {
+                    uid: 'bot_system',
+                    name: 'Admin',
+                    text: text,
+                    date: new Date().toISOString()
+                };
+                dataService.addComment(id, commentObj);
+                app.renderFeed();
+                app.toast('Auto Comment Posted', 'success');
             },
             buyPro: () => {
                 if(dataService.currentUser.balance < 500) return app.toast('Need 500 TK', 'error');
@@ -1324,14 +1389,16 @@
                 });
             },
             updateSettings: () => {
+                const rate = document.getElementById('admin-rate').value;
                 dataService.updateSettings(
-                    document.getElementById('admin-rate').value,
+                    rate,
                     document.getElementById('admin-easypaisa').value,
                     document.getElementById('admin-jazzcash').value,
                     document.getElementById('admin-binance').value
                 );
-                app.toast('Updated', 'success');
-                app.loadUI();
+                
+                // Auto Update Chart when Admin changes price
+                app.manualUpdatePrice(rate);
             },
             approveReq: (id, coins) => {
                 const req = dataService.data.requests.find(r => r.id === id);
@@ -1341,6 +1408,8 @@
                         dataService.data.users[uIdx].balance += parseFloat(coins);
                         if(dataService.data.users[uIdx].totalInvestmentPKR === undefined) dataService.data.users[uIdx].totalInvestmentPKR = 0;
                         dataService.data.users[uIdx].totalInvestmentPKR += parseFloat(req.amount);
+                        
+                        // Trigger Referral Check
                         app.checkReferrals(req.uid);
                     }
                     req.status = 'approved';
@@ -1348,6 +1417,29 @@
                     app.renderAdmin();
                     app.toast('Approved', 'success');
                 }
+            },
+            checkReferrals: (userEmail) => {
+                const user = dataService.data.users.find(u => u.email === userEmail);
+                if(!user || !user.referrals) return;
+
+                // Check if user has invited people
+                if(user.referrals) {
+                    user.referrals.forEach(ref => {
+                        if(ref.status === 'pending') {
+                            const inviteeDeposited = dataService.data.requests.some(r => r.uid === ref.email && r.type === 'deposit' && r.status === 'approved');
+                            if(inviteeDeposited) {
+                                const uIdx = dataService.data.users.findIndex(u => u.email === user.email);
+                                if(uIdx > -1) {
+                                    dataService.data.users[uIdx].balance += 2;
+                                    ref.status = 'valid';
+                                    if(!dataService.data.users[uIdx].rewardedReferrals) dataService.data.users[uIdx].rewardedReferrals = [];
+                                    dataService.data.users[uIdx].rewardedReferrals.push(ref.email);
+                                }
+                            }
+                        }
+                    });
+                }
+                dataService.save();
             },
             rejectReq: (id) => {
                 const req = dataService.data.requests.find(r => r.id === id);
@@ -1383,6 +1475,12 @@
                     document.body.dir = "ltr";
                 }
 
+                // Update Chart Date
+                const now = new Date();
+                document.getElementById('chart-date').innerText = app.currentLang === 'ur' 
+                    ? `آج ${now.toLocaleDateString('ur-PK')}` 
+                    : `Today ${now.toLocaleDateString()}`;
+
                 // Update all text elements with data-i18n
                 document.querySelectorAll('[data-i18n]').forEach(el => {
                     const key = el.getAttribute('data-i18n');
@@ -1391,7 +1489,6 @@
                     }
                 });
                 
-                // Update specific placeholders
                 if(document.getElementById('post-content')) {
                     document.getElementById('post-content').placeholder = i18n[app.currentLang]['post_placeholder'];
                 }
