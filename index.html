@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TK COIN - HOLD & EARN</title>
+    <title>TK COIN - Trading & Community</title>
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -29,7 +29,6 @@
             --shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
-        /* Dark Mode Overrides */
         body.dark-mode {
             --primary: #2979ff;
             --primary-light: #1a237e;
@@ -43,7 +42,6 @@
             --shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
 
-        /* Urdu Styles */
         body.urdu-mode {
             font-family: 'Noto Nastaliq Urdu', serif;
             direction: rtl;
@@ -67,18 +65,15 @@
         .balance-value { font-size: 1.8rem; font-weight: 700; }
         .balance-pkr { font-size: 1.2rem; font-weight: 600; margin-top: 5px; color: var(--primary-light); opacity: 0.9; }
 
-        /* --- Navigation --- */
         .nav-bar { position: fixed; bottom: 0; width: 100%; max-width: 480px; background: var(--bg-card); display: flex; justify-content: space-around; padding: 12px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 100; border-top: 1px solid var(--border); }
         .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-sec); text-decoration: none; font-size: 0.7rem; cursor: pointer; transition: 0.3s; flex: 1; }
         .nav-item.active { color: var(--primary); font-weight: 600; }
         .nav-item .material-icons-round { font-size: 24px; margin-bottom: 2px; }
 
-        /* --- Sections --- */
         .section { display: none; padding: 20px; animation: fadeIn 0.3s ease; }
         .section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- Forms & Inputs --- */
         .form-group { margin-bottom: 15px; }
         label { display: block; font-size: 0.9rem; margin-bottom: 5px; font-weight: 500; color: var(--text-main); }
         input, select, textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text-main); transition: 0.3s; }
@@ -92,7 +87,6 @@
         .btn-sm { padding: 6px 12px; font-size: 0.8rem; width: auto; }
         .btn-text { background: none; color: var(--primary); width: auto; padding: 0; display: inline; font-size: 0.9rem; text-decoration: underline; }
 
-        /* --- Auth Screen --- */
         #auth-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); z-index: 200; display: flex; justify-content: center; align-items: center; padding: 20px; overflow-y: auto; }
         .auth-card { background: var(--bg-card); padding: 30px; border-radius: 16px; width: 100%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: center; color: var(--text-main); }
         .auth-tabs { display: flex; margin-bottom: 20px; border-bottom: 2px solid var(--border); }
@@ -101,25 +95,22 @@
         .checkbox-group { display: flex; align-items: flex-start; gap: 10px; margin-top: 15px; font-size: 0.8rem; color: var(--text-main); text-align: left; }
         .checkbox-group input { width: auto; margin-top: 3px; }
 
-        /* --- Modals --- */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 300; display: none; justify-content: center; align-items: center; padding: 20px; }
         .modal-content { background: var(--bg-card); padding: 25px; border-radius: 12px; width: 100%; max-width: 400px; max-height: 80vh; overflow-y: auto; text-align: left; color: var(--text-main); }
         .modal-title { font-weight: 700; margin-bottom: 15px; color: var(--primary); font-size: 1.2rem; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
         .modal-body p { font-size: 0.9rem; line-height: 1.6; margin-bottom: 10px; color: var(--text-main); }
 
-        /* --- Market Cards --- */
         .market-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab-btn { flex: 1; padding: 10px; border-radius: 8px; border: none; background: var(--bg-card); color: var(--text-sec); border:1px solid var(--border); font-weight: 600; cursor: pointer; }
+        .tab-btn { flex: 1; padding: 10px; border-radius: 8px; border: none; background: var(--bg-card); color: var(--text-sec); border: 1px solid var(--border); font-weight: 600; cursor: pointer; }
         .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-        .method-card { background: var(--primary-light); padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border:1px solid #bbdefb; }
+        .method-card { background: var(--primary-light); padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #bbdefb; }
         .method-info strong { display: block; color: var(--primary); }
         .copy-btn { background: none; border: none; color: var(--primary); cursor: pointer; font-weight: bold; }
 
-        /* --- History List --- */
         .history-item { background: var(--bg-card); padding: 15px; border-radius: 8px; margin-bottom: 10px; box-shadow: var(--shadow); border-left: 4px solid var(--border); color: var(--text-main); }
         .history-item.deposit { border-left-color: var(--success); }
         .history-item.withdraw { border-left-color: var(--primary); }
-        .hist-head { display: flex; justify-content: space-between; margin-bottom:5px; }
+        .hist-head { display: flex; justify-content: space-between; margin-bottom: 5px; }
         .hist-amount { font-weight: bold; font-size: 1.1rem; }
         .hist-date { font-size: 0.8rem; color: var(--text-sec); }
         .hist-detail { font-size: 0.85rem; color: var(--text-main); margin-bottom: 5px; }
@@ -128,7 +119,6 @@
         .status-approved { background: #d4edda; color: #155724; }
         .status-rejected { background: #f8d7da; color: #721c24; }
 
-        /* --- Community Feed --- */
         .post-create { background: var(--bg-card); padding: 15px; border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 20px; color: var(--text-main); }
         .post-card { background: var(--bg-card); padding: 15px; border-radius: 12px; margin-bottom: 15px; box-shadow: var(--shadow); position: relative; color: var(--text-main); }
         .post-header { display: flex; align-items: center; margin-bottom: 10px; }
@@ -142,7 +132,10 @@
         .action-btn.liked { color: var(--danger); }
         .delete-btn { position: absolute; top: 15px; right: 15px; color: var(--danger); background: none; border: none; cursor: pointer; }
         
-        /* Comments Section */
+        /* Bot Comment Style */
+        .bot-comment { background: #e8f5e9; padding: 8px; border-radius: 4px; border-left: 2px solid #ffd700; margin-bottom: 5px; font-size: 0.85rem; }
+        .bot-badge { background: #ffd700; color: black; font-size: 0.6rem; padding: 2px 5px; border-radius: 4px; font-weight: bold; margin-left: 5px; }
+
         .comments-section { background: var(--bg-body); padding: 10px; border-radius: 8px; margin-top: 10px; display: none; }
         .comments-section.show { display: block; }
         .comment-item { padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
@@ -150,7 +143,6 @@
         .comment-input-wrapper { display: flex; gap: 5px; margin-top: 10px; }
         .comment-input { padding: 8px; font-size: 0.85rem; }
 
-        /* --- Profile --- */
         .profile-header { text-align: center; padding: 20px 0; position: relative; }
         .theme-toggle { position: absolute; top: 0; right: 0; background: var(--bg-card); border: 1px solid var(--border); padding: 8px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-main); box-shadow: var(--shadow); }
         .profile-pic { width: 80px; height: 80px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 10px; border: 3px solid var(--primary-light); }
@@ -181,7 +173,6 @@
         .req-actions { display: flex; gap: 5px; margin-top: 10px; }
         .req-detail { font-size: 0.85rem; color: var(--text-main); margin-bottom: 4px; }
 
-        /* --- Toast Notification --- */
         #toast-container { position: fixed; top: 20px; right: 20px; z-index: 1000; }
         .toast { background: #333; color: white; padding: 12px 24px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: slideIn 0.3s; display: flex; align-items: center; gap: 10px; }
         .toast.success { background: var(--success); }
@@ -195,7 +186,6 @@
 </head>
 <body>
 
-    <!-- Modals -->
     <div id="tc-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-title" data-i18n="terms">Terms & Conditions</div>
@@ -203,7 +193,7 @@
                 <p>Welcome to <strong>TK COIN</strong>.</p>
                 <p data-i18n="terms_body">By using this application, you agree to following terms:</p>
                 <p>1. TK Coin is a digital asset platform operating under Singapore regulations.</p>
-                <p>2. All deposit and withdrawal requests are subject to verification by company.</p>
+                <p>2. All deposit and withdrawal requests are subject to verification by Admin.</p>
                 <p>3. Normal users are subject to a 3% tax on instant withdrawals.</p>
                 <p>4. Pro users enjoy zero tax and unlimited posting privileges.</p>
                 <p>5. Misuse of platform or fraudulent activities will result in a permanent ban.</p>
@@ -220,13 +210,12 @@
                 <p><span data-i18n="company_lbl">Company:</span> TK COIN PTE LTD</p>
                 <p><span data-i18n="location_lbl">Location:</span> <span data-i18n="location_val">Singapore</span></p>
                 <p data-i18n="mission">We provide a secure and fast environment for buying, selling, and trading TK Coins.</p>
-                <p>Version 2.2 (EMAIL-info@tkcoin.com</p>
+                <p>Version 2.2 (Bot Active)</p>
             </div>
             <button class="btn btn-primary" style="margin-top:15px;" onclick="app.closeModal('about-modal')">Close</button>
         </div>
     </div>
 
-    <!-- Auth Screen -->
     <div id="auth-screen">
         <div class="auth-card">
             <h2 style="text-align: center; color: var(--primary); margin-bottom: 20px;">TK COIN</h2>
@@ -269,7 +258,6 @@
         </div>
     </div>
 
-    <!-- Main App -->
     <div class="container hidden" id="main-app">
         <header>
             <div class="header-top">
@@ -288,7 +276,6 @@
 
         <div id="toast-container"></div>
 
-        <!-- 1. MARKETPLACE -->
         <section id="market-section" class="section active">
             <h3 style="margin-bottom: 15px;" data-i18n="marketplace">Marketplace</h3>
             <div class="market-tabs">
@@ -312,7 +299,7 @@
                     <button class="copy-btn" onclick="app.copyDepositNumber()" data-i18n="copy">COPY</button>
                 </div>
                 <div class="form-group">
-                    <label data-i18n="amount_pkr">Amount</label>
+                    <label data-i18n="amount_pkr">Amount in PKR</label>
                     <input type="number" id="buy-pkr" placeholder="Enter PKR amount" oninput="app.calcBuy()">
                 </div>
                 <div class="form-group">
@@ -364,7 +351,6 @@
             </div>
         </section>
 
-        <!-- 2. COMMUNITY FEED -->
         <section id="feed-section" class="section">
             <h3 style="margin-bottom: 15px;" data-i18n="community_feed">Community Feed</h3>
             <div class="post-create">
@@ -380,13 +366,11 @@
             </div>
         </section>
 
-        <!-- 3. HISTORY -->
         <section id="history-section" class="section">
             <h3 style="margin-bottom: 15px;" data-i18n="transactions">My Transactions</h3>
             <div id="history-list"></div>
         </section>
 
-        <!-- 4. PROFILE -->
         <section id="profile-section" class="section">
             <div class="profile-header">
                 <div class="theme-toggle" onclick="app.toggleTheme()">
@@ -397,21 +381,15 @@
                 <div id="profile-badge-container"></div>
             </div>
 
-            <!-- Referral Section -->
             <div class="ref-card">
                 <h4 style="color: var(--warning); margin-bottom: 10px;" data-i18n="invite_earn">Invite & Earn</h4>
                 <p class="text-small" data-i18n="invite_desc">Share your code. Get <strong>2 TK</strong> for every valid member (10 TK for 5).</p>
                 <p class="text-small" data-i18n="invite_cond"><strong>Condition:</strong> Both you and your friend must deposit.</p>
-                
                 <div class="ref-code-box" id="my-referral-code">------</div>
                 <button class="btn btn-primary btn-sm" onclick="app.copyReferralCode()" data-i18n="copy_code">Copy Code</button>
-
-                <div class="ref-list" id="referral-list">
-                    <!-- Referrals List -->
-                </div>
+                <div class="ref-list" id="referral-list"></div>
             </div>
 
-            <!-- Win/Loss Card -->
             <div class="pnl-card">
                 <div class="pnl-row">
                     <span data-i18n="invested">Invested:</span>
@@ -462,7 +440,6 @@
             <button class="btn btn-outline" onclick="app.logout()" data-i18n="logout">Logout</button>
         </section>
 
-        <!-- 5. ADMIN PANEL -->
         <section id="admin-section" class="section">
             <h3 style="color: var(--primary);" data-i18n="admin_dash">Admin Dashboard</h3>
             <div class="admin-panel">
@@ -496,7 +473,6 @@
             </div>
         </section>
 
-        <!-- Navigation -->
         <nav class="nav-bar">
             <a class="nav-item active" onclick="app.nav('market', this)">
                 <span class="material-icons-round">storefront</span>
@@ -674,8 +650,7 @@
         };
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         
-        // CHANGE KEY TO v7 TO FORCE CLEAN SLATE FOR THIS VERSION
-        const MOCK_DB_KEY = 'tkcoin_db_v7'; 
+        const MOCK_DB_KEY = 'tkcoin_db_v8';
         const initialState = {
             users: [],
             posts: [],
@@ -688,7 +663,6 @@
 
         class DataService {
             constructor() {
-                // Safe loading with try-catch to handle corrupted data
                 try {
                     this.data = JSON.parse(localStorage.getItem(MOCK_DB_KEY)) || initialState;
                 } catch (e) {
@@ -696,7 +670,6 @@
                     this.data = initialState;
                     localStorage.removeItem(MOCK_DB_KEY);
                 }
-
                 try {
                     this.currentUser = JSON.parse(localStorage.getItem('tk_user')) || null;
                 } catch (e) {
@@ -720,7 +693,6 @@
             toggleLike(id) {
                 const post = this.data.posts.find(p => p.id === id);
                 if(post) {
-                    // If Admin, we handle directly in controller to avoid array issues with unlimited likes
                     if(!this.currentUser.isAdmin) {
                         const email = this.currentUser.email;
                         post.likedBy = post.likedBy.includes(email) ? post.likedBy.filter(e => e !== email) : [...post.likedBy, email];
@@ -728,10 +700,10 @@
                     this.save();
                 }
             }
-            addComment(id, text) {
+            addComment(id, commentObj) {
                 const post = this.data.posts.find(p => p.id === id);
-                if(post && text.trim() !== "") {
-                    post.comments.push({ uid: this.currentUser.email, name: this.currentUser.name, text: text, date: new Date().toISOString() });
+                if(post) {
+                    post.comments.push(commentObj);
                     this.save();
                 }
             }
@@ -748,6 +720,8 @@
 
         const app = {
             currentLang: 'en',
+            botNames: ['Ali', 'Zeeshan', 'Smad', 'Ahmed', 'Usman', 'Bilal', 'Hassan', 'Kamran', 'Farhan', 'Rizwan'],
+            
             init: () => {
                 const theme = localStorage.getItem('tk_theme');
                 if(theme === 'dark') document.body.classList.add('dark-mode');
@@ -783,6 +757,40 @@
                 }
             },
             generateRefCode: () => Math.random().toString(36).substring(2, 8).toUpperCase(),
+            
+            // BOT ACTIVITY SYSTEM
+            triggerBotActivity: (postId, content) => {
+                // Random delay between 2 to 5 seconds
+                const delay = Math.floor(Math.random() * 3000) + 2000;
+                
+                setTimeout(() => {
+                    const randomName = app.botNames[Math.floor(Math.random() * app.botNames.length)];
+                    
+                    // 1. Add Like
+                    const post = dataService.data.posts.find(p => p.id === postId);
+                    if(post) {
+                        post.likedBy.push('bot_like_' + randomName); // Just to increase count
+                        dataService.save();
+                        
+                        // 2. Check for TK Coin Keyword for Auto Comment
+                        if(content.toLowerCase().includes('tk coin')) {
+                            const botComment = {
+                                uid: 'bot_system',
+                                name: randomName,
+                                text: "TK COIN Official: Verified Post ✅",
+                                date: new Date().toISOString()
+                            };
+                            post.comments.push(botComment);
+                            dataService.save();
+                            app.toast(`Bot Comment by ${randomName}`, 'success');
+                        }
+                        
+                        // Refresh UI
+                        app.renderFeed();
+                    }
+                }, delay);
+            },
+
             signup: () => {
                 const name = document.getElementById('reg-name').value.trim();
                 const email = document.getElementById('reg-email').value.trim().toLowerCase();
@@ -799,7 +807,6 @@
                     const inviter = dataService.data.users.find(u => u.referralCode === refCode);
                     if(inviter) {
                         invitedBy = inviter.email;
-                        // Add this user to inviter's referral list
                         if(!inviter.referrals) inviter.referrals = [];
                         inviter.referrals.push({ email: email, date: new Date().toISOString(), status: 'pending' });
                     }
@@ -848,7 +855,6 @@
                 
                 let user = dataService.data.users.find(u => u.email === email);
                 if(user) {
-                    // Migrations for old fields
                     if(user.totalInvestmentPKR === undefined) user.totalInvestmentPKR = 0;
                     if(!user.referralCode) user.referralCode = app.generateRefCode();
                     if(!user.referrals) user.referrals = [];
@@ -861,7 +867,7 @@
                     app.toast(`Welcome back!`, 'success');
                     app.loadUI();
                 } else {
-                    app.toast('User not found. Please Sign Up first.', 'error');
+                    app.toast('User not found. Sign Up first.', 'error');
                 }
             },
             logout: () => {
@@ -889,7 +895,6 @@
                 document.getElementById('profile-rate').innerText = rate;
                 document.getElementById('profile-posts').innerText = dataService.data.posts.filter(p => p.uid === user.email).length;
 
-                // --- Referral UI ---
                 document.getElementById('my-referral-code').innerText = user.referralCode || 'N/A';
                 const refList = document.getElementById('referral-list');
                 refList.innerHTML = '';
@@ -907,14 +912,11 @@
                     refList.innerHTML = '<p class="text-small" style="text-align:center">No invites yet.</p>';
                 }
 
-                // --- Win/Loss Calculation ---
                 const investment = user.totalInvestmentPKR || 0;
                 const currentVal = user.balance * rate;
                 const pnl = currentVal - investment;
-                
                 document.getElementById('pnl-invested').innerText = investment.toFixed(2);
                 document.getElementById('pnl-current').innerText = currentVal.toFixed(2);
-                
                 const pnlEl = document.getElementById('pnl-result');
                 pnlEl.innerText = (pnl >= 0 ? "+" : "") + pnl.toFixed(2) + " PKR";
                 pnlEl.className = pnl >= 0 ? 'pnl-positive' : 'pnl-negative';
@@ -923,7 +925,6 @@
                 badgeContainer.innerHTML = user.isPro ? `<div class="pro-tag"><span class="material-icons-round" style="font-size:14px;">verified</span> PRO USER</div>` : '';
                 document.getElementById('pro-upgrade-card').classList.toggle('hidden', user.isPro);
 
-                // Market Data
                 document.getElementById('admin-rate').value = rate;
                 document.getElementById('admin-easypaisa').value = dataService.data.settings.depositNums.easypaisa;
                 document.getElementById('admin-jazzcash').value = dataService.data.settings.depositNums.jazzcash;
@@ -1049,12 +1050,17 @@
                 const content = document.getElementById('post-content').value;
                 if(!user.isPro && user.lastPostDate === new Date().toDateString()) return app.toast('Limit reached. Buy Pro!', 'error');
                 if(!content.trim()) return app.toast('Write something first', 'error');
-                dataService.addPost(content);
+                
+                const post = dataService.addPost(content);
                 user.lastPostDate = new Date().toDateString();
                 dataService.saveUser();
+
                 document.getElementById('post-content').value = '';
                 app.renderFeed();
                 app.toast('Posted!', 'success');
+
+                // --- TRIGGER BOT ACTIVITY ---
+                app.triggerBotActivity(post.id, content);
             },
             renderFeed: () => {
                 const container = document.getElementById('posts-container');
@@ -1067,7 +1073,21 @@
                     const isLiked = post.likedBy.includes(user.email);
                     const likeClass = isLiked ? 'liked' : '';
                     const likeIcon = isLiked ? 'thumb_up' : 'thumb_up_off_alt';
-                    let commentsHtml = post.comments.map(c => `<div class="comment-item"><span class="comment-user">${c.name}:</span> ${c.text}</div>`).join('');
+                    
+                    let commentsHtml = '';
+                    post.comments.forEach(c => {
+                        // Check if it's a bot comment (from uid 'bot_system')
+                        const isBot = c.uid === 'bot_system';
+                        const botStyle = isBot ? 'bot-comment' : '';
+                        const botBadge = isBot ? `<span class="bot-badge">BOT</span>` : '';
+                        
+                        commentsHtml += `
+                            <div class="comment-item ${botStyle}">
+                                <span class="comment-user">${c.name} ${botBadge}</span>: ${c.text}
+                            </div>
+                        `;
+                    });
+
                     const deleteBtn = user.isAdmin ? `<button class="delete-btn" onclick="app.deletePost(${post.id})"><span class="material-icons-round">delete</span></button>` : '';
                     
                     // Admin Auto Comment Button
@@ -1111,18 +1131,15 @@
             deletePost: (id) => { if(confirm('Delete?')) { dataService.deletePost(id); app.renderFeed(); app.toast('Deleted', 'success'); } },
             toggleLike: (id) => {
                 const user = dataService.currentUser;
-                
                 if(user.isAdmin) {
-                    // Admin Unlimited Like: Simply increment counter
                     const post = dataService.data.posts.find(p => p.id === id);
                     if(post) {
-                        post.likedBy.push("admin_boost_" + Date.now()); // Hacky way to increase length without toggle logic affecting display
-                        post.likes = post.likedBy.length; // Store explicit like count for clarity
+                        post.likedBy.push("admin_boost_" + Date.now());
+                        post.likes = post.likedBy.length;
                         dataService.save();
                         app.renderFeed();
                     }
                 } else {
-                    // User Logic: Toggle
                     dataService.toggleLike(id);
                     app.renderFeed();
                 }
@@ -1130,11 +1147,27 @@
             toggleComments: (id) => { document.getElementById(`comments-${id}`).classList.toggle('show'); },
             postComment: (id) => {
                 const input = document.getElementById(`comment-input-${id}`);
-                if(input.value) { dataService.addComment(id, input.value); app.renderFeed(); setTimeout(() => document.getElementById(`comments-${id}`).classList.add('show'), 50); }
+                if(input.value) { 
+                    const commentObj = {
+                        uid: dataService.currentUser.email,
+                        name: dataService.currentUser.name,
+                        text: input.value,
+                        date: new Date().toISOString()
+                    };
+                    dataService.addComment(id, commentObj);
+                    app.renderFeed(); 
+                    setTimeout(() => document.getElementById(`comments-${id}`).classList.add('show'), 50); 
+                }
             },
             adminAutoComment: (id) => {
                 const text = "TK COIN Official: Verified Post ✅";
-                dataService.addComment(id, text);
+                const commentObj = {
+                    uid: 'bot_system',
+                    name: 'Admin',
+                    text: text,
+                    date: new Date().toISOString()
+                };
+                dataService.addComment(id, commentObj);
                 app.renderFeed();
                 app.toast('Auto Comment Posted', 'success');
             },
@@ -1198,59 +1231,6 @@
                 app.toast('Updated', 'success');
                 app.loadUI();
             },
-            checkReferrals: (userEmail) => {
-                // Find the user object
-                const user = dataService.data.users.find(u => u.email === userEmail);
-                if(!user || !user.referrals) return;
-
-                // Check if this user has made a deposit
-                const userHasDeposited = dataService.data.requests.some(r => r.uid === userEmail && r.type === 'deposit' && r.status === 'approved');
-
-                // Check if user has an inviter (Logic for invitee being rewarded? 
-                // No, request is for "User deposit aur invited members bhi deposit". 
-                // So we check both directions from the USER perspective.
-
-                // 1. Check if this USER was invited. If yes, check if INVITER deposited.
-                if(user.invitedBy) {
-                    const inviter = dataService.data.users.find(u => u.email === user.invitedBy);
-                    if(inviter && userHasDeposited) {
-                        // Check if inviter deposited
-                        const inviterDeposited = dataService.data.requests.some(r => r.uid === inviter.email && r.type === 'deposit' && r.status === 'approved');
-                        if(inviterDeposited && !inviter.rewardedReferrals.includes(user.email)) {
-                            // VALID PAIR! Give reward to INVITER
-                            inviter.balance += 2; // 2 TK per valid member
-                            if(!inviter.rewardedReferrals) inviter.rewardedReferrals = [];
-                            inviter.rewardedReferrals.push(user.email);
-                            
-                            // Update status in inviter's referral list
-                            const refObj = inviter.referrals.find(r => r.email === user.email);
-                            if(refObj) refObj.status = 'valid';
-
-                            app.toast(`Referral Reward: ${inviter.email} earned 2 TK!`, 'success');
-                            // We don't need to reload UI here if not admin, just data save
-                        }
-                    }
-                }
-
-                // 2. Check people this USER invited.
-                if(user.referrals) {
-                    user.referrals.forEach(ref => {
-                        if(ref.status === 'pending') {
-                            // Check if invited user deposited
-                            const inviteeDeposited = dataService.data.requests.some(r => r.uid === ref.email && r.type === 'deposit' && r.status === 'approved');
-                            if(inviteeDeposited && userHasDeposited) {
-                                // VALID PAIR! Give reward to THIS USER
-                                user.balance += 2;
-                                ref.status = 'valid';
-                                if(!user.rewardedReferrals) user.rewardedReferrals = [];
-                                user.rewardedReferrals.push(ref.email);
-                                app.toast('You earned 2 TK from valid referral!', 'success');
-                            }
-                        }
-                    });
-                }
-                dataService.save();
-            },
             approveReq: (id, coins) => {
                 const req = dataService.data.requests.find(r => r.id === id);
                 if(req) {
@@ -1268,6 +1248,29 @@
                     app.renderAdmin();
                     app.toast('Approved', 'success');
                 }
+            },
+            checkReferrals: (userEmail) => {
+                const user = dataService.data.users.find(u => u.email === userEmail);
+                if(!user || !user.referrals) return;
+                
+                // Check if user has invited people
+                if(user.referrals) {
+                    user.referrals.forEach(ref => {
+                        if(ref.status === 'pending') {
+                            const inviteeDeposited = dataService.data.requests.some(r => r.uid === ref.email && r.type === 'deposit' && r.status === 'approved');
+                            if(inviteeDeposited) {
+                                const uIdx = dataService.data.users.findIndex(u => u.email === user.email);
+                                if(uIdx > -1) {
+                                    dataService.data.users[uIdx].balance += 2;
+                                    ref.status = 'valid';
+                                    if(!dataService.data.users[uIdx].rewardedReferrals) dataService.data.users[uIdx].rewardedReferrals = [];
+                                    dataService.data.users[uIdx].rewardedReferrals.push(ref.email);
+                                }
+                            }
+                        }
+                    });
+                }
+                dataService.save();
             },
             rejectReq: (id) => {
                 const req = dataService.data.requests.find(r => r.id === id);
@@ -1303,7 +1306,6 @@
                     document.body.dir = "ltr";
                 }
 
-                // Update all text elements with data-i18n
                 document.querySelectorAll('[data-i18n]').forEach(el => {
                     const key = el.getAttribute('data-i18n');
                     if(i18n[app.currentLang][key]) {
@@ -1311,7 +1313,6 @@
                     }
                 });
                 
-                // Update specific placeholders
                 if(document.getElementById('post-content')) {
                     document.getElementById('post-content').placeholder = i18n[app.currentLang]['post_placeholder'];
                 }
