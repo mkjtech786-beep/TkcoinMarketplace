@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TK COIN - Trading & Community</title>
-    <!-- Firebase SDKs (Included as requested) -->
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <!-- Google Fonts & Icons -->
@@ -63,6 +63,14 @@
         .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); margin-top: 10px; }
         .btn-danger { background: var(--danger); color: white; }
         .btn-sm { padding: 6px 12px; font-size: 0.8rem; width: auto; }
+        .btn-text { background: none; color: var(--primary); width: auto; padding: 0; display: inline; font-size: 0.9rem; }
+
+        /* --- Auth Screen --- */
+        #auth-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); z-index: 200; display: flex; justify-content: center; align-items: center; padding: 20px; overflow-y: auto; }
+        .auth-card { background: white; padding: 30px; border-radius: 16px; width: 100%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: center; }
+        .auth-tabs { display: flex; margin-bottom: 20px; border-bottom: 2px solid #eee; }
+        .auth-tab { flex: 1; padding: 10px; cursor: pointer; font-weight: 600; color: #999; }
+        .auth-tab.active { color: var(--primary); border-bottom: 2px solid var(--primary); margin-bottom: -2px; }
 
         /* --- Market Cards --- */
         .market-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
@@ -86,6 +94,14 @@
         .action-btn { background: none; border: none; color: #666; cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 0.9rem; }
         .action-btn.liked { color: var(--danger); }
         .delete-btn { position: absolute; top: 15px; right: 15px; color: var(--danger); background: none; border: none; cursor: pointer; }
+        
+        /* Comments Section */
+        .comments-section { background: #f9f9f9; padding: 10px; border-radius: 8px; margin-top: 10px; display: none; }
+        .comments-section.show { display: block; }
+        .comment-item { padding: 8px 0; border-bottom: 1px solid #eee; font-size: 0.85rem; }
+        .comment-user { font-weight: bold; color: var(--primary); }
+        .comment-input-wrapper { display: flex; gap: 5px; margin-top: 10px; }
+        .comment-input { padding: 8px; font-size: 0.85rem; }
 
         /* --- Profile --- */
         .profile-header { text-align: center; padding: 20px 0; }
@@ -101,13 +117,6 @@
         .request-item { background: #f9f9f9; padding: 12px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #eee; }
         .req-actions { display: flex; gap: 5px; margin-top: 10px; }
         .status-badge { padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
-        .status-pending { background: #fff3cd; color: #856404; }
-        .status-approved { background: #d4edda; color: #155724; }
-        .status-rejected { background: #f8d7da; color: #721c24; }
-
-        /* --- Login --- */
-        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); z-index: 200; display: flex; justify-content: center; align-items: center; padding: 20px; }
-        .login-card { background: white; padding: 30px; border-radius: 16px; width: 100%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
 
         /* --- Toast Notification --- */
         #toast-container { position: fixed; top: 20px; right: 20px; z-index: 1000; }
@@ -124,20 +133,40 @@
 </head>
 <body>
 
-    <!-- Login Screen -->
-    <div id="login-screen">
-        <div class="login-card">
+    <!-- Auth Screen (Login/Signup) -->
+    <div id="auth-screen">
+        <div class="auth-card">
             <h2 style="text-align: center; color: var(--primary); margin-bottom: 20px;">TK COIN</h2>
-            <div class="form-group">
-                <label>Email</label>
-                <input type="email" id="login-email" placeholder="user@test.com (Use admin@tkcoin.com for Admin)">
+            
+            <div class="auth-tabs">
+                <div class="auth-tab active" onclick="app.toggleAuth('login')">Login</div>
+                <div class="auth-tab" onclick="app.toggleAuth('signup')">Sign Up</div>
             </div>
-            <div class="form-group">
-                <label>Password</label>
-                <input type="password" id="login-pass" placeholder="Any password">
+
+            <!-- Login Form -->
+            <div id="login-form">
+                <div class="form-group">
+                    <input type="email" id="login-email" placeholder="Email Address">
+                </div>
+                <div class="form-group">
+                    <input type="password" id="login-pass" placeholder="Password">
+                </div>
+                <button class="btn btn-primary" onclick="app.login()">Login</button>
             </div>
-            <button class="btn btn-primary" onclick="app.login()">Login</button>
-            <p class="text-small" style="text-align: center; margin-top: 15px;">Demo Mode: Any email works.<br>Use <b>admin@tkcoin.com</b> for Admin access.</p>
+
+            <!-- Signup Form -->
+            <div id="signup-form" class="hidden">
+                <div class="form-group">
+                    <input type="text" id="reg-name" placeholder="Full Name">
+                </div>
+                <div class="form-group">
+                    <input type="email" id="reg-email" placeholder="Email Address">
+                </div>
+                <div class="form-group">
+                    <input type="password" id="reg-pass" placeholder="Password">
+                </div>
+                <button class="btn btn-primary" onclick="app.signup()">Create Account</button>
+            </div>
         </div>
     </div>
 
@@ -180,8 +209,8 @@
 
                 <div class="method-card">
                     <div class="method-info">
-                        <strong>Deposit Number</strong>
-                        <span id="deposit-number-display">0300-1234567</span>
+                        <strong>Deposit Number / ID</strong>
+                        <span id="deposit-number-display">Select Method</span>
                     </div>
                     <button class="copy-btn" onclick="app.copyDepositNumber()">COPY</button>
                 </div>
@@ -320,10 +349,21 @@
                     <label>Tk Coin Rate (PKR)</label>
                     <input type="number" id="admin-rate" value="8">
                 </div>
+                
+                <label style="margin-top:10px;">Deposit Numbers</label>
                 <div class="form-group">
-                    <label>Deposit Number (EasyPaisa/JazzCash)</label>
-                    <input type="text" id="admin-deposit-num" value="0300-1234567">
+                    <label style="font-weight:400; font-size:0.8rem;">EasyPaisa</label>
+                    <input type="text" id="admin-easypaisa" value="1456">
                 </div>
+                <div class="form-group">
+                    <label style="font-weight:400; font-size:0.8rem;">JazzCash</label>
+                    <input type="text" id="admin-jazzcash" value="95688">
+                </div>
+                <div class="form-group">
+                    <label style="font-weight:400; font-size:0.8rem;">Binance ID</label>
+                    <input type="text" id="admin-binance" value="Je74475'-6">
+                </div>
+
                 <button class="btn btn-primary btn-sm" onclick="app.updateSettings()">Update Settings</button>
             </div>
 
@@ -379,9 +419,6 @@
             measurementId: "G-WED3TVXE62"
         };
 
-        // Initialize Firebase (But we will wrap logic to use LocalStorage as fallback/primary for this demo)
-        // This ensures the user can use the tool immediately without Console setup.
-        // Initialize Firebase
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
@@ -392,16 +429,20 @@
          * Using LocalStorage to simulate backend for immediate usability.
          */
         
-        const MOCK_DB_KEY = 'tkcoin_db_v1';
+        const MOCK_DB_KEY = 'tkcoin_db_v2';
         
         // Default Initial State
         const initialState = {
             users: [],
             posts: [],
-            requests: [], // {id, type, uid, amount, account, status, date, releaseDate}
+            requests: [], 
             settings: {
-                rate: 10, // 1 Coin = 10 PKR
-                depositNum: "0300-1234567"
+                rate: 10, 
+                depositNums: {
+                    easypaisa: "1456",
+                    jazzcash: "95688",
+                    binance: "Je74475'-6"
+                }
             }
         };
 
@@ -413,8 +454,6 @@
 
             save() {
                 localStorage.setItem(MOCK_DB_KEY, JSON.stringify(this.data));
-                // In a real app, here we would push to Firebase:
-                // db.ref('/').set(this.data); 
             }
 
             saveUser() {
@@ -430,9 +469,7 @@
                 }
             }
 
-            // Helpers
             getPosts() {
-                // Sort by date desc
                 return this.data.posts.sort((a, b) => new Date(b.date) - new Date(a.date));
             }
 
@@ -443,8 +480,8 @@
                     name: this.currentUser.name,
                     isPro: this.currentUser.isPro,
                     content: content,
-                    likes: 0,
-                    comments: [],
+                    likedBy: [], // Array of emails
+                    comments: [], // Array of {uid, name, text, date}
                     date: new Date().toISOString()
                 };
                 this.data.posts.push(post);
@@ -457,10 +494,28 @@
                 this.save();
             }
 
-            likePost(id) {
+            toggleLike(id) {
                 const post = this.data.posts.find(p => p.id === id);
                 if(post) {
-                    post.likes++;
+                    const email = this.currentUser.email;
+                    if(post.likedBy.includes(email)) {
+                        post.likedBy = post.likedBy.filter(e => e !== email); // Unlike
+                    } else {
+                        post.likedBy.push(email); // Like
+                    }
+                    this.save();
+                }
+            }
+
+            addComment(id, text) {
+                const post = this.data.posts.find(p => p.id === id);
+                if(post && text.trim() !== "") {
+                    post.comments.push({
+                        uid: this.currentUser.email,
+                        name: this.currentUser.name,
+                        text: text,
+                        date: new Date().toISOString()
+                    });
                     this.save();
                 }
             }
@@ -474,10 +529,15 @@
                 return this.data.requests.filter(r => r.status === 'pending');
             }
 
-            // Rate & Settings
             getRate() { return this.data.settings.rate; }
-            updateRate(newRate) { this.data.settings.rate = Number(newRate); this.save(); }
-            updateDepositNum(num) { this.data.settings.depositNum = num; this.save(); }
+            
+            updateSettings(newRate, easypaisa, jazzcash, binance) {
+                this.data.settings.rate = Number(newRate);
+                this.data.settings.depositNums.easypaisa = easypaisa;
+                this.data.settings.depositNums.jazzcash = jazzcash;
+                this.data.settings.depositNums.binance = binance;
+                this.save();
+            }
         }
 
         const dataService = new DataService();
@@ -488,38 +548,93 @@
         const app = {
             init: () => {
                 if(dataService.currentUser) {
-                    document.getElementById('login-screen').classList.add('hidden');
+                    document.getElementById('auth-screen').classList.add('hidden');
                     document.getElementById('main-app').classList.remove('hidden');
                     app.loadUI();
                 }
             },
 
-            login: () => {
-                const email = document.getElementById('login-email').value;
-                if(!email) return app.toast('Please enter email', 'error');
+            toggleAuth: (mode) => {
+                document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+                event.target.classList.add('active');
+                if(mode === 'login') {
+                    document.getElementById('login-form').classList.remove('hidden');
+                    document.getElementById('signup-form').classList.add('hidden');
+                } else {
+                    document.getElementById('login-form').classList.add('hidden');
+                    document.getElementById('signup-form').classList.remove('hidden');
+                }
+            },
 
-                let user = dataService.data.users.find(u => u.email === email);
-                if(!user) {
-                    // Register new
-                    user = {
-                        email: email,
-                        name: email.split('@')[0],
-                        balance: 0,
-                        isPro: false,
-                        joinDate: new Date().toISOString(),
-                        lastPostDate: null
-                    };
-                    dataService.data.users.push(user);
-                    dataService.save();
+            signup: () => {
+                const name = document.getElementById('reg-name').value;
+                const email = document.getElementById('reg-email').value.toLowerCase(); // Normalize
+                const pass = document.getElementById('reg-pass').value;
+
+                if(!name || !email || !pass) return app.toast('Fill all fields', 'error');
+                
+                // Check if user exists
+                if(dataService.data.users.find(u => u.email === email)) {
+                    return app.toast('Email already registered', 'error');
                 }
 
+                const user = {
+                    email: email,
+                    name: name,
+                    balance: 0,
+                    isPro: false,
+                    joinDate: new Date().toISOString(),
+                    lastPostDate: null
+                };
+                
+                dataService.data.users.push(user);
+                dataService.save();
+                
+                // Auto login
                 dataService.currentUser = user;
                 dataService.saveUser();
                 
-                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('auth-screen').classList.add('hidden');
                 document.getElementById('main-app').classList.remove('hidden');
-                app.toast(`Welcome back, ${user.name}!`, 'success');
+                app.toast('Account Created!', 'success');
                 app.loadUI();
+            },
+
+            login: () => {
+                const email = document.getElementById('login-email').value.toLowerCase();
+                
+                if(!email) return app.toast('Please enter email', 'error');
+
+                // Check if Admin
+                if (email === 'admin@tkcoin.com') {
+                    const adminUser = {
+                        email: 'admin@tkcoin.com',
+                        name: 'Admin',
+                        balance: 999999,
+                        isPro: true,
+                        isAdmin: true
+                    };
+                    dataService.currentUser = adminUser;
+                    dataService.saveUser();
+                    document.getElementById('auth-screen').classList.add('hidden');
+                    document.getElementById('main-app').classList.remove('hidden');
+                    app.toast('Welcome Admin', 'success');
+                    app.loadUI();
+                    return;
+                }
+
+                // Check Regular User
+                let user = dataService.data.users.find(u => u.email === email);
+                if(user) {
+                    dataService.currentUser = user;
+                    dataService.saveUser();
+                    document.getElementById('auth-screen').classList.add('hidden');
+                    document.getElementById('main-app').classList.remove('hidden');
+                    app.toast(`Welcome back, ${user.name}!`, 'success');
+                    app.loadUI();
+                } else {
+                    app.toast('User not found. Please Sign Up.', 'error');
+                }
             },
 
             logout: () => {
@@ -549,7 +664,7 @@
                 }
 
                 // Admin Link
-                if(user.email === 'admin@tkcoin.com') {
+                if(user.isAdmin) {
                     document.getElementById('admin-nav-link').classList.remove('hidden');
                 } else {
                     document.getElementById('admin-nav-link').classList.add('hidden');
@@ -574,14 +689,16 @@
 
                 // Market Data
                 document.getElementById('admin-rate').value = rate;
-                document.getElementById('admin-deposit-num').value = dataService.data.settings.depositNum;
+                document.getElementById('admin-easypaisa').value = dataService.data.settings.depositNums.easypaisa;
+                document.getElementById('admin-jazzcash').value = dataService.data.settings.depositNums.jazzcash;
+                document.getElementById('admin-binance').value = dataService.data.settings.depositNums.binance;
                 app.updateDepositInfo();
                 
                 // Feed Data
                 app.renderFeed();
                 
                 // Admin Data
-                if(user.email === 'admin@tkcoin.com') {
+                if(user.isAdmin) {
                     app.renderAdmin();
                 }
             },
@@ -609,20 +726,20 @@
                 } else {
                     document.getElementById('buy-tab').classList.add('hidden');
                     document.getElementById('sell-tab').classList.remove('hidden');
-                    app.updateWithdrawUI(); // Reset Calc
+                    app.updateWithdrawUI(); 
                 }
             },
 
             updateDepositInfo: () => {
                 const method = document.getElementById('deposit-method').value;
-                const num = dataService.data.settings.depositNum;
-                document.getElementById('deposit-number-display').innerText = num;
+                const nums = dataService.data.settings.depositNums;
+                document.getElementById('deposit-number-display').innerText = nums[method];
             },
 
             copyDepositNumber: () => {
                 const num = document.getElementById('deposit-number-display').innerText;
                 navigator.clipboard.writeText(num);
-                app.toast('Number Copied!', 'success');
+                app.toast('Copied to clipboard!', 'success');
             },
 
             calcBuy: () => {
@@ -669,15 +786,14 @@
                 let tax = 0;
                 let finalPkr = 0;
 
-                // Logic: Rate * Coins = Total PKR
                 const totalVal = coins * rate;
 
                 if(type === 'instant') {
                     if(!dataService.currentUser.isPro) {
-                        tax = totalVal * 0.03; // 3% tax for normal
+                        tax = totalVal * 0.03; 
                     }
                 } else {
-                    tax = 0; // No tax on hold
+                    tax = 0; 
                 }
 
                 finalPkr = totalVal - tax;
@@ -695,7 +811,6 @@
                 if(coins > dataService.currentUser.balance) return app.toast('Insufficient Balance', 'error');
                 if(!account) return app.toast('Enter Account Details', 'error');
 
-                // Deduct balance immediately (escrow)
                 dataService.currentUser.balance -= coins;
                 dataService.saveUser();
 
@@ -721,7 +836,7 @@
 
                 dataService.addRequest(req);
                 app.toast('Withdrawal Requested', 'success');
-                app.loadUI(); // Update balance display
+                app.loadUI();
                 document.getElementById('sell-coins').value = '';
                 app.calcSell();
             },
@@ -732,7 +847,6 @@
                 const user = dataService.currentUser;
                 const content = document.getElementById('post-content').value;
 
-                // 1 post per day limit for normal
                 if(!user.isPro) {
                     const today = new Date().toDateString();
                     if(user.lastPostDate === today) {
@@ -744,7 +858,6 @@
 
                 const post = dataService.addPost(content);
                 
-                // Update last post date
                 user.lastPostDate = new Date().toDateString();
                 dataService.saveUser();
 
@@ -759,9 +872,8 @@
                 
                 let posts = dataService.getPosts();
                 const user = dataService.currentUser;
-                const isAdmin = user.email === 'admin@tkcoin.com';
+                const isAdmin = user.isAdmin;
 
-                // Normal User: View only 3 latest posts
                 if(!user.isPro && !isAdmin) {
                     posts = posts.slice(0, 3);
                     document.getElementById('feed-limit-msg').classList.remove('hidden');
@@ -773,6 +885,21 @@
                     const date = new Date(post.date).toLocaleDateString();
                     const badge = post.isPro ? '<span class="material-icons-round badge-pro">verified</span>' : '';
                     const deleteBtn = isAdmin ? `<button class="delete-btn" onclick="app.deletePost(${post.id})"><span class="material-icons-round">delete</span></button>` : '';
+
+                    // Like Logic
+                    const isLiked = post.likedBy.includes(user.email);
+                    const likeClass = isLiked ? 'liked' : '';
+                    const likeIcon = isLiked ? 'thumb_up' : 'thumb_up_off_alt';
+
+                    // Render Comments
+                    let commentsHtml = '';
+                    post.comments.forEach(c => {
+                        commentsHtml += `
+                            <div class="comment-item">
+                                <span class="comment-user">${c.name}:</span> ${c.text}
+                            </div>
+                        `;
+                    });
 
                     const html = `
                         <div class="post-card">
@@ -786,12 +913,21 @@
                             </div>
                             <div class="post-content">${post.content}</div>
                             <div class="post-actions">
-                                <button class="action-btn" onclick="app.likePost(${post.id})">
-                                    <span class="material-icons-round">thumb_up</span> ${post.likes}
+                                <button class="action-btn ${likeClass}" onclick="app.toggleLike(${post.id})">
+                                    <span class="material-icons-round">${likeIcon}</span> ${post.likedBy.length}
                                 </button>
-                                <button class="action-btn">
+                                <button class="action-btn" onclick="app.toggleComments(${post.id})">
                                     <span class="material-icons-round">comment</span> ${post.comments.length}
                                 </button>
+                            </div>
+                            
+                            <!-- Comments Section -->
+                            <div id="comments-${post.id}" class="comments-section">
+                                ${commentsHtml}
+                                <div class="comment-input-wrapper">
+                                    <input type="text" id="comment-input-${post.id}" class="comment-input" placeholder="Write a comment...">
+                                    <button class="btn btn-primary btn-sm" onclick="app.postComment(${post.id})">Send</button>
+                                </div>
                             </div>
                         </div>
                     `;
@@ -807,9 +943,27 @@
                 }
             },
 
-            likePost: (id) => {
-                dataService.likePost(id);
+            toggleLike: (id) => {
+                dataService.toggleLike(id);
                 app.renderFeed();
+            },
+
+            toggleComments: (id) => {
+                const el = document.getElementById(`comments-${id}`);
+                el.classList.toggle('show');
+            },
+
+            postComment: (id) => {
+                const input = document.getElementById(`comment-input-${id}`);
+                const text = input.value;
+                if(text) {
+                    dataService.addComment(id, text);
+                    app.renderFeed();
+                    // Keep comment section open after reload
+                    setTimeout(() => {
+                        document.getElementById(`comments-${id}`).classList.add('show');
+                    }, 50);
+                }
             },
 
             // --- PROFILE LOGIC ---
@@ -830,7 +984,6 @@
             },
 
             navToProfile: () => {
-                // Trigger click on profile nav
                 document.querySelectorAll('.nav-item')[2].click();
             },
 
@@ -856,7 +1009,6 @@
                     let actionHtml = '';
                     
                     if(r.type === 'deposit') {
-                        // Calc coins to add based on Rate AT TIME OF APPROVAL (User requested price? Prompt says "Price current pe user withdraw lagaye...". For deposit, we use Current Rate).
                         const rate = dataService.getRate();
                         const coinsToAdd = (r.amount / rate).toFixed(2);
                         
@@ -876,8 +1028,6 @@
                         `;
                     } else if (r.type === 'withdraw') {
                         const rate = dataService.getRate();
-                        // Note: Coins were already deducted from user balance when requested.
-                        // Admin just sends the money manually.
                         const pkrToSend = (r.amount * rate).toFixed(2);
                         
                         let lockInfo = r.withdrawType === 'hold' ? `<br><span style="color:orange">Lock until ${new Date(r.releaseDate).toLocaleDateString()}</span>` : '';
@@ -900,7 +1050,6 @@
                     }
                 });
 
-                // User List
                 dataService.data.users.forEach(u => {
                     uList.innerHTML += `
                         <div class="request-item" style="display:flex; justify-content:space-between; align-items:center;">
@@ -915,18 +1064,19 @@
 
             updateSettings: () => {
                 const rate = document.getElementById('admin-rate').value;
-                const num = document.getElementById('admin-deposit-num').value;
-                dataService.updateRate(rate);
-                dataService.updateDepositNum(num);
+                const ep = document.getElementById('admin-easypaisa').value;
+                const jc = document.getElementById('admin-jazzcash').value;
+                const bin = document.getElementById('admin-binance').value;
+                
+                dataService.updateSettings(rate, ep, jc, bin);
                 app.toast('Settings Updated', 'success');
-                app.loadUI(); // refresh header rates
+                app.loadUI();
             },
 
             approveReq: (id, coins) => {
                 const reqIndex = dataService.data.requests.findIndex(r => r.id === id);
                 if(reqIndex > -1) {
                     const req = dataService.data.requests[reqIndex];
-                    // Add coins to user
                     const userIndex = dataService.data.users.findIndex(u => u.email === req.uid);
                     if(userIndex > -1) {
                         dataService.data.users[userIndex].balance += parseFloat(coins);
@@ -962,7 +1112,6 @@
                 if(confirm('Reject withdrawal and refund coins to user?')) {
                     const reqIndex = dataService.data.requests.findIndex(r => r.id === id);
                     if(reqIndex > -1) {
-                        // Refund Coins
                         const userIndex = dataService.data.users.findIndex(u => u.email === dataService.data.requests[reqIndex].uid);
                         if(userIndex > -1) {
                             dataService.data.users[userIndex].balance += parseFloat(coins);
