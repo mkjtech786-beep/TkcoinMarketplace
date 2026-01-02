@@ -13,7 +13,7 @@
 
     <style>
         :root {
-            --primary: #0056b3;
+            --primary: #0056b3; /* Deep Blue */
             --primary-light: #e3f2fd;
             --secondary: #003d80;
             --bg-body: #f0f4f8;
@@ -29,6 +29,7 @@
             --shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
+        /* Dark Mode Overrides */
         body.dark-mode {
             --primary: #2979ff;
             --primary-light: #1a237e;
@@ -45,6 +46,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
         body { background-color: var(--bg-body); color: var(--text-main); padding-bottom: 80px; transition: background 0.3s, color 0.3s; }
 
+        /* --- Layout --- */
         .container { max-width: 480px; margin: 0 auto; background: var(--bg-body); min-height: 100vh; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
         
         header { background: var(--primary); color: var(--white); padding: 20px; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
@@ -55,15 +57,18 @@
         .balance-value { font-size: 1.8rem; font-weight: 700; }
         .balance-pkr { font-size: 1.2rem; font-weight: 600; margin-top: 5px; color: var(--primary-light); opacity: 0.9; }
 
+        /* --- Navigation --- */
         .nav-bar { position: fixed; bottom: 0; width: 100%; max-width: 480px; background: var(--bg-card); display: flex; justify-content: space-around; padding: 12px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 100; border-top: 1px solid var(--border); }
         .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-sec); text-decoration: none; font-size: 0.7rem; cursor: pointer; transition: 0.3s; flex: 1; }
         .nav-item.active { color: var(--primary); font-weight: 600; }
         .nav-item .material-icons-round { font-size: 24px; margin-bottom: 2px; }
 
+        /* --- Sections --- */
         .section { display: none; padding: 20px; animation: fadeIn 0.3s ease; }
         .section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* --- Forms & Inputs --- */
         .form-group { margin-bottom: 15px; }
         label { display: block; font-size: 0.9rem; margin-bottom: 5px; font-weight: 500; color: var(--text-main); }
         input, select, textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text-main); transition: 0.3s; }
@@ -77,7 +82,7 @@
         .btn-sm { padding: 6px 12px; font-size: 0.8rem; width: auto; }
         .btn-text { background: none; color: var(--primary); width: auto; padding: 0; display: inline; font-size: 0.9rem; text-decoration: underline; }
 
-        /* Auth Screen */
+        /* --- Auth Screen --- */
         #auth-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); z-index: 200; display: flex; justify-content: center; align-items: center; padding: 20px; overflow-y: auto; }
         .auth-card { background: var(--bg-card); padding: 30px; border-radius: 16px; width: 100%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: center; color: var(--text-main); }
         .auth-tabs { display: flex; margin-bottom: 20px; border-bottom: 2px solid var(--border); }
@@ -87,13 +92,13 @@
         .checkbox-group { display: flex; align-items: flex-start; gap: 10px; margin-top: 15px; font-size: 0.8rem; color: var(--text-main); text-align: left; }
         .checkbox-group input { width: auto; margin-top: 3px; }
 
-        /* Modals */
+        /* --- Modals --- */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 300; display: none; justify-content: center; align-items: center; padding: 20px; }
         .modal-content { background: var(--bg-card); padding: 25px; border-radius: 12px; width: 100%; max-width: 400px; max-height: 80vh; overflow-y: auto; text-align: left; color: var(--text-main); }
         .modal-title { font-weight: 700; margin-bottom: 15px; color: var(--primary); font-size: 1.2rem; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
         .modal-body p { font-size: 0.9rem; line-height: 1.6; margin-bottom: 10px; color: var(--text-main); }
 
-        /* Market & History */
+        /* --- Market Cards --- */
         .market-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
         .tab-btn { flex: 1; padding: 10px; border-radius: 8px; border: none; background: var(--bg-card); color: var(--text-sec); border: 1px solid var(--border); font-weight: 600; cursor: pointer; }
         .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
@@ -102,46 +107,20 @@
         .method-info strong { display: block; color: var(--primary); }
         .copy-btn { background: none; border: none; color: var(--primary); cursor: pointer; font-weight: bold; }
 
+        /* --- History List --- */
         .history-item { background: var(--bg-card); padding: 15px; border-radius: 8px; margin-bottom: 10px; box-shadow: var(--shadow); border-left: 4px solid var(--border); color: var(--text-main); }
         .history-item.deposit { border-left-color: var(--success); }
         .history-item.withdraw { border-left-color: var(--primary); }
-        .history-item.referral { border-left-color: var(--pro-gold); }
         .hist-head { display: flex; justify-content: space-between; margin-bottom: 5px; }
         .hist-amount { font-weight: bold; font-size: 1.1rem; }
         .hist-date { font-size: 0.8rem; color: var(--text-sec); }
+        .hist-detail { font-size: 0.85rem; color: var(--text-main); margin-bottom: 5px; }
         .status-badge { padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; float: right; }
         .status-pending { background: #fff3cd; color: #856404; }
         .status-approved { background: #d4edda; color: #155724; }
         .status-rejected { background: #f8d7da; color: #721c24; }
 
-        /* Profile */
-        .profile-header { text-align: center; padding: 20px 0; position: relative; }
-        .theme-toggle { position: absolute; top: 0; right: 0; background: var(--bg-card); border: 1px solid var(--border); padding: 8px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-main); box-shadow: var(--shadow); }
-        .profile-pic { width: 80px; height: 80px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 10px; border: 3px solid var(--primary-light); }
-        .pro-tag { background: var(--primary); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 5px; margin-top: 5px; }
-        
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .stat-box { background: var(--bg-card); padding: 15px; border-radius: 8px; text-align: center; box-shadow: var(--shadow); border: 1px solid var(--border); }
-        .stat-val { font-size: 1.2rem; font-weight: 700; color: var(--primary); }
-        .stat-label { font-size: 0.8rem; color: var(--text-sec); }
-
-        .pnl-card { background: var(--bg-card); padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: var(--shadow); border: 1px solid var(--border); text-align: center; }
-        .pnl-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.9rem; color: var(--text-main); }
-        .pnl-row.total { border-top: 1px solid var(--border); padding-top: 10px; margin-top: 10px; font-size: 1.1rem; font-weight: 700; }
-        .pnl-positive { color: var(--success); }
-        .pnl-negative { color: var(--danger); }
-
-        /* Referral Card */
-        .ref-card { background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%); padding: 20px; border-radius: 12px; margin-bottom: 20px; color: #333; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3); }
-        .ref-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 10px; display: flex; align-items: center; gap: 5px; }
-        .ref-code-box { background: rgba(255,255,255,0.9); padding: 10px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .ref-code-text { font-weight: 800; font-size: 1.4rem; letter-spacing: 2px; }
-        .ref-copy-btn { background: #333; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
-        .ref-stats { font-size: 0.9rem; margin-bottom: 5px; display: flex; justify-content: space-between; }
-        .ref-progress { height: 8px; background: rgba(0,0,0,0.2); border-radius: 4px; margin-top: 10px; overflow: hidden; }
-        .ref-progress-bar { height: 100%; background: #fff; width: 0%; transition: width 0.5s; }
-
-        /* Feed & Admin */
+        /* --- Community Feed --- */
         .post-create { background: var(--bg-card); padding: 15px; border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 20px; color: var(--text-main); }
         .post-card { background: var(--bg-card); padding: 15px; border-radius: 12px; margin-bottom: 15px; box-shadow: var(--shadow); position: relative; color: var(--text-main); }
         .post-header { display: flex; align-items: center; margin-bottom: 10px; }
@@ -154,6 +133,8 @@
         .action-btn { background: none; border: none; color: var(--text-sec); cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 0.9rem; }
         .action-btn.liked { color: var(--danger); }
         .delete-btn { position: absolute; top: 15px; right: 15px; color: var(--danger); background: none; border: none; cursor: pointer; }
+        
+        /* Comments Section */
         .comments-section { background: var(--bg-body); padding: 10px; border-radius: 8px; margin-top: 10px; display: none; }
         .comments-section.show { display: block; }
         .comment-item { padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
@@ -161,19 +142,48 @@
         .comment-input-wrapper { display: flex; gap: 5px; margin-top: 10px; }
         .comment-input { padding: 8px; font-size: 0.85rem; }
 
+        /* --- Profile --- */
+        .profile-header { text-align: center; padding: 20px 0; position: relative; }
+        .theme-toggle { position: absolute; top: 0; right: 0; background: var(--bg-card); border: 1px solid var(--border); padding: 8px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-main); box-shadow: var(--shadow); }
+        .profile-pic { width: 80px; height: 80px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 10px; border: 3px solid var(--primary-light); }
+        .pro-tag { background: var(--primary); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 5px; margin-top: 5px; }
+        
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .stat-box { background: var(--bg-card); padding: 15px; border-radius: 8px; text-align: center; box-shadow: var(--shadow); border: 1px solid var(--border); }
+        .stat-val { font-size: 1.2rem; font-weight: 700; color: var(--primary); }
+        .stat-label { font-size: 0.8rem; color: var(--text-sec); }
+
+        /* Win/Loss Card */
+        .pnl-card { background: var(--bg-card); padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: var(--shadow); border: 1px solid var(--border); text-align: center; }
+        .pnl-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.9rem; color: var(--text-main); }
+        .pnl-row.total { border-top: 1px solid var(--border); padding-top: 10px; margin-top: 10px; font-size: 1.1rem; font-weight: 700; }
+        .pnl-positive { color: var(--success); }
+        .pnl-negative { color: var(--danger); }
+
+        /* Referral Card */
+        .ref-card { background: var(--bg-card); padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: var(--shadow); border: 1px solid var(--border); border-left: 4px solid var(--warning); }
+        .ref-code-box { background: var(--bg-body); padding: 10px; border: 1px dashed var(--border); text-align: center; font-weight: bold; font-size: 1.2rem; letter-spacing: 2px; margin: 10px 0; border-radius: 4px; color: var(--primary); }
+        .ref-list { margin-top: 15px; }
+        .ref-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+        .ref-item:last-child { border-bottom: none; }
+        .ref-status { font-size: 0.75rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; }
+        .ref-valid { background: var(--success); color: white; }
+        .ref-pending { background: var(--warning); color: #333; }
+
+        /* --- Admin --- */
         .admin-panel { background: var(--bg-card); padding: 15px; border-radius: 12px; margin-bottom: 15px; border-left: 4px solid var(--primary); box-shadow: var(--shadow); color: var(--text-main); }
         .request-item { background: var(--bg-body); padding: 12px; border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--border); }
         .req-actions { display: flex; gap: 5px; margin-top: 10px; }
         .req-detail { font-size: 0.85rem; color: var(--text-main); margin-bottom: 4px; }
 
-        /* Toast */
+        /* --- Toast Notification --- */
         #toast-container { position: fixed; top: 20px; right: 20px; z-index: 1000; }
         .toast { background: #333; color: white; padding: 12px 24px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: slideIn 0.3s; display: flex; align-items: center; gap: 10px; }
         .toast.success { background: var(--success); }
         .toast.error { background: var(--danger); }
-        .toast.gold { background: var(--pro-gold); color: #000; font-weight: bold; }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
+        /* Helper */
         .hidden { display: none !important; }
         .text-small { font-size: 0.8rem; color: var(--text-sec); }
         .text-bold { font-weight: 600; }
@@ -187,10 +197,12 @@
             <div class="modal-title">Terms & Conditions</div>
             <div class="modal-body">
                 <p>Welcome to <strong>TK COIN</strong>.</p>
+                <p>By using this application, you agree to following terms:</p>
                 <p>1. TK Coin is a digital asset platform operating under Singapore regulations.</p>
-                <p>2. Normal users are subject to a 3% tax on instant withdrawals.</p>
-                <p>3. Pro users enjoy zero tax and unlimited posting privileges.</p>
-                <p>4. Referral Bonus: Earn 10 TK for every 5 valid referrals. Both inviter and invitee must deposit to be "Valid".</p>
+                <p>2. All deposit and withdrawal requests are subject to verification by Admin.</p>
+                <p>3. Normal users are subject to a 3% tax on instant withdrawals.</p>
+                <p>4. Pro users enjoy zero tax and unlimited posting privileges.</p>
+                <p>5. Misuse of platform or fraudulent activities will result in a permanent ban.</p>
             </div>
             <button class="btn btn-primary" style="margin-top:15px;" onclick="app.closeModal('tc-modal')">I Understand</button>
         </div>
@@ -203,8 +215,8 @@
                 <p><strong>TK COIN</strong> is a premier digital currency trading platform.</p>
                 <p><strong>Company:</strong> TK COIN PTE LTD</p>
                 <p><strong>Location:</strong> Singapore</p>
-                <p>We provide a secure and fast environment for buying, selling, and trading TK Coins.</p>
-                <p>Version 3.0 (Referral Active)</p>
+                <p>We provide a secure and fast environment for buying, selling, and trading TK Coins. Our mission is to make digital asset trading accessible to everyone in Pakistan and beyond.</p>
+                <p>Version 2.1</p>
             </div>
             <button class="btn btn-primary" style="margin-top:15px;" onclick="app.closeModal('about-modal')">Close</button>
         </div>
@@ -227,7 +239,7 @@
                 </div>
                 <div class="checkbox-group">
                     <input type="checkbox" id="login-tc">
-                    <div>I agree to <span class="btn-text" onclick="app.openModal('tc-modal')">Terms & Conditions</span></div>
+                    <div>I agree to the <span class="btn-text" onclick="app.openModal('tc-modal')">Terms & Conditions</span></div>
                 </div>
                 <button class="btn btn-primary" style="margin-top:15px;" onclick="app.login()">Login</button>
             </div>
@@ -239,15 +251,14 @@
                     <input type="email" id="reg-email" placeholder="Email Address">
                 </div>
                 <div class="form-group">
-                    <input type="password" id="reg-pass" placeholder="Password">
+                    <input type="text" id="reg-referral" placeholder="Referral Code (Optional)">
                 </div>
-                <!-- Referral Code Input -->
                 <div class="form-group">
-                    <input type="text" id="reg-ref" placeholder="Referral Code (Optional)">
+                    <input type="password" id="reg-pass" placeholder="Password">
                 </div>
                 <div class="checkbox-group">
                     <input type="checkbox" id="reg-tc">
-                    <div>I agree to <span class="btn-text" onclick="app.openModal('tc-modal')">Terms & Conditions</span></div>
+                    <div>I agree to the <span class="btn-text" onclick="app.openModal('tc-modal')">Terms & Conditions</span></div>
                 </div>
                 <button class="btn btn-primary" style="margin-top:15px;" onclick="app.signup()">Create Account</button>
             </div>
@@ -379,22 +390,17 @@
                 <div id="profile-badge-container"></div>
             </div>
 
-            <!-- Referral Card -->
+            <!-- Referral Section -->
             <div class="ref-card">
-                <div class="ref-title">
-                    <span class="material-icons-round">card_giftcard</span> Invite & Earn
-                </div>
-                <div class="ref-code-box">
-                    <span class="ref-code-text" id="my-ref-code">------</span>
-                    <button class="ref-copy-btn" onclick="app.copyRefCode()">COPY</button>
-                </div>
-                <div class="ref-stats">
-                    <span>Valid Invites</span>
-                    <span class="text-bold" id="ref-valid-count">0/5</span>
-                </div>
-                <div class="text-small" style="margin-bottom:5px; text-align:right;">Next Reward: <strong>10 TK</strong></div>
-                <div class="ref-progress">
-                    <div class="ref-progress-bar" id="ref-progress-bar"></div>
+                <h4 style="color: var(--warning); margin-bottom: 10px;">Invite & Earn</h4>
+                <p class="text-small">Share your code. Get <strong>2 TK</strong> for every valid member (10 TK for 5).</p>
+                <p class="text-small"><strong>Condition:</strong> Both you and your friend must deposit.</p>
+                
+                <div class="ref-code-box" id="my-referral-code">------</div>
+                <button class="btn btn-primary btn-sm" onclick="app.copyReferralCode()">Copy Code</button>
+
+                <div class="ref-list" id="referral-list">
+                    <!-- Referrals List -->
                 </div>
             </div>
 
@@ -610,44 +616,46 @@
                     document.getElementById('signup-form').classList.remove('hidden');
                 }
             },
+            generateRefCode: () => Math.random().toString(36).substring(2, 8).toUpperCase(),
             signup: () => {
                 const name = document.getElementById('reg-name').value;
                 const email = document.getElementById('reg-email').value.toLowerCase();
                 const pass = document.getElementById('reg-pass').value;
-                const refCode = document.getElementById('reg-ref').value.trim().toUpperCase();
+                const refCode = document.getElementById('reg-referral').value.trim().toUpperCase();
                 const tc = document.getElementById('reg-tc').checked;
-                
                 if(!name || !email || !pass) return app.toast('Fill all fields', 'error');
                 if(!tc) return app.toast('Please agree to Terms & Conditions', 'error');
                 if(dataService.data.users.find(u => u.email === email)) return app.toast('Email already registered', 'error');
 
-                // Check Referral Code
                 let invitedBy = null;
                 if(refCode) {
                     const inviter = dataService.data.users.find(u => u.referralCode === refCode);
                     if(inviter) {
                         invitedBy = inviter.email;
-                    } else {
-                        return app.toast('Invalid Referral Code', 'error');
+                        // Add this user to inviter's referral list
+                        if(!inviter.referrals) inviter.referrals = [];
+                        inviter.referrals.push({ email: email, date: new Date().toISOString(), status: 'pending' });
                     }
                 }
 
-                // Generate unique Referral Code
-                const myRefCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-
                 const user = { 
-                    email: email, name: name, balance: 0, isPro: false, joinDate: new Date().toISOString(), lastPostDate: null, 
+                    email: email, 
+                    name: name, 
+                    balance: 0, 
+                    isPro: false, 
+                    joinDate: new Date().toISOString(), 
+                    lastPostDate: null, 
                     totalInvestmentPKR: 0,
-                    referralCode: myRefCode,
+                    referralCode: app.generateRefCode(),
                     invitedBy: invitedBy,
-                    validInvites: 0,
-                    totalInvites: 0
+                    referrals: [],
+                    rewardedReferrals: []
                 };
+                
                 dataService.data.users.push(user);
                 dataService.save();
                 dataService.currentUser = user;
                 dataService.saveUser();
-                
                 document.getElementById('auth-screen').classList.add('hidden');
                 document.getElementById('main-app').classList.remove('hidden');
                 app.toast('Account Created!', 'success');
@@ -659,7 +667,7 @@
                 if(!email) return app.toast('Please enter email', 'error');
                 if(!tc) return app.toast('Please agree to Terms & Conditions', 'error');
                 if (email === 'admin@tkcoin.com') {
-                    const adminUser = { email: 'admin@tkcoin.com', name: 'Admin', balance: 999999, isPro: true, isAdmin: true, totalInvestmentPKR: 0 };
+                    const adminUser = { email: 'admin@tkcoin.com', name: 'Admin', balance: 999999, isPro: true, isAdmin: true, totalInvestmentPKR: 0, referralCode: 'ADMIN', referrals: [] };
                     dataService.currentUser = adminUser;
                     dataService.saveUser();
                     document.getElementById('auth-screen').classList.add('hidden');
@@ -670,9 +678,11 @@
                 }
                 let user = dataService.data.users.find(u => u.email === email);
                 if(user) {
+                    // Migrations for old fields
                     if(user.totalInvestmentPKR === undefined) user.totalInvestmentPKR = 0;
-                    if(user.validInvites === undefined) user.validInvites = 0;
-                    if(user.referralCode === undefined) user.referralCode = "------"; // Migration
+                    if(!user.referralCode) user.referralCode = app.generateRefCode();
+                    if(!user.referrals) user.referrals = [];
+                    if(!user.rewardedReferrals) user.rewardedReferrals = [];
 
                     dataService.currentUser = user;
                     dataService.saveUser();
@@ -688,11 +698,6 @@
                 dataService.currentUser = null;
                 localStorage.removeItem('tk_user');
                 location.reload();
-            },
-            copyRefCode: () => {
-                const code = document.getElementById('my-ref-code').innerText;
-                navigator.clipboard.writeText(code);
-                app.toast('Referral Code Copied!', 'success');
             },
             loadUI: () => {
                 const user = dataService.currentUser;
@@ -714,18 +719,25 @@
                 document.getElementById('profile-rate').innerText = rate;
                 document.getElementById('profile-posts').innerText = dataService.data.posts.filter(p => p.uid === user.email).length;
 
-                // Referral Stats
-                document.getElementById('my-ref-code').innerText = user.referralCode || "------";
-                const validCount = user.validInvites || 0;
-                const nextReward = (validCount % 5) + 1; // e.g. if 2, next is 3.
-                
-                document.getElementById('ref-valid-count').innerText = `${validCount}/5`;
-                
-                // Progress bar (width based on modulo 5)
-                const progressPct = (validCount % 5) * 20; 
-                document.getElementById('ref-progress-bar').style.width = `${progressPct}%`;
+                // --- Referral UI ---
+                document.getElementById('my-referral-code').innerText = user.referralCode || 'N/A';
+                const refList = document.getElementById('referral-list');
+                refList.innerHTML = '';
+                if(user.referrals && user.referrals.length > 0) {
+                    user.referrals.forEach(ref => {
+                        const statusClass = ref.status === 'valid' ? 'ref-valid' : 'ref-pending';
+                        refList.innerHTML += `
+                            <div class="ref-item">
+                                <span class="text-small">${ref.email}</span>
+                                <span class="ref-status ${statusClass}">${ref.status.toUpperCase()}</span>
+                            </div>
+                        `;
+                    });
+                } else {
+                    refList.innerHTML = '<p class="text-small" style="text-align:center">No invites yet.</p>';
+                }
 
-                // PnL
+                // --- Win/Loss Calculation ---
                 const investment = user.totalInvestmentPKR || 0;
                 const currentVal = user.balance * rate;
                 const pnl = currentVal - investment;
@@ -781,6 +793,11 @@
             copyDepositNumber: () => {
                 navigator.clipboard.writeText(document.getElementById('deposit-number-display').innerText);
                 app.toast('Copied!', 'success');
+            },
+            copyReferralCode: () => {
+                const code = document.getElementById('my-referral-code').innerText;
+                navigator.clipboard.writeText(code);
+                app.toast('Referral Code Copied!', 'success');
             },
             calcBuy: () => {
                 const pkr = parseFloat(document.getElementById('buy-pkr').value) || 0;
@@ -979,38 +996,70 @@
                 app.toast('Updated', 'success');
                 app.loadUI();
             },
+            checkReferrals: (userEmail) => {
+                // Find the user object
+                const user = dataService.data.users.find(u => u.email === userEmail);
+                if(!user || !user.referrals) return;
+
+                // Check if this user has made a deposit
+                const userHasDeposited = dataService.data.requests.some(r => r.uid === userEmail && r.type === 'deposit' && r.status === 'approved');
+
+                // Check if user has an inviter (Logic for the invitee being rewarded? 
+                // No, request is for "User deposit aur invited members bhi deposit". 
+                // So we check both directions from the USER perspective.
+
+                // 1. Check if this USER was invited. If yes, check if INVITER deposited.
+                if(user.invitedBy) {
+                    const inviter = dataService.data.users.find(u => u.email === user.invitedBy);
+                    if(inviter && userHasDeposited) {
+                        // Check if inviter deposited
+                        const inviterDeposited = dataService.data.requests.some(r => r.uid === inviter.email && r.type === 'deposit' && r.status === 'approved');
+                        if(inviterDeposited && !inviter.rewardedReferrals.includes(user.email)) {
+                            // VALID PAIR! Give reward to INVITER
+                            inviter.balance += 2; // 2 TK per valid member
+                            if(!inviter.rewardedReferrals) inviter.rewardedReferrals = [];
+                            inviter.rewardedReferrals.push(user.email);
+                            
+                            // Update status in inviter's referral list
+                            const refObj = inviter.referrals.find(r => r.email === user.email);
+                            if(refObj) refObj.status = 'valid';
+
+                            app.toast(`Referral Reward: ${inviter.email} earned 2 TK!`, 'success');
+                            // We don't need to reload UI here if not admin, just data save
+                        }
+                    }
+                }
+
+                // 2. Check people this USER invited.
+                if(user.referrals) {
+                    user.referrals.forEach(ref => {
+                        if(ref.status === 'pending') {
+                            // Check if invited user deposited
+                            const inviteeDeposited = dataService.data.requests.some(r => r.uid === ref.email && r.type === 'deposit' && r.status === 'approved');
+                            if(inviteeDeposited && userHasDeposited) {
+                                // VALID PAIR! Give reward to THIS USER
+                                user.balance += 2;
+                                ref.status = 'valid';
+                                if(!user.rewardedReferrals) user.rewardedReferrals = [];
+                                user.rewardedReferrals.push(ref.email);
+                                app.toast('You earned 2 TK from valid referral!', 'success');
+                            }
+                        }
+                    });
+                }
+                dataService.save();
+            },
             approveReq: (id, coins) => {
                 const req = dataService.data.requests.find(r => r.id === id);
                 if(req) {
                     const uIdx = dataService.data.users.findIndex(u => u.email === req.uid);
                     if(uIdx > -1) {
-                        // Add Coins
                         dataService.data.users[uIdx].balance += parseFloat(coins);
-                        
-                        // Add to Investment
                         if(dataService.data.users[uIdx].totalInvestmentPKR === undefined) dataService.data.users[uIdx].totalInvestmentPKR = 0;
                         dataService.data.users[uIdx].totalInvestmentPKR += parseFloat(req.amount);
-
-                        // --- REFERRAL LOGIC ---
-                        // If this user was invited by someone
-                        const inviterEmail = dataService.data.users[uIdx].invitedBy;
-                        if(inviterEmail) {
-                            const refIdx = dataService.data.users.findIndex(u => u.email === inviterEmail);
-                            if(refIdx > -1) {
-                                const referrer = dataService.data.users[refIdx];
-                                // Condition "Dono side se": Inviter must have deposited too
-                                if(referrer.totalInvestmentPKR > 0) {
-                                    referrer.validInvites = (referrer.validInvites || 0) + 1;
-                                    
-                                    // Reward Check: Every 5 valid invites
-                                    if(referrer.validInvites % 5 === 0) {
-                                        referrer.balance += 10;
-                                        // Note: We don't create a request for referral bonus, it's auto-credited.
-                                    }
-                                }
-                            }
-                        }
-                        // -----------------------
+                        
+                        // Trigger Referral Check
+                        app.checkReferrals(req.uid);
                     }
                     req.status = 'approved';
                     dataService.save();
