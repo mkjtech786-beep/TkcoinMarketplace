@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TK COIN - Hold & Earn</title>
+    <title>TK COIN - Trading & Community</title>
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -16,21 +16,38 @@
             --primary: #0056b3; /* Deep Blue */
             --primary-light: #e3f2fd;
             --secondary: #003d80;
-            --accent: #29b6f6;
-            --text-dark: #1a1a1a;
-            --text-light: #666;
+            --bg-body: #f0f4f8;
+            --bg-card: #ffffff;
+            --text-main: #1a1a1a;
+            --text-sec: #666666;
+            --border: #dddddd;
             --white: #ffffff;
             --danger: #ff4444;
             --success: #00c851;
             --warning: #ffbb33;
             --pro-gold: #ffd700;
+            --shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        /* Dark Mode Overrides */
+        body.dark-mode {
+            --primary: #2979ff; /* Brighter Blue for Dark Mode */
+            --primary-light: #1a237e;
+            --secondary: #0d47a1;
+            --bg-body: #121212;
+            --bg-card: #1e1e1e;
+            --text-main: #e0e0e0;
+            --text-sec: #b0b0b0;
+            --border: #333333;
+            --white: #1e1e1e;
+            --shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-        body { background-color: #f0f4f8; color: var(--text-dark); padding-bottom: 80px; }
+        body { background-color: var(--bg-body); color: var(--text-main); padding-bottom: 80px; transition: background 0.3s, color 0.3s; }
 
         /* --- Layout --- */
-        .container { max-width: 480px; margin: 0 auto; background: var(--white); min-height: 100vh; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
+        .container { max-width: 480px; margin: 0 auto; background: var(--bg-body); min-height: 100vh; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
         
         header { background: var(--primary); color: var(--white); padding: 20px; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
@@ -41,8 +58,8 @@
         .balance-pkr { font-size: 1.2rem; font-weight: 600; margin-top: 5px; color: var(--primary-light); opacity: 0.9; }
 
         /* --- Navigation --- */
-        .nav-bar { position: fixed; bottom: 0; width: 100%; max-width: 480px; background: var(--white); display: flex; justify-content: space-around; padding: 12px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 100; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-light); text-decoration: none; font-size: 0.7rem; cursor: pointer; transition: 0.3s; flex: 1; }
+        .nav-bar { position: fixed; bottom: 0; width: 100%; max-width: 480px; background: var(--bg-card); display: flex; justify-content: space-around; padding: 12px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 100; border-top: 1px solid var(--border); }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-sec); text-decoration: none; font-size: 0.7rem; cursor: pointer; transition: 0.3s; flex: 1; }
         .nav-item.active { color: var(--primary); font-weight: 600; }
         .nav-item .material-icons-round { font-size: 24px; margin-bottom: 2px; }
 
@@ -53,9 +70,9 @@
 
         /* --- Forms & Inputs --- */
         .form-group { margin-bottom: 15px; }
-        label { display: block; font-size: 0.9rem; margin-bottom: 5px; font-weight: 500; color: var(--text-dark); }
-        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; background: #f9f9f9; transition: 0.3s; }
-        input:focus, select:focus { border-color: var(--primary); outline: none; background: #fff; }
+        label { display: block; font-size: 0.9rem; margin-bottom: 5px; font-weight: 500; color: var(--text-main); }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text-main); transition: 0.3s; }
+        input:focus, select:focus { border-color: var(--primary); outline: none; background: var(--bg-card); }
         
         .btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1rem; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
         .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(0,86,179,0.3); }
@@ -67,78 +84,87 @@
 
         /* --- Auth Screen --- */
         #auth-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); z-index: 200; display: flex; justify-content: center; align-items: center; padding: 20px; overflow-y: auto; }
-        .auth-card { background: white; padding: 30px; border-radius: 16px; width: 100%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: center; }
-        .auth-tabs { display: flex; margin-bottom: 20px; border-bottom: 2px solid #eee; }
-        .auth-tab { flex: 1; padding: 10px; cursor: pointer; font-weight: 600; color: #999; }
+        .auth-card { background: var(--bg-card); padding: 30px; border-radius: 16px; width: 100%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: center; color: var(--text-main); }
+        .auth-tabs { display: flex; margin-bottom: 20px; border-bottom: 2px solid var(--border); }
+        .auth-tab { flex: 1; padding: 10px; cursor: pointer; font-weight: 600; color: var(--text-sec); }
         .auth-tab.active { color: var(--primary); border-bottom: 2px solid var(--primary); margin-bottom: -2px; }
         
-        .checkbox-group { display: flex; align-items: flex-start; gap: 10px; margin-top: 15px; font-size: 0.8rem; color: #555; text-align: left; }
+        .checkbox-group { display: flex; align-items: flex-start; gap: 10px; margin-top: 15px; font-size: 0.8rem; color: var(--text-main); text-align: left; }
         .checkbox-group input { width: auto; margin-top: 3px; }
 
         /* --- Modals --- */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 300; display: none; justify-content: center; align-items: center; padding: 20px; }
-        .modal-content { background: white; padding: 25px; border-radius: 12px; width: 100%; max-width: 400px; max-height: 80vh; overflow-y: auto; text-align: left; }
-        .modal-title { font-weight: 700; margin-bottom: 15px; color: var(--primary); font-size: 1.2rem; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        .modal-body p { font-size: 0.9rem; line-height: 1.6; margin-bottom: 10px; color: #444; }
+        .modal-content { background: var(--bg-card); padding: 25px; border-radius: 12px; width: 100%; max-width: 400px; max-height: 80vh; overflow-y: auto; text-align: left; color: var(--text-main); }
+        .modal-title { font-weight: 700; margin-bottom: 15px; color: var(--primary); font-size: 1.2rem; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .modal-body p { font-size: 0.9rem; line-height: 1.6; margin-bottom: 10px; color: var(--text-main); }
 
         /* --- Market Cards --- */
         .market-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab-btn { flex: 1; padding: 10px; border-radius: 8px; border: none; background: #eee; color: #666; font-weight: 600; cursor: pointer; }
-        .tab-btn.active { background: var(--primary); color: white; }
+        .tab-btn { flex: 1; padding: 10px; border-radius: 8px; border: none; background: var(--bg-card); color: var(--text-sec); border: 1px solid var(--border); font-weight: 600; cursor: pointer; }
+        .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
         
         .method-card { background: var(--primary-light); padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #bbdefb; }
         .method-info strong { display: block; color: var(--primary); }
         .copy-btn { background: none; border: none; color: var(--primary); cursor: pointer; font-weight: bold; }
 
         /* --- History List --- */
-        .history-item { background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 4px solid #ddd; }
+        .history-item { background: var(--bg-card); padding: 15px; border-radius: 8px; margin-bottom: 10px; box-shadow: var(--shadow); border-left: 4px solid var(--border); color: var(--text-main); }
         .history-item.deposit { border-left-color: var(--success); }
         .history-item.withdraw { border-left-color: var(--primary); }
         .hist-head { display: flex; justify-content: space-between; margin-bottom: 5px; }
         .hist-amount { font-weight: bold; font-size: 1.1rem; }
-        .hist-date { font-size: 0.8rem; color: #888; }
-        .hist-detail { font-size: 0.85rem; color: #555; margin-bottom: 5px; }
+        .hist-date { font-size: 0.8rem; color: var(--text-sec); }
+        .hist-detail { font-size: 0.85rem; color: var(--text-main); margin-bottom: 5px; }
         .status-badge { padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; float: right; }
         .status-pending { background: #fff3cd; color: #856404; }
         .status-approved { background: #d4edda; color: #155724; }
         .status-rejected { background: #f8d7da; color: #721c24; }
 
         /* --- Community Feed --- */
-        .post-create { background: #fff; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        .post-card { background: #fff; padding: 15px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: relative; }
+        .post-create { background: var(--bg-card); padding: 15px; border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 20px; color: var(--text-main); }
+        .post-card { background: var(--bg-card); padding: 15px; border-radius: 12px; margin-bottom: 15px; box-shadow: var(--shadow); position: relative; color: var(--text-main); }
         .post-header { display: flex; align-items: center; margin-bottom: 10px; }
-        .user-avatar { width: 40px; height: 40px; background: #eee; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--primary); margin-right: 10px; }
+        .user-avatar { width: 40px; height: 40px; background: var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--primary); margin-right: 10px; }
         .user-name { font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 5px; }
         .badge-pro { color: var(--primary); font-size: 1.1rem; }
-        .post-time { font-size: 0.75rem; color: #999; display: block; margin-top: 2px; }
-        .post-content { font-size: 0.95rem; line-height: 1.5; color: #333; margin-bottom: 10px; }
-        .post-actions { display: flex; gap: 15px; border-top: 1px solid #eee; padding-top: 10px; }
-        .action-btn { background: none; border: none; color: #666; cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 0.9rem; }
+        .post-time { font-size: 0.75rem; color: var(--text-sec); display: block; margin-top: 2px; }
+        .post-content { font-size: 0.95rem; line-height: 1.5; color: var(--text-main); margin-bottom: 10px; }
+        .post-actions { display: flex; gap: 15px; border-top: 1px solid var(--border); padding-top: 10px; }
+        .action-btn { background: none; border: none; color: var(--text-sec); cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 0.9rem; }
         .action-btn.liked { color: var(--danger); }
         .delete-btn { position: absolute; top: 15px; right: 15px; color: var(--danger); background: none; border: none; cursor: pointer; }
         
         /* Comments Section */
-        .comments-section { background: #f9f9f9; padding: 10px; border-radius: 8px; margin-top: 10px; display: none; }
+        .comments-section { background: var(--bg-body); padding: 10px; border-radius: 8px; margin-top: 10px; display: none; }
         .comments-section.show { display: block; }
-        .comment-item { padding: 8px 0; border-bottom: 1px solid #eee; font-size: 0.85rem; }
+        .comment-item { padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
         .comment-user { font-weight: bold; color: var(--primary); }
         .comment-input-wrapper { display: flex; gap: 5px; margin-top: 10px; }
         .comment-input { padding: 8px; font-size: 0.85rem; }
 
         /* --- Profile --- */
-        .profile-header { text-align: center; padding: 20px 0; }
+        .profile-header { text-align: center; padding: 20px 0; position: relative; }
+        .theme-toggle { position: absolute; top: 0; right: 0; background: var(--bg-card); border: 1px solid var(--border); padding: 8px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-main); box-shadow: var(--shadow); }
         .profile-pic { width: 80px; height: 80px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 10px; border: 3px solid var(--primary-light); }
         .pro-tag { background: var(--primary); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 5px; margin-top: 5px; }
+        
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .stat-box { background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center; }
+        .stat-box { background: var(--bg-card); padding: 15px; border-radius: 8px; text-align: center; box-shadow: var(--shadow); border: 1px solid var(--border); }
         .stat-val { font-size: 1.2rem; font-weight: 700; color: var(--primary); }
-        .stat-label { font-size: 0.8rem; color: #777; }
+        .stat-label { font-size: 0.8rem; color: var(--text-sec); }
+
+        /* Win/Loss Card */
+        .pnl-card { background: var(--bg-card); padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: var(--shadow); border: 1px solid var(--border); text-align: center; }
+        .pnl-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.9rem; color: var(--text-main); }
+        .pnl-row.total { border-top: 1px solid var(--border); padding-top: 10px; margin-top: 10px; font-size: 1.1rem; font-weight: 700; }
+        .pnl-positive { color: var(--success); }
+        .pnl-negative { color: var(--danger); }
 
         /* --- Admin --- */
-        .admin-panel { background: #fff; padding: 15px; border-radius: 12px; margin-bottom: 15px; border-left: 4px solid var(--primary); }
-        .request-item { background: #f9f9f9; padding: 12px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #eee; }
+        .admin-panel { background: var(--bg-card); padding: 15px; border-radius: 12px; margin-bottom: 15px; border-left: 4px solid var(--primary); box-shadow: var(--shadow); color: var(--text-main); }
+        .request-item { background: var(--bg-body); padding: 12px; border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--border); }
         .req-actions { display: flex; gap: 5px; margin-top: 10px; }
-        .req-detail { font-size: 0.85rem; color: #555; margin-bottom: 4px; }
+        .req-detail { font-size: 0.85rem; color: var(--text-main); margin-bottom: 4px; }
 
         /* --- Toast Notification --- */
         #toast-container { position: fixed; top: 20px; right: 20px; z-index: 1000; }
@@ -149,14 +175,13 @@
 
         /* Helper */
         .hidden { display: none !important; }
-        .text-small { font-size: 0.8rem; color: #666; }
+        .text-small { font-size: 0.8rem; color: var(--text-sec); }
         .text-bold { font-weight: 600; }
     </style>
 </head>
 <body>
 
     <!-- Modals -->
-    <!-- Terms & Conditions Modal -->
     <div id="tc-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-title">Terms & Conditions</div>
@@ -164,7 +189,7 @@
                 <p>Welcome to <strong>TK COIN</strong>.</p>
                 <p>By using this application, you agree to the following terms:</p>
                 <p>1. TK Coin is a digital asset platform operating under Singapore regulations.</p>
-                <p>2. All deposit and withdrawal requests are subject to verification by the company.</p>
+                <p>2. All deposit and withdrawal requests are subject to verification by the Admin.</p>
                 <p>3. Normal users are subject to a 3% tax on instant withdrawals.</p>
                 <p>4. Pro users enjoy zero tax and unlimited posting privileges.</p>
                 <p>5. Misuse of the platform or fraudulent activities will result in a permanent ban.</p>
@@ -173,7 +198,6 @@
         </div>
     </div>
 
-    <!-- About Modal -->
     <div id="about-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-title">About TK COIN</div>
@@ -192,13 +216,10 @@
     <div id="auth-screen">
         <div class="auth-card">
             <h2 style="text-align: center; color: var(--primary); margin-bottom: 20px;">TK COIN</h2>
-            
             <div class="auth-tabs">
                 <div class="auth-tab active" onclick="app.toggleAuth('login')">Login</div>
                 <div class="auth-tab" onclick="app.toggleAuth('signup')">Sign Up</div>
             </div>
-
-            <!-- Login Form -->
             <div id="login-form">
                 <div class="form-group">
                     <input type="email" id="login-email" placeholder="Email Address">
@@ -212,8 +233,6 @@
                 </div>
                 <button class="btn btn-primary" style="margin-top:15px;" onclick="app.login()">Login</button>
             </div>
-
-            <!-- Signup Form -->
             <div id="signup-form" class="hidden">
                 <div class="form-group">
                     <input type="text" id="reg-name" placeholder="Full Name">
@@ -243,24 +262,19 @@
             <div class="balance-card">
                 <div class="balance-label">Total Balance</div>
                 <div class="balance-value"><span id="user-balance">0.00</span> <span style="font-size:1.2rem;">TK</span></div>
-                <!-- Changed: Removed Rate Line, Added PKR Value -->
                 <div class="balance-pkr">PKR <span id="user-pkr-val">0.00</span></div>
             </div>
         </header>
 
-        <!-- Toast Container -->
         <div id="toast-container"></div>
 
         <!-- 1. MARKETPLACE -->
         <section id="market-section" class="section active">
             <h3 style="margin-bottom: 15px;">Marketplace</h3>
-            
             <div class="market-tabs">
                 <button class="tab-btn active" onclick="app.switchMarketTab('buy')">Buy TK</button>
                 <button class="tab-btn" onclick="app.switchMarketTab('sell')">Sell / Withdraw</button>
             </div>
-
-            <!-- BUY TAB -->
             <div id="buy-tab">
                 <div class="form-group">
                     <label>Select Payment Method</label>
@@ -270,7 +284,6 @@
                         <option value="binance">Binance</option>
                     </select>
                 </div>
-
                 <div class="method-card">
                     <div class="method-info">
                         <strong>Deposit Number / ID</strong>
@@ -278,28 +291,21 @@
                     </div>
                     <button class="copy-btn" onclick="app.copyDepositNumber()">COPY</button>
                 </div>
-
                 <div class="form-group">
-                    <label>Amount in</label>
+                    <label>Amount in PKR</label>
                     <input type="number" id="buy-pkr" placeholder="Enter PKR amount" oninput="app.calcBuy()">
                 </div>
-
                 <div class="form-group">
                     <label>Transaction ID (TRX ID)</label>
                     <input type="text" id="deposit-trx" placeholder="e.g. 83920123">
                     <p class="text-small" style="margin-top:5px;">Enter the reference number from your app.</p>
                 </div>
-                
-                <div style="background: #e3f2fd; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
+                <div style="background: var(--primary-light); padding: 10px; border-radius: 8px; margin-bottom: 15px;">
                     <span class="text-bold">You will receive:</span> 
                     <span id="calc-coins" style="float: right; color: var(--primary); font-weight: bold;">0 TK</span>
                 </div>
-
                 <button class="btn btn-primary" onclick="app.requestDeposit()">Submit Deposit Request</button>
-                <p class="text-small" style="margin-top: 10px; text-align: center;">company will verify your TRX ID.</p>
             </div>
-
-            <!-- SELL TAB -->
             <div id="sell-tab" class="hidden">
                 <div class="form-group">
                     <label>Withdraw Type</label>
@@ -308,7 +314,6 @@
                         <option value="hold">Hold Withdraw (Low/No Tax, Lock Period)</option>
                     </select>
                 </div>
-
                 <div id="hold-options" class="hidden form-group">
                     <label>Select Hold Duration</label>
                     <select id="hold-days">
@@ -317,17 +322,14 @@
                         <option value="10">10 Days (0% Tax)</option>
                     </select>
                 </div>
-
                 <div class="form-group">
                     <label>Coins to Withdraw</label>
                     <input type="number" id="sell-coins" placeholder="Enter Coins" oninput="app.calcSell()">
                 </div>
-
                 <div class="form-group">
                     <label>Account Details (EasyPaisa/JazzCash/Binance ID)</label>
                     <textarea id="withdraw-account" rows="2" placeholder="Enter account number or wallet ID"></textarea>
                 </div>
-
                 <div style="background: #fff3cd; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
                     <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
                         <span>Tax/Deduction:</span>
@@ -338,7 +340,6 @@
                         <span id="calc-pkr" style="color: var(--success); font-weight: bold;">0</span>
                     </div>
                 </div>
-
                 <button class="btn btn-primary" onclick="app.requestWithdraw()">Request Withdrawal</button>
             </div>
         </section>
@@ -346,7 +347,6 @@
         <!-- 2. COMMUNITY FEED -->
         <section id="feed-section" class="section">
             <h3 style="margin-bottom: 15px;">Community Feed</h3>
-            
             <div class="post-create">
                 <textarea id="post-content" rows="2" placeholder="What's on your mind?"></textarea>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
@@ -354,9 +354,8 @@
                     <button class="btn btn-primary btn-sm" onclick="app.createPost()">Post</button>
                 </div>
             </div>
-
             <div id="posts-container"></div>
-            <div id="feed-limit-msg" class="hidden" style="text-align: center; padding: 20px; color: #666;">
+            <div id="feed-limit-msg" class="hidden" style="text-align: center; padding: 20px; color: var(--text-sec);">
                 <p>View limit reached. <span style="color:var(--primary); font-weight:bold; cursor:pointer;" onclick="app.navToProfile()">Buy Pro</span>.</p>
             </div>
         </section>
@@ -364,17 +363,36 @@
         <!-- 3. HISTORY -->
         <section id="history-section" class="section">
             <h3 style="margin-bottom: 15px;">My Transactions</h3>
-            <div id="history-list">
-                <!-- History Items Injected JS -->
-            </div>
+            <div id="history-list"></div>
         </section>
 
         <!-- 4. PROFILE -->
         <section id="profile-section" class="section">
             <div class="profile-header">
+                <!-- Theme Toggle Icon -->
+                <div class="theme-toggle" onclick="app.toggleTheme()">
+                    <span class="material-icons-round" id="theme-icon">dark_mode</span>
+                </div>
+
                 <div class="profile-pic" id="profile-avatar">U</div>
                 <h2 id="profile-name">User Name</h2>
                 <div id="profile-badge-container"></div>
+            </div>
+
+            <!-- Win/Loss Card -->
+            <div class="pnl-card">
+                <div class="pnl-row">
+                    <span>Invested:</span>
+                    <span>PKR <span id="pnl-invested">0</span></span>
+                </div>
+                <div class="pnl-row">
+                    <span>Current Value:</span>
+                    <span>PKR <span id="pnl-current">0</span></span>
+                </div>
+                <div class="pnl-row total">
+                    <span>Win / Loss:</span>
+                    <span id="pnl-result">PKR 0</span>
+                </div>
             </div>
 
             <div class="stats-grid">
@@ -415,7 +433,6 @@
         <!-- 5. ADMIN PANEL -->
         <section id="admin-section" class="section">
             <h3 style="color: var(--primary);">Admin Dashboard</h3>
-            
             <div class="admin-panel">
                 <h4>Settings</h4>
                 <div class="form-group">
@@ -437,12 +454,10 @@
                 </div>
                 <button class="btn btn-primary btn-sm" onclick="app.updateSettings()">Update Settings</button>
             </div>
-
             <div class="admin-panel">
                 <h4>Deposit Requests</h4>
                 <div id="admin-deposit-list"></div>
             </div>
-
             <div class="admin-panel">
                 <h4>Withdrawal Requests</h4>
                 <div id="admin-withdraw-list"></div>
@@ -485,21 +500,16 @@
             appId: "1:574707809146:web:fb0d53fc0a202c4d2934c3",
             measurementId: "G-WED3TVXE62"
         };
-
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         
-        const MOCK_DB_KEY = 'tkcoin_db_v3';
+        const MOCK_DB_KEY = 'tkcoin_db_v4';
         const initialState = {
             users: [],
             posts: [],
             requests: [], 
             settings: {
-                rate: 91.07, // Updated rate to match example roughly
-                depositNums: {
-                    easypaisa: "1456",
-                    jazzcash: "95688",
-                    binance: "Je74475'-6"
-                }
+                rate: 91.07,
+                depositNums: { easypaisa: "1456", jazzcash: "95688", binance: "Je74475'-6" }
             }
         };
 
@@ -544,21 +554,33 @@
                 this.save();
             }
         }
-
         const dataService = new DataService();
 
         const app = {
             init: () => {
+                // Load Theme
+                const theme = localStorage.getItem('tk_theme');
+                if(theme === 'dark') document.body.classList.add('dark-mode');
+                app.updateThemeIcon();
+
                 if(dataService.currentUser) {
                     document.getElementById('auth-screen').classList.add('hidden');
                     document.getElementById('main-app').classList.remove('hidden');
                     app.loadUI();
                 }
             },
-
+            toggleTheme: () => {
+                document.body.classList.toggle('dark-mode');
+                const isDark = document.body.classList.contains('dark-mode');
+                localStorage.setItem('tk_theme', isDark ? 'dark' : 'light');
+                app.updateThemeIcon();
+            },
+            updateThemeIcon: () => {
+                const isDark = document.body.classList.contains('dark-mode');
+                document.getElementById('theme-icon').innerText = isDark ? 'light_mode' : 'dark_mode';
+            },
             openModal: (id) => { document.getElementById(id).style.display = 'flex'; },
             closeModal: (id) => { document.getElementById(id).style.display = 'none'; },
-
             toggleAuth: (mode) => {
                 document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
                 event.target.classList.add('active');
@@ -570,38 +592,31 @@
                     document.getElementById('signup-form').classList.remove('hidden');
                 }
             },
-
             signup: () => {
                 const name = document.getElementById('reg-name').value;
                 const email = document.getElementById('reg-email').value.toLowerCase();
                 const pass = document.getElementById('reg-pass').value;
                 const tc = document.getElementById('reg-tc').checked;
-
                 if(!name || !email || !pass) return app.toast('Fill all fields', 'error');
                 if(!tc) return app.toast('Please agree to Terms & Conditions', 'error');
                 if(dataService.data.users.find(u => u.email === email)) return app.toast('Email already registered', 'error');
-
-                const user = { email: email, name: name, balance: 0, isPro: false, joinDate: new Date().toISOString(), lastPostDate: null };
+                const user = { email: email, name: name, balance: 0, isPro: false, joinDate: new Date().toISOString(), lastPostDate: null, totalInvestmentPKR: 0 };
                 dataService.data.users.push(user);
                 dataService.save();
                 dataService.currentUser = user;
                 dataService.saveUser();
-                
                 document.getElementById('auth-screen').classList.add('hidden');
                 document.getElementById('main-app').classList.remove('hidden');
                 app.toast('Account Created!', 'success');
                 app.loadUI();
             },
-
             login: () => {
                 const email = document.getElementById('login-email').value.toLowerCase();
                 const tc = document.getElementById('login-tc').checked;
-                
                 if(!email) return app.toast('Please enter email', 'error');
                 if(!tc) return app.toast('Please agree to Terms & Conditions', 'error');
-
                 if (email === 'admin@tkcoin.com') {
-                    const adminUser = { email: 'admin@tkcoin.com', name: 'Admin', balance: 999999, isPro: true, isAdmin: true };
+                    const adminUser = { email: 'admin@tkcoin.com', name: 'Admin', balance: 999999, isPro: true, isAdmin: true, totalInvestmentPKR: 0 };
                     dataService.currentUser = adminUser;
                     dataService.saveUser();
                     document.getElementById('auth-screen').classList.add('hidden');
@@ -610,9 +625,11 @@
                     app.loadUI();
                     return;
                 }
-
                 let user = dataService.data.users.find(u => u.email === email);
                 if(user) {
+                    // Migration: Ensure old users have the investment field
+                    if(user.totalInvestmentPKR === undefined) user.totalInvestmentPKR = 0;
+
                     dataService.currentUser = user;
                     dataService.saveUser();
                     document.getElementById('auth-screen').classList.add('hidden');
@@ -623,18 +640,14 @@
                     app.toast('User not found. Sign Up first.', 'error');
                 }
             },
-
             logout: () => {
                 dataService.currentUser = null;
                 localStorage.removeItem('tk_user');
                 location.reload();
             },
-
             loadUI: () => {
                 const user = dataService.currentUser;
                 const rate = dataService.getRate();
-                
-                // Update Header Balance & PKR Value
                 document.getElementById('user-balance').innerText = user.balance.toFixed(2);
                 const pkrTotal = (user.balance * rate).toFixed(2);
                 document.getElementById('user-pkr-val').innerText = pkrTotal;
@@ -652,6 +665,18 @@
                 document.getElementById('profile-rate').innerText = rate;
                 document.getElementById('profile-posts').innerText = dataService.data.posts.filter(p => p.uid === user.email).length;
 
+                // --- Win/Loss Calculation ---
+                const investment = user.totalInvestmentPKR || 0;
+                const currentVal = user.balance * rate;
+                const pnl = currentVal - investment;
+                
+                document.getElementById('pnl-invested').innerText = investment.toFixed(2);
+                document.getElementById('pnl-current').innerText = currentVal.toFixed(2);
+                
+                const pnlEl = document.getElementById('pnl-result');
+                pnlEl.innerText = (pnl >= 0 ? "+" : "") + pnl.toFixed(2) + " PKR";
+                pnlEl.className = pnl >= 0 ? 'pnl-positive' : 'pnl-negative';
+
                 const badgeContainer = document.getElementById('profile-badge-container');
                 badgeContainer.innerHTML = user.isPro ? `<div class="pro-tag"><span class="material-icons-round" style="font-size:14px;">verified</span> PRO USER</div>` : '';
                 document.getElementById('pro-upgrade-card').classList.toggle('hidden', user.isPro);
@@ -667,7 +692,6 @@
                 app.renderHistory();
                 if(user.isAdmin) app.renderAdmin();
             },
-
             nav: (sectionId, el) => {
                 document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
                 document.getElementById(sectionId + '-section').classList.add('active');
@@ -678,8 +702,6 @@
                 if(sectionId === 'history') app.renderHistory();
                 if(sectionId === 'admin') app.renderAdmin();
             },
-
-            // --- Market ---
             switchMarketTab: (tab) => {
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
                 event.target.classList.add('active');
@@ -709,21 +731,9 @@
                 const method = document.getElementById('deposit-method').value;
                 const number = dataService.data.settings.depositNums[method];
                 const trxId = document.getElementById('deposit-trx').value;
-
                 if(!pkr || pkr < 100) return app.toast('Minimum deposit 100 PKR', 'error');
                 if(!trxId) return app.toast('Please enter Transaction ID', 'error');
-
-                const req = {
-                    id: Date.now(),
-                    type: 'deposit',
-                    uid: dataService.currentUser.email,
-                    amount: pkr,
-                    method: method,
-                    number: number,
-                    trxId: trxId,
-                    status: 'pending',
-                    date: new Date().toISOString()
-                };
+                const req = { id: Date.now(), type: 'deposit', uid: dataService.currentUser.email, amount: pkr, method: method, number: number, trxId: trxId, status: 'pending', date: new Date().toISOString() };
                 dataService.addRequest(req);
                 app.toast('Deposit Request Sent', 'success');
                 document.getElementById('buy-pkr').value = '';
@@ -750,16 +760,13 @@
                 if(!coins || coins <= 0) return app.toast('Invalid amount', 'error');
                 if(coins > dataService.currentUser.balance) return app.toast('Insufficient Balance', 'error');
                 if(!account) return app.toast('Enter Account Details', 'error');
-
                 dataService.currentUser.balance -= coins;
                 dataService.saveUser();
-
                 let releaseDate = null;
                 if(type === 'hold') {
                     const d = new Date(); d.setDate(d.getDate() + parseInt(document.getElementById('hold-days').value));
                     releaseDate = d.toISOString();
                 }
-
                 const req = { id: Date.now(), type: 'withdraw', uid: dataService.currentUser.email, amount: coins, account: account, withdrawType: type, status: 'pending', releaseDate: releaseDate, date: new Date().toISOString() };
                 dataService.addRequest(req);
                 app.toast('Withdrawal Requested', 'success');
@@ -767,27 +774,16 @@
                 document.getElementById('sell-coins').value = '';
                 app.calcSell();
             },
-
-            // --- History ---
             renderHistory: () => {
                 const container = document.getElementById('history-list');
                 container.innerHTML = '';
                 const myReqs = dataService.data.requests.filter(r => r.uid === dataService.currentUser.email).sort((a,b) => new Date(b.date) - new Date(a.date));
-                
                 if(myReqs.length === 0) container.innerHTML = '<p class="text-small" style="text-align:center">No transactions yet.</p>';
-
                 myReqs.forEach(r => {
                     const isDep = r.type === 'deposit';
                     const date = new Date(r.date).toLocaleDateString();
                     const statusClass = r.status === 'pending' ? 'status-pending' : (r.status === 'approved' ? 'status-approved' : 'status-rejected');
-                    
-                    let details = '';
-                    if(isDep) {
-                        details = `Method: ${r.method.toUpperCase()}<br>TRX ID: ${r.trxId}`;
-                    } else {
-                        details = `Type: ${r.withdrawType === 'hold' ? 'Hold Withdraw' : 'Instant'}<br>To: ${r.account}`;
-                    }
-
+                    let details = isDep ? `Method: ${r.method.toUpperCase()}<br>TRX ID: ${r.trxId}` : `Type: ${r.withdrawType === 'hold' ? 'Hold Withdraw' : 'Instant'}<br>To: ${r.account}`;
                     container.innerHTML += `
                         <div class="history-item ${isDep ? 'deposit' : 'withdraw'}">
                             <div class="hist-head">
@@ -801,8 +797,6 @@
                     `;
                 });
             },
-
-            // --- Feed ---
             createPost: () => {
                 const user = dataService.currentUser;
                 const content = document.getElementById('post-content').value;
@@ -822,14 +816,12 @@
                 const user = dataService.currentUser;
                 if(!user.isPro && !user.isAdmin) { posts = posts.slice(0, 3); document.getElementById('feed-limit-msg').classList.remove('hidden'); }
                 else { document.getElementById('feed-limit-msg').classList.add('hidden'); }
-
                 posts.forEach(post => {
                     const isLiked = post.likedBy.includes(user.email);
                     const likeClass = isLiked ? 'liked' : '';
                     const likeIcon = isLiked ? 'thumb_up' : 'thumb_up_off_alt';
                     let commentsHtml = post.comments.map(c => `<div class="comment-item"><span class="comment-user">${c.name}:</span> ${c.text}</div>`).join('');
                     const deleteBtn = user.isAdmin ? `<button class="delete-btn" onclick="app.deletePost(${post.id})"><span class="material-icons-round">delete</span></button>` : '';
-
                     container.innerHTML += `
                         <div class="post-card">
                             ${deleteBtn}
@@ -867,8 +859,6 @@
                 const input = document.getElementById(`comment-input-${id}`);
                 if(input.value) { dataService.addComment(id, input.value); app.renderFeed(); setTimeout(() => document.getElementById(`comments-${id}`).classList.add('show'), 50); }
             },
-
-            // --- Profile ---
             buyPro: () => {
                 if(dataService.currentUser.balance < 500) return app.toast('Need 500 TK', 'error');
                 if(confirm('Buy Pro for 500 TK?')) {
@@ -880,15 +870,12 @@
                 }
             },
             navToProfile: () => { document.querySelectorAll('.nav-item')[3].click(); },
-
-            // --- Admin ---
             renderAdmin: () => {
                 const reqs = dataService.getPendingRequests();
                 const dList = document.getElementById('admin-deposit-list');
                 const wList = document.getElementById('admin-withdraw-list');
                 dList.innerHTML = ''; wList.innerHTML = '';
                 if(reqs.length === 0) { dList.innerHTML = '<p class="text-small">No pending requests.</p>'; wList.innerHTML = '<p class="text-small">No pending requests.</p>'; }
-
                 reqs.forEach(r => {
                     const date = new Date(r.date).toLocaleDateString();
                     if(r.type === 'deposit') {
@@ -936,7 +923,15 @@
                 const req = dataService.data.requests.find(r => r.id === id);
                 if(req) {
                     const uIdx = dataService.data.users.findIndex(u => u.email === req.uid);
-                    if(uIdx > -1) dataService.data.users[uIdx].balance += parseFloat(coins);
+                    if(uIdx > -1) {
+                        // Add Coins
+                        dataService.data.users[uIdx].balance += parseFloat(coins);
+                        
+                        // IMPORTANT: Add to Total Investment (Cost Basis) for PnL Calculation
+                        // The amount paid by user is req.amount (in PKR)
+                        if(dataService.data.users[uIdx].totalInvestmentPKR === undefined) dataService.data.users[uIdx].totalInvestmentPKR = 0;
+                        dataService.data.users[uIdx].totalInvestmentPKR += parseFloat(req.amount);
+                    }
                     req.status = 'approved';
                     dataService.save();
                     app.renderAdmin();
