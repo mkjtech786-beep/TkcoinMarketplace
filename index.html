@@ -57,13 +57,17 @@
         input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; background: #f9f9f9; transition: 0.3s; }
         input:focus, select:focus { border-color: var(--primary); outline: none; background: #fff; }
         
+        /* Checkbox */
+        .checkbox-group { display: flex; align-items: flex-start; gap: 10px; font-size: 0.85rem; color: #555; margin-top: 15px; text-align: left; }
+        .checkbox-group input { width: auto; margin-top: 3px; }
+        .tnc-link { color: var(--primary); text-decoration: underline; cursor: pointer; }
+
         .btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1rem; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
         .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(0,86,179,0.3); }
         .btn-primary:hover { background: var(--secondary); }
         .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); margin-top: 10px; }
         .btn-danger { background: var(--danger); color: white; }
         .btn-sm { padding: 6px 12px; font-size: 0.8rem; width: auto; }
-        .btn-text { background: none; color: var(--primary); width: auto; padding: 0; display: inline; font-size: 0.9rem; }
 
         /* --- Auth Screen --- */
         #auth-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); z-index: 200; display: flex; justify-content: center; align-items: center; padding: 20px; overflow-y: auto; }
@@ -81,43 +85,26 @@
         .method-info strong { display: block; color: var(--primary); }
         .copy-btn { background: none; border: none; color: var(--primary); cursor: pointer; font-weight: bold; }
 
-        /* --- Community Feed --- */
-        .post-create { background: #fff; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        .post-card { background: #fff; padding: 15px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: relative; }
-        .post-header { display: flex; align-items: center; margin-bottom: 10px; }
-        .user-avatar { width: 40px; height: 40px; background: #eee; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--primary); margin-right: 10px; }
-        .user-name { font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 5px; }
-        .badge-pro { color: var(--primary); font-size: 1.1rem; } /* Blue Tick */
-        .post-time { font-size: 0.75rem; color: #999; display: block; margin-top: 2px; }
-        .post-content { font-size: 0.95rem; line-height: 1.5; color: #333; margin-bottom: 10px; }
-        .post-actions { display: flex; gap: 15px; border-top: 1px solid #eee; padding-top: 10px; }
-        .action-btn { background: none; border: none; color: #666; cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 0.9rem; }
-        .action-btn.liked { color: var(--danger); }
-        .delete-btn { position: absolute; top: 15px; right: 15px; color: var(--danger); background: none; border: none; cursor: pointer; }
-        
-        /* Comments Section */
-        .comments-section { background: #f9f9f9; padding: 10px; border-radius: 8px; margin-top: 10px; display: none; }
-        .comments-section.show { display: block; }
-        .comment-item { padding: 8px 0; border-bottom: 1px solid #eee; font-size: 0.85rem; }
-        .comment-user { font-weight: bold; color: var(--primary); }
-        .comment-input-wrapper { display: flex; gap: 5px; margin-top: 10px; }
-        .comment-input { padding: 8px; font-size: 0.85rem; }
+        /* --- History List --- */
+        .history-item { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #ccc; }
+        .history-item.deposit { border-left-color: var(--success); }
+        .history-item.withdraw { border-left-color: var(--warning); }
+        .history-header { display: flex; justify-content: space-between; font-weight: 600; margin-bottom: 5px; }
+        .history-detail { font-size: 0.85rem; color: #555; margin-bottom: 3px; }
+        .status-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-approved { background: #d4edda; color: #155724; }
+        .status-rejected { background: #f8d7da; color: #721c24; }
 
-        /* --- Profile --- */
-        .profile-header { text-align: center; padding: 20px 0; }
-        .profile-pic { width: 80px; height: 80px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 10px; border: 3px solid var(--primary-light); }
-        .pro-tag { background: var(--primary); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 5px; margin-top: 5px; }
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .stat-box { background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center; }
-        .stat-val { font-size: 1.2rem; font-weight: 700; color: var(--primary); }
-        .stat-label { font-size: 0.8rem; color: #777; }
+        /* --- About Section --- */
+        .about-box { background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; line-height: 1.6; text-align: justify; }
+        .about-box h4 { color: var(--primary); margin-bottom: 10px; border-bottom: 2px solid #eee; padding-bottom: 5px; }
 
         /* --- Admin --- */
         .admin-panel { background: #fff; padding: 15px; border-radius: 12px; margin-bottom: 15px; border-left: 4px solid var(--primary); }
         .request-item { background: #f9f9f9; padding: 12px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #eee; }
         .req-actions { display: flex; gap: 5px; margin-top: 10px; }
-        .status-badge { padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
-
+        
         /* --- Toast Notification --- */
         #toast-container { position: fixed; top: 20px; right: 20px; z-index: 1000; }
         .toast { background: #333; color: white; padding: 12px 24px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: slideIn 0.3s; display: flex; align-items: center; gap: 10px; }
@@ -151,7 +138,14 @@
                 <div class="form-group">
                     <input type="password" id="login-pass" placeholder="Password">
                 </div>
-                <button class="btn btn-primary" onclick="app.login()">Login</button>
+                
+                <!-- Terms Checkbox -->
+                <div class="checkbox-group">
+                    <input type="checkbox" id="login-tnc">
+                    <label for="login-tnc" style="margin:0;">I agree to the <span class="tnc-link" onclick="app.showModal('terms')">Terms & Conditions</span> of TK Coin.</label>
+                </div>
+
+                <button class="btn btn-primary" style="margin-top:20px;" onclick="app.login()">Login</button>
             </div>
 
             <!-- Signup Form -->
@@ -165,7 +159,14 @@
                 <div class="form-group">
                     <input type="password" id="reg-pass" placeholder="Password">
                 </div>
-                <button class="btn btn-primary" onclick="app.signup()">Create Account</button>
+
+                <!-- Terms Checkbox -->
+                <div class="checkbox-group">
+                    <input type="checkbox" id="reg-tnc">
+                    <label for="reg-tnc" style="margin:0;">I agree to the <span class="tnc-link" onclick="app.showModal('terms')">Terms & Conditions</span> of TK Coin.</label>
+                </div>
+
+                <button class="btn btn-primary" style="margin-top:20px;" onclick="app.signup()">Create Account</button>
             </div>
         </div>
     </div>
@@ -219,6 +220,12 @@
                     <label>Amount in PKR</label>
                     <input type="number" id="buy-pkr" placeholder="Enter PKR amount" oninput="app.calcBuy()">
                 </div>
+
+                <!-- TRX ID Input -->
+                <div class="form-group">
+                    <label>Transaction ID (TRX ID)</label>
+                    <input type="text" id="deposit-trx" placeholder="e.g. 847392849...">
+                </div>
                 
                 <div style="background: #e3f2fd; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
                     <span class="text-bold">You will receive:</span> 
@@ -226,7 +233,7 @@
                 </div>
 
                 <button class="btn btn-primary" onclick="app.requestDeposit()">Submit Deposit Request</button>
-                <p class="text-small" style="margin-top: 10px; text-align: center;">Admin will verify and add coins manually.</p>
+                <p class="text-small" style="margin-top: 10px; text-align: center;">Admin will verify TRX ID and add coins manually.</p>
             </div>
 
             <!-- SELL TAB -->
@@ -288,9 +295,7 @@
             </div>
 
             <!-- Posts List -->
-            <div id="posts-container">
-                <!-- Posts injected via JS -->
-            </div>
+            <div id="posts-container"></div>
             
             <div id="feed-limit-msg" class="hidden" style="text-align: center; padding: 20px; color: #666;">
                 <p>You are viewing the latest 3 posts. <span style="color:var(--primary); font-weight:bold; cursor:pointer;" onclick="app.navToProfile()">Buy Pro</span> to view all.</p>
@@ -328,11 +333,12 @@
                 <button class="btn btn-primary btn-sm" onclick="app.buyPro()">Buy Pro (500 TK)</button>
             </div>
 
-            <div class="admin-panel">
-                <h4>Current Rates</h4>
-                <div style="display:flex; justify-content:space-between; margin-top:10px;">
-                    <span>1 TK Coin = </span>
-                    <span class="text-bold"><span id="profile-rate">0</span> PKR</span>
+            <!-- Transaction History -->
+            <div class="admin-panel" style="border-left-color: var(--secondary);">
+                <h4>Transaction History</h4>
+                <div id="history-container" style="margin-top:15px;">
+                    <!-- History Injected JS -->
+                    <p class="text-small">No transactions found.</p>
                 </div>
             </div>
 
@@ -383,6 +389,32 @@
             </div>
         </section>
 
+        <!-- 5. ABOUT SECTION -->
+        <section id="about-section" class="section">
+            <h3 style="margin-bottom: 15px;">About TK COIN</h3>
+            <div class="about-box">
+                <h4>Welcome to TK COIN</h4>
+                <p>TK COIN is a premier Singapore-based financial technology company dedicated to revolutionizing the digital trading landscape. We provide a secure, fast, and user-friendly platform for buying and selling digital assets.</p>
+                <br>
+                <h4>Our Mission</h4>
+                <p>To empower users with seamless financial freedom through cutting-edge blockchain technology and transparent trading mechanisms.</p>
+                <br>
+                <h4>Why Choose Us?</h4>
+                <ul style="padding-left: 20px; font-size: 0.9rem;">
+                    <li>Secure Transactions</li>
+                    <li>Instant Exchange Rates</li>
+                    <li>24/7 Community Support</li>
+                    <li>Pro Features for Traders</li>
+                </ul>
+            </div>
+            
+            <div class="about-box" style="background: var(--primary-light); border: 1px solid var(--primary);">
+                <h4 style="color: var(--primary);">Contact Us</h4>
+                <p>Email: support@tkcoin.com</p>
+                <p>Address: Singapore Business District, SG</p>
+            </div>
+        </section>
+
         <!-- Navigation -->
         <nav class="nav-bar">
             <a class="nav-item active" onclick="app.nav('market', this)">
@@ -397,11 +429,36 @@
                 <span class="material-icons-round">person</span>
                 Profile
             </a>
+            <a class="nav-item" onclick="app.nav('about', this)">
+                <span class="material-icons-round">info</span>
+                About
+            </a>
             <a class="nav-item hidden" id="admin-nav-link" onclick="app.nav('admin', this)">
                 <span class="material-icons-round">admin_panel_settings</span>
                 Admin
             </a>
         </nav>
+    </div>
+
+    <!-- Modal for Terms -->
+    <div id="terms-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:300; justify-content:center; align-items:center; padding:20px;">
+        <div style="background:white; padding:25px; border-radius:12px; max-width:400px; max-height:80vh; overflow-y:auto;">
+            <h3 style="color:var(--primary); margin-bottom:15px;">Terms & Conditions</h3>
+            <p style="font-size:0.9rem; color:#555; line-height:1.5; margin-bottom:20px;">
+                Welcome to TK COIN. By using this platform, you agree to the following terms:
+                <br><br>
+                1. <strong>Usage:</strong> TK COIN is a digital currency trading platform. Use it responsibly.
+                <br>
+                2. <strong>Transactions:</strong> All deposit and withdrawal requests are subject to verification. TRX IDs must be valid.
+                <br>
+                3. <strong>Account Security:</strong> You are responsible for maintaining the confidentiality of your account credentials.
+                <br>
+                4. <strong>Fees:</strong> Certain transactions may incur taxes or processing fees as defined in the Pro/Normal user plans.
+                <br>
+                5. <strong>Liability:</strong> TK COIN (Singapore) is not liable for any losses arising from market volatility or unauthorized access to your account.
+            </p>
+            <button class="btn btn-primary" onclick="app.hideModal('terms')">I Understand</button>
+        </div>
     </div>
 
     <script>
@@ -429,7 +486,7 @@
          * Using LocalStorage to simulate backend for immediate usability.
          */
         
-        const MOCK_DB_KEY = 'tkcoin_db_v2';
+        const MOCK_DB_KEY = 'tkcoin_db_v3';
         
         // Default Initial State
         const initialState = {
@@ -480,8 +537,8 @@
                     name: this.currentUser.name,
                     isPro: this.currentUser.isPro,
                     content: content,
-                    likedBy: [], // Array of emails
-                    comments: [], // Array of {uid, name, text, date}
+                    likedBy: [], 
+                    comments: [], 
                     date: new Date().toISOString()
                 };
                 this.data.posts.push(post);
@@ -499,9 +556,9 @@
                 if(post) {
                     const email = this.currentUser.email;
                     if(post.likedBy.includes(email)) {
-                        post.likedBy = post.likedBy.filter(e => e !== email); // Unlike
+                        post.likedBy = post.likedBy.filter(e => e !== email); 
                     } else {
-                        post.likedBy.push(email); // Like
+                        post.likedBy.push(email); 
                     }
                     this.save();
                 }
@@ -566,14 +623,22 @@
                 }
             },
 
+            showModal: (id) => {
+                document.getElementById(id + '-modal').style.display = 'flex';
+            },
+            hideModal: (id) => {
+                document.getElementById(id + '-modal').style.display = 'none';
+            },
+
             signup: () => {
                 const name = document.getElementById('reg-name').value;
-                const email = document.getElementById('reg-email').value.toLowerCase(); // Normalize
+                const email = document.getElementById('reg-email').value.toLowerCase();
                 const pass = document.getElementById('reg-pass').value;
+                const tnc = document.getElementById('reg-tnc').checked;
 
                 if(!name || !email || !pass) return app.toast('Fill all fields', 'error');
-                
-                // Check if user exists
+                if(!tnc) return app.toast('Please accept Terms & Conditions', 'error');
+
                 if(dataService.data.users.find(u => u.email === email)) {
                     return app.toast('Email already registered', 'error');
                 }
@@ -590,7 +655,6 @@
                 dataService.data.users.push(user);
                 dataService.save();
                 
-                // Auto login
                 dataService.currentUser = user;
                 dataService.saveUser();
                 
@@ -602,10 +666,10 @@
 
             login: () => {
                 const email = document.getElementById('login-email').value.toLowerCase();
-                
-                if(!email) return app.toast('Please enter email', 'error');
+                const tnc = document.getElementById('login-tnc').checked;
 
-                // Check if Admin
+                if(!tnc) return app.toast('Please accept Terms & Conditions', 'error');
+
                 if (email === 'admin@tkcoin.com') {
                     const adminUser = {
                         email: 'admin@tkcoin.com',
@@ -623,7 +687,6 @@
                     return;
                 }
 
-                // Check Regular User
                 let user = dataService.data.users.find(u => u.email === email);
                 if(user) {
                     dataService.currentUser = user;
@@ -647,11 +710,9 @@
                 const user = dataService.currentUser;
                 const rate = dataService.getRate();
 
-                // Header Info
                 document.getElementById('user-balance').innerText = user.balance.toFixed(2);
                 document.getElementById('header-rate').innerText = rate;
                 
-                // Status Badge
                 const statusEl = document.getElementById('user-status-display');
                 if(user.isPro) {
                     statusEl.innerText = "PRO MEMBER";
@@ -663,7 +724,6 @@
                     statusEl.style.color = "#fff";
                 }
 
-                // Admin Link
                 if(user.isAdmin) {
                     document.getElementById('admin-nav-link').classList.remove('hidden');
                 } else {
@@ -677,7 +737,6 @@
                 document.getElementById('profile-rate').innerText = rate;
                 document.getElementById('profile-posts').innerText = dataService.data.posts.filter(p => p.uid === user.email).length;
 
-                // Badge Logic
                 const badgeContainer = document.getElementById('profile-badge-container');
                 badgeContainer.innerHTML = '';
                 if(user.isPro) {
@@ -696,6 +755,9 @@
                 
                 // Feed Data
                 app.renderFeed();
+                
+                // History Data
+                app.renderHistory();
                 
                 // Admin Data
                 if(user.isAdmin) {
@@ -751,19 +813,28 @@
 
             requestDeposit: () => {
                 const pkr = parseFloat(document.getElementById('buy-pkr').value);
+                const trxId = document.getElementById('deposit-trx').value;
+                const method = document.getElementById('deposit-method').value;
+                const number = dataService.data.settings.depositNums[method];
+
                 if(!pkr || pkr < 100) return app.toast('Minimum deposit 100 PKR', 'error');
+                if(!trxId) return app.toast('Please enter TRX ID', 'error');
 
                 const req = {
                     id: Date.now(),
                     type: 'deposit',
                     uid: dataService.currentUser.email,
                     amount: pkr,
+                    method: method,
+                    number: number,
+                    trxId: trxId, // New Field
                     status: 'pending',
                     date: new Date().toISOString()
                 };
                 dataService.addRequest(req);
                 app.toast('Deposit request sent to Admin', 'success');
                 document.getElementById('buy-pkr').value = '';
+                document.getElementById('deposit-trx').value = '';
                 app.calcBuy();
             },
 
@@ -841,6 +912,51 @@
                 app.calcSell();
             },
 
+            // --- HISTORY LOGIC ---
+
+            renderHistory: () => {
+                const container = document.getElementById('history-container');
+                const myReqs = dataService.data.requests.filter(r => r.uid === dataService.currentUser.email).sort((a,b) => new Date(b.date) - new Date(a.date));
+                
+                if(myReqs.length === 0) {
+                    container.innerHTML = '<p class="text-small">No transactions found.</p>';
+                    return;
+                }
+
+                container.innerHTML = '';
+                myReqs.forEach(r => {
+                    const date = new Date(r.date).toLocaleDateString();
+                    const isDep = r.type === 'deposit';
+                    const typeClass = isDep ? 'deposit' : 'withdraw';
+                    const typeLabel = isDep ? 'Deposit (PKR)' : 'Withdraw (TK)';
+                    
+                    // Status styling
+                    let statusClass = 'status-pending';
+                    if(r.status === 'approved') statusClass = 'status-approved';
+                    if(r.status === 'rejected') statusClass = 'status-rejected';
+
+                    let extraInfo = '';
+                    if(isDep) {
+                        extraInfo = `<div class="history-detail">TRX ID: ${r.trxId}</div>`;
+                    } else {
+                        extraInfo = `<div class="history-detail">To: ${r.account}</div>`;
+                    }
+
+                    const html = `
+                        <div class="history-item ${typeClass}">
+                            <div class="history-header">
+                                <span>${typeLabel}</span>
+                                <span class="status-badge ${statusClass}">${r.status}</span>
+                            </div>
+                            <div class="history-detail">Amount: ${r.amount}</div>
+                            ${extraInfo}
+                            <div class="history-detail" style="color:#999;">Date: ${date}</div>
+                        </div>
+                    `;
+                    container.innerHTML += html;
+                });
+            },
+
             // --- COMMUNITY LOGIC ---
 
             createPost: () => {
@@ -886,12 +1002,10 @@
                     const badge = post.isPro ? '<span class="material-icons-round badge-pro">verified</span>' : '';
                     const deleteBtn = isAdmin ? `<button class="delete-btn" onclick="app.deletePost(${post.id})"><span class="material-icons-round">delete</span></button>` : '';
 
-                    // Like Logic
                     const isLiked = post.likedBy.includes(user.email);
                     const likeClass = isLiked ? 'liked' : '';
                     const likeIcon = isLiked ? 'thumb_up' : 'thumb_up_off_alt';
 
-                    // Render Comments
                     let commentsHtml = '';
                     post.comments.forEach(c => {
                         commentsHtml += `
@@ -920,8 +1034,6 @@
                                     <span class="material-icons-round">comment</span> ${post.comments.length}
                                 </button>
                             </div>
-                            
-                            <!-- Comments Section -->
                             <div id="comments-${post.id}" class="comments-section">
                                 ${commentsHtml}
                                 <div class="comment-input-wrapper">
@@ -959,7 +1071,6 @@
                 if(text) {
                     dataService.addComment(id, text);
                     app.renderFeed();
-                    // Keep comment section open after reload
                     setTimeout(() => {
                         document.getElementById(`comments-${id}`).classList.add('show');
                     }, 50);
@@ -1012,6 +1123,7 @@
                         const rate = dataService.getRate();
                         const coinsToAdd = (r.amount / rate).toFixed(2);
                         
+                        // Show TRX ID, Method, Number as requested
                         actionHtml = `
                             <div class="req-actions">
                                 <button class="btn btn-primary btn-sm" onclick="app.approveReq(${r.id}, ${coinsToAdd})">Approve (+${coinsToAdd} TK)</button>
@@ -1021,8 +1133,11 @@
                         dList.innerHTML += `
                             <div class="request-item">
                                 <div class="text-bold">User: ${r.uid}</div>
+                                <div>Method: ${r.method.toUpperCase()}</div>
+                                <div>Number: ${r.number}</div>
                                 <div>Amount: ${r.amount} PKR</div>
-                                <div>Date: ${date}</div>
+                                <div style="color:var(--primary); font-weight:bold;">TRX ID: ${r.trxId}</div>
+                                <div style="font-size:0.8rem; color:#777;">Date: ${date}</div>
                                 ${actionHtml}
                             </div>
                         `;
@@ -1124,7 +1239,6 @@
                 }
             },
 
-            // --- UTILS ---
             toast: (msg, type = 'success') => {
                 const c = document.getElementById('toast-container');
                 const t = document.createElement('div');
@@ -1136,9 +1250,7 @@
             }
         };
 
-        // Init App
         app.init();
-
     </script>
 </body>
 </html>
