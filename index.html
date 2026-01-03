@@ -100,32 +100,37 @@
         .modal-title { font-weight: 700; margin-bottom: 15px; color: var(--primary); font-size: 1.2rem; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
         .modal-body p { font-size: 0.9rem; line-height: 1.6; margin-bottom: 10px; color: var(--text-main); }
 
-        /* --- CHART STYLES --- */
-        .chart-card { background: var(--bg-card); padding: 15px; border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 20px; border: 1px solid var(--border); position: relative; overflow: hidden; }
-        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        /* --- CANVAS CHART STYLES --- */
+        .chart-card { background: var(--bg-card); padding: 15px; border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 20px; border: 1px solid var(--border); position: relative; }
+        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .chart-title { font-size: 0.9rem; font-weight: 600; color: var(--primary); }
+        .chart-status { display: flex; align-items: center; gap: 5px; font-size: 0.75rem; background: var(--bg-body); padding: 4px 8px; border-radius: 4px; }
+        .busy-dot { width: 8px; height: 8px; background: var(--warning); border-radius: 50%; animation: blink 1.5s infinite; }
+        @keyframes blink { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
         .chart-date { font-size: 0.8rem; color: var(--text-sec); background: var(--bg-body); padding: 4px 8px; border-radius: 4px; }
-        .chart-row { display: flex; align-items: center; margin-top: 5px; gap: 10px; }
-        .price-big { font-size: 1.8rem; font-weight: 700; color: var(--text-main); transition: color 0.5s; }
-        /* Heartbeat Animation */
-        .price-big.heartbeat { animation: pricePulse 1.5s infinite; }
-        @keyframes pricePulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-            100% { transform: scale(1); }
-        }
-        
-        .trend-icon { font-size: 2rem; }
+        .chart-main { display: flex; flex-direction: column; align-items: center; }
+        .price-display-area { display: flex; flex-direction: column; align-items: center; margin-bottom: 10px; }
+        .price-big { font-size: 2rem; font-weight: 700; color: var(--text-main); transition: color 0.5s; }
+        .price-change { font-size: 0.9rem; font-weight: 600; margin-top: 2px; }
         .trend-up { color: var(--success); }
         .trend-down { color: var(--danger); }
         
-        .bar-chart { display: flex; gap: 2px; height: 60px; align-items: flex-end; margin-top: 10px; }
-        .chart-bar { width: 7%; background: var(--bg-body); border-radius: 4px 4px 0; transition: height 0.5s ease-in-out, background-color 0.5s ease; position: relative; overflow: hidden; }
-        .chart-bar::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 1px; background: rgba(255,255,255,0.5); }
-        /* Directional Colors */
-        .chart-bar.up { background: var(--success); }
-        .chart-bar.down { background: var(--danger); }
-        .chart-bar.neutral { background: var(--primary-light); }
+        #priceChart { width: 100%; height: 200px; background: var(--bg-body); border-radius: 4px; }
+        
+        /* Performance Summary (Har days ka result) */
+        .perf-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+        .perf-item { background: var(--bg-body); padding: 8px; border-radius: 4px; text-align: center; border: 1px solid var(--border); }
+        .perf-label { font-size: 0.7rem; color: var(--text-sec); }
+        .perf-val { font-size: 0.8rem; font-weight: bold; }
+        .val-green { color: var(--success); }
+        .val-red { color: var(--danger); }
+
+        /* Recent Rates (Rates likha aaye) */
+        .recent-rates { border-top: 1px solid var(--border); margin-top: 10px; padding-top: 10px; }
+        .rate-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed var(--border); font-size: 0.85rem; }
+        .rate-row:last-child { border-bottom: none; }
+        .rate-name { font-weight: 600; }
+        .rate-val { color: var(--primary); font-weight: bold; }
 
         /* Market Styles */
         .market-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
@@ -241,7 +246,7 @@
                 <p><span data-i18n="company_lbl">Company:</span> TK COIN PTE LTD</p>
                 <p><span data-i18n="location_lbl">Location:</span> <span data-i18n="location_val">Singapore</span></p>
                 <p data-i18n="mission">We provide a secure and fast environment for buying, selling, and trading TK Coins.</p>
-                <p>Version 2.5 (Heartbeat Chart)</p>
+                <p>Version 2.6 (Line Chart & Random Comments)</p>
             </div>
             <button class="btn btn-primary" style="margin-top:15px;" onclick="app.closeModal('about-modal')">Close</button>
         </div>
@@ -312,24 +317,58 @@
         <!-- 1. MARKETPLACE -->
         <section id="market-section" class="section active">
             
-            <!-- LIVE AUTO CHART (Heartbeat Version) -->
+            <!-- CANVAS LINE CHART -->
             <div class="chart-card">
                 <div class="chart-header">
                     <div>
                         <span class="chart-title" data-i18n="live_rate">Live Rate (Auto)</span>
                     </div>
-                    <div>
-                        <span class="material-icons-round trend-icon" id="chart-trend-icon">trending_up</span>
+                    <div class="chart-status">
+                        <div class="busy-dot"></div>
+                        <span style="font-size: 0.8rem; color: var(--text-sec);" data-i18n="bus_yahin">Busy</span>
                     </div>
                     <div class="chart-date" id="chart-date">Loading...</div>
                 </div>
                 
-                <div class="chart-row">
-                    <span class="price-big heartbeat" id="live-price-display">0.00</span>
+                <div class="chart-main">
+                    <div class="price-display-area">
+                        <span class="price-big" id="live-price-display">0.00</span>
+                        <span class="price-change" id="price-change-display">0.00%</span>
+                    </div>
                 </div>
 
-                <div class="bar-chart" id="bar-chart-container">
-                    <!-- Bars injected by JS -->
+                <canvas id="priceChart" width="100%" height="200"></canvas>
+
+                <!-- Har days ka result -->
+                <div class="perf-stats">
+                    <div class="perf-item">
+                        <div class="perf-label" data-i18n="day_res">24h Result</div>
+                        <div class="perf-val" id="perf-1d">-</div>
+                    </div>
+                    <div class="perf-item">
+                        <div class="perf-label" data-i18n="week_res">7 Days Result</div>
+                        <div class="perf-val" id="perf-7d">-</div>
+                    </div>
+                    <div class="perf-item">
+                        <div class="perf-label" data-i18n="month_res">30 Days Result</div>
+                        <div class="perf-val" id="perf-30d">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Rates -->
+            <div class="recent-rates">
+                <div class="rate-row">
+                    <span class="rate-name">1 Day Rate</span>
+                    <span class="rate-val" id="rate-1d">0</span>
+                </div>
+                <div class="rate-row">
+                    <span class="rate-name">7 Days Rate</span>
+                    <span class="rate-val" id="rate-7d">0</span>
+                </div>
+                <div class="rate-row">
+                    <span class="rate-name">30 Days Rate</span>
+                    <span class="rate-val" id="rate-30d">0</span>
                 </div>
             </div>
 
@@ -441,6 +480,7 @@
                 <div id="profile-badge-container"></div>
             </div>
 
+            <!-- Referral Section -->
             <div class="ref-card">
                 <h4 style="color: var(--warning); margin-bottom: 10px;" data-i18n="invite_earn">Invite & Earn</h4>
                 <p class="text-small" data-i18n="invite_desc">Share your code. Get <strong>2 TK</strong> for every valid member (10 TK for 5).</p>
@@ -451,6 +491,7 @@
                 <div class="ref-list" id="referral-list"></div>
             </div>
 
+            <!-- Win/Loss Card -->
             <div class="pnl-card">
                 <div class="pnl-row">
                     <span data-i18n="invested">Invested:</span>
@@ -631,7 +672,11 @@
                 mission: "We provide a secure and fast environment for buying, selling, and trading TK Coins.",
                 auto_comment_btn: "Auto Comment",
                 post_placeholder: "What's on your mind?",
-                live_rate: "Live Rate (Auto)"
+                live_rate: "Live Rate (Auto)",
+                bus_yahin: "Busy",
+                day_res: "24h Result",
+                week_res: "7 Days Result",
+                month_res: "30 Days Result"
             },
             ur: {
                 login: "لاگ ان کریں",
@@ -700,7 +745,11 @@
                 mission: "ہم ٹی کے سکے خریدنے، بیچنے اور ٹریڈ کرنے کے لیے محفوظ اور تیز ماحول فراہم کرتے ہیں۔",
                 auto_comment_btn: "آٹو کمنٹ",
                 post_placeholder: "آپ کے ذہن میں کیا ہے؟",
-                live_rate: "لائیو ریٹ (آٹو)"
+                live_rate: "لائیو ریٹ (آٹو)",
+                bus_yahin: "بجی یہین ہو",
+                day_res: "24 گھنٹ کا نتیجہ",
+                week_res: "7 دنوں کا نتیجہ",
+                month_res: "30 دنوں کا نتیجہ"
             }
         };
 
@@ -716,8 +765,8 @@
         };
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         
-        // CHANGE KEY TO v11 FOR NEW DATABASE
-        const MOCK_DB_KEY = 'tkcoin_db_v11'; 
+        // CHANGE KEY TO v12 FOR NEW DATABASE
+        const MOCK_DB_KEY = 'tkcoin_db_v12'; 
         const initialState = {
             users: [],
             posts: [],
@@ -761,6 +810,7 @@
             toggleLike(id) {
                 const post = this.data.posts.find(p => p.id === id);
                 if(post) {
+                    // If Admin, we handle directly in controller to avoid array issues with unlimited likes
                     if(!this.currentUser.isAdmin) {
                         const email = this.currentUser.email;
                         post.likedBy = post.likedBy.includes(email) ? post.likedBy.filter(e => e !== email) : [...post.likedBy, email];
@@ -788,32 +838,13 @@
 
         const app = {
             currentLang: 'en',
+            botEmojis: ['😍', '🥳', '💯', '🎉', '🎁', '🤗', '🤑', '🙌', '🤗'],
             botNames: ['Ali', 'Zeeshan', 'Smad', 'Ahmed', 'Usman', 'Bilal', 'Hassan', 'Kamran', 'Farhan', 'Rizwan'],
-            commentBank: {
-                profit: [
-                    "Huge profit on TK Coin! 🚀",
-                    "Best platform ever for TK Coin! 💎",
-                    "Short term gain incoming! 📈",
-                    "TK Coin is the future! 🌕"
-                ],
-                short: [
-                    "Hold for short term! 🛑",
-                    "Scalp trade confirmed. ✅"
-                ],
-                long: [
-                    "Long hold for big wins! 🕐",
-                    "TK Coin is the gold standard! ✨"
-                ],
-                general: [
-                    "TK COIN Official: Verified Post ✅",
-                    "Good trading!",
-                    "Verified content."
-                ]
-            },
             livePrice: 0,
             chartHistory: [],
             heartbeatInterval: null,
-
+            ctx: null, // Canvas Context
+            
             init: () => {
                 // Set Date
                 const now = new Date();
@@ -830,6 +861,7 @@
                     document.getElementById('auth-screen').classList.add('hidden');
                     document.getElementById('main-app').classList.remove('hidden');
                     app.loadUI();
+                    app.initCanvasChart(); // Init Chart
                 }
             },
             toggleTheme: () => {
@@ -857,104 +889,165 @@
             },
             generateRefCode: () => Math.random().toString(36).substring(2, 8).toUpperCase(),
             
-            // --- HEARTBEAT SYSTEM (Smart Operation) ---
-            startHeartbeat: () => {
-                // Initial Chart History
+            // --- CANVAS CHART SYSTEM ---
+            initCanvasChart: () => {
+                const canvas = document.getElementById('priceChart');
+                app.ctx = canvas.getContext('2d');
+                
+                // Set internal resolution for sharp lines
+                const dpr = window.devicePixelRatio || 1;
+                const rect = canvas.getBoundingClientRect();
+                canvas.width = rect.width * dpr;
+                canvas.height = rect.height * dpr;
+                app.ctx.scale(dpr, dpr);
+                canvas.style.width = `${rect.width}px`;
+                canvas.style.height = `${rect.height}px`;
+
+                // Initialize chart with current price
                 const rate = dataService.getRate();
                 app.livePrice = rate;
+                
+                // Create history (Line chart needs points)
                 for(let i=0; i<9; i++) {
-                    app.chartHistory.push(rate * (0.95 + (i * 0.01))); // Fake history for visual
+                    app.chartHistory.push(rate * (0.9 + (i * 0.015)));
                 }
-                app.chartHistory.push(rate); // Add current
-                app.renderChart();
+                app.chartHistory.push(rate);
 
-                // Clear old intervals
+                app.drawChart();
+                app.updateStats(); // Initial update
+
+                // Start Heartbeat Loop
                 if(app.heartbeatInterval) clearInterval(app.heartbeatInterval);
-
-                // Run every 3 seconds
                 app.heartbeatInterval = setInterval(() => {
                     app.heartbeatTick();
-                }, 3000);
+                }, 2000); // Update every 2 seconds
             },
             heartbeatTick: () => {
-                // Micro-movement simulation (Random tick +/- 0.2%)
-                const changePercent = (Math.random() * 0.004) - 0.002; 
-                app.livePrice = app.livePrice * (1 + changePercent);
+                // Micro-movement simulation
+                const change = (Math.random() - 0.5) * 0.03; 
+                app.livePrice = app.livePrice * (1 + change);
 
-                // Update History (Shift Left, Add New Right)
+                // Update History (Shift left, add new right)
                 app.chartHistory.shift();
                 app.chartHistory.push(app.livePrice);
 
-                // Render Chart with Smart Auto Operation
-                app.renderChart();
+                app.drawChart();
+                app.updateStats();
             },
+            drawChart: () => {
+                const canvas = document.getElementById('priceChart');
+                const ctx = app.ctx;
+                const width = canvas.width / (window.devicePixelRatio || 1);
+                const height = canvas.height / (window.devicePixelRatio || 1);
 
-            // --- RENDER CHART (Directional Logic) ---
-            renderChart: () => {
-                const container = document.getElementById('bar-chart-container');
-                container.innerHTML = '';
-                const priceEl = document.getElementById('live-price-display');
-                const trendIcon = document.getElementById('chart-trend-icon');
+                // Clear
+                ctx.clearRect(0, 0, width, height);
 
-                // Set Price
-                priceEl.innerText = app.livePrice.toFixed(2);
-
-                // Determine Trend (Compare new price vs 2nd last price)
-                // If current > previous => UP. If current < previous => DOWN.
+                // Determine Trend
                 const len = app.chartHistory.length;
                 let trend = 'neutral';
-                let colorClass = 'neutral';
+                let colorClass = 'neutral'; // Used for text color logic, not canvas
                 
-                if(len >= 2) {
+                // Compare last 3 to determine main trend for coloring
+                if(len > 2) {
                     const current = app.chartHistory[len-1];
-                    const previous = app.chartHistory[len-2];
-                    if(current > previous) { trend = 'up'; colorClass = 'up'; }
-                    else if (current < previous) { trend = 'down'; colorClass = 'down'; }
+                    const prev = app.chartHistory[len-2];
+                    if(current > prev) { trend = 'up'; colorClass = 'up'; }
+                    else if(current < prev) { trend = 'down'; colorClass = 'down'; }
                 }
 
-                // Update UI Colors based on trend
-                priceEl.style.color = trend === 'up' ? 'var(--success)' : (trend === 'down' ? 'var(--danger)' : 'var(--text-main)');
-                trendIcon.innerText = trend === 'up' ? 'trending_up' : (trend === 'down' ? 'trending_down' : 'trending_flat');
-                trendIcon.className = `material-icons-round trend-icon ${trend === 'up' ? 'trend-up' : (trend === 'down' ? 'trend-down' : '')}`;
+                // Set Line Color
+                // Up = Green, Down = Red
+                const lineColor = trend === 'up' ? '#00c851' : (trend === 'down' ? '#ff4444' : '#666666');
 
-                // Generate Bars (Directional)
-                // If trend is UP, bars are Green. If DOWN, Red.
-                app.chartHistory.forEach((p, index) => {
-                    // Logic: Is this bar higher than the bar before it?
-                    let barClass = 'neutral';
-                    if(index > 0) {
-                        const prev = app.chartHistory[index-1];
-                        if(p > prev) { barClass = 'up'; }
-                        else if(p < prev) { barClass = 'down'; }
-                    }
+                // Draw Line
+                ctx.beginPath();
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = lineColor;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
 
-                    // Adjust height relative to range (min 20%, max 100%)
-                    // Find min/max in visible window or current history
-                    const min = Math.min(...app.chartHistory) * 0.9;
-                    const max = Math.max(...app.chartHistory) * 1.1;
-                    const range = max - min || 1;
-                    const height = 20 + ((p - min) / range) * 80;
-
-                    container.innerHTML += `
-                        <div class="chart-bar ${barClass}" style="height: ${height}%"></div>
-                    `;
+                // Calculate X step (width / number of points)
+                const xStep = width / (len - 1);
+                
+                app.chartHistory.forEach((p, i) => {
+                    const x = i * xStep;
+                    const y = height - ((p / (Math.max(...app.chartHistory) * 1.2)) * height * 0.8) - 20; // Simple scaling to fit
+                    
+                    if(i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
                 });
+                ctx.stroke();
+
+                // Draw Dot at end (Current Price)
+                const lastX = (len - 1) * xStep;
+                const lastY = height - ((app.chartHistory[len-1] / (Math.max(...app.chartHistory) * 1.2)) * height * 0.8) - 20;
+                
+                ctx.beginPath();
+                ctx.fillStyle = lineColor;
+                ctx.arc(lastX, lastY, 6, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Update Text UI
+                document.getElementById('live-price-display').innerText = app.livePrice.toFixed(2);
+                
+                // Calculate change %
+                if(len > 1) {
+                    const current = app.chartHistory[len-1];
+                    const prev = app.chartHistory[len-2];
+                    const pct = ((current - prev) / prev) * 100;
+                    const sign = pct >= 0 ? '+' : '';
+                    const changeEl = document.getElementById('price-change-display');
+                    changeEl.innerText = `${sign}${pct.toFixed(2)}%`;
+                    changeEl.className = `price-change ${colorClass}`;
+                }
+            },
+            updateStats: () => {
+                // Fake results for Har days ka result
+                const d1 = (Math.random() - 0.5) * 5;
+                const d7 = (Math.random() - 0.5) * 8;
+                const d30 = (Math.random() - 0.5) * 15;
+
+                const el1d = document.getElementById('perf-1d');
+                el1d.innerText = `${d1 > 0 ? '+' : ''}${d1.toFixed(2)}%`;
+                el1d.className = `perf-val ${d1 > 0 ? 'val-green' : 'val-red'}`;
+
+                const el7d = document.getElementById('perf-7d');
+                el7d.innerText = `${d7 > 0 ? '+' : ''}${d7.toFixed(2)}%`;
+                el7d.className = `perf-val ${d7 > 0 ? 'val-green' : 'val-red'}`;
+
+                const el30d = document.getElementById('perf-30d');
+                el30d.innerText = `${d30 > 0 ? '+' : ''}${d30.toFixed(2)}%`;
+                el30d.className = `perf-val ${d30 > 0 ? 'val-green' : 'val-red'}`;
+
+                // Rates likha aaye (History)
+                const r1d = document.getElementById('rate-1d');
+                r1d.innerText = (app.livePrice * 0.99).toFixed(2);
+
+                const r7d = document.getElementById('rate-7d');
+                r7d.innerText = (app.livePrice * 1.05).toFixed(2);
+
+                const r30d = document.getElementById('rate-30d');
+                r30d.innerText = (app.livePrice * 1.15).toFixed(2);
             },
             manualUpdatePrice: (newPrice) => {
                 app.livePrice = Number(newPrice);
-                // Reset history slightly to avoid massive spikes visually
+                // Reset history slightly
                 app.chartHistory = [];
                 for(let i=0; i<10; i++) {
-                    app.chartHistory.push(app.livePrice * (0.9 + (i * 0.01)));
+                    app.chartHistory.push(app.livePrice * (0.95 + (i * 0.01)));
                 }
-                app.renderChart();
-                app.toast('Price Updated', 'success');
+                app.chartHistory.push(app.livePrice);
+                app.drawChart();
+                app.updateStats();
+                app.toast('Chart Updated', 'success');
             },
 
-            // --- REMAINING APP LOGIC (BOT, AUTH, etc) ---
-            triggerBotActivity: (postId, content) => {
+            // BOT ACTIVITY SYSTEM (Random + Emoji)
+            triggerBotActivity: (postId) => {
                 // Random delay 2-5 seconds
                 const delay = Math.floor(Math.random() * 3000) + 2000;
+                
                 setTimeout(() => {
                     const post = dataService.data.posts.find(p => p.id === postId);
                     if(post) {
@@ -962,18 +1055,26 @@
                         post.likedBy.push('bot_like_' + app.botNames[Math.floor(Math.random() * app.botNames.length)]); 
                         dataService.save();
                         
-                        // 2. Check for TK Coin Keyword for Auto Comment
-                        if(content.toLowerCase().includes('tk coin') || content.toLowerCase().includes('tkcoin')) {
-                            const botComment = {
-                                uid: 'bot_system',
-                                name: app.botNames[Math.floor(Math.random() * app.botNames.length)],
-                                text: "TK COIN Official: Verified Post ✅",
-                                date: new Date().toISOString()
-                            };
-                            post.comments.push(botComment);
-                            dataService.save();
-                            app.toast(`Bot Comment`, 'success');
-                        }
+                        // 2. Random Comment with Specific Emojis
+                        const randomEmoji = app.botEmojis[Math.floor(Math.random() * app.botEmojis.length)];
+                        const randomText = [
+                            "Great profit! ",
+                            "Looking bullish! ",
+                            "HODL! ",
+                            "Strong signal! ",
+                            "Future is green! "
+                        ];
+                        const msg = randomText[Math.floor(Math.random() * randomText.length)] + randomEmoji;
+                        
+                        const botComment = {
+                            uid: 'bot_system',
+                            name: app.botNames[Math.floor(Math.random() * app.botNames.length)],
+                            text: msg,
+                            date: new Date().toISOString()
+                        };
+                        post.comments.push(botComment);
+                        dataService.save();
+                        
                         app.renderFeed();
                     }
                 }, delay);
@@ -1083,7 +1184,6 @@
                 document.getElementById('profile-rate').innerText = rate;
                 document.getElementById('profile-posts').innerText = dataService.data.posts.filter(p => p.uid === user.email).length;
 
-                // --- Referral UI ---
                 document.getElementById('my-referral-code').innerText = user.referralCode || 'N/A';
                 const refList = document.getElementById('referral-list');
                 refList.innerHTML = '';
@@ -1101,7 +1201,6 @@
                     refList.innerHTML = '<p class="text-small" style="text-align:center">No invites yet.</p>';
                 }
 
-                // --- Win/Loss Calculation ---
                 const investment = user.totalInvestmentPKR || 0;
                 const currentVal = user.balance * rate;
                 const pnl = currentVal - investment;
@@ -1262,8 +1361,8 @@
                 app.renderFeed();
                 app.toast('Posted!', 'success');
 
-                // --- TRIGGER BOT ACTIVITY ---
-                app.triggerBotActivity(post.id, content);
+                // --- TRIGGER BOT ACTIVITY (RANDOM) ---
+                app.triggerBotActivity(post.id);
             },
             renderFeed: () => {
                 const container = document.getElementById('posts-container');
@@ -1276,7 +1375,19 @@
                     const isLiked = post.likedBy.includes(user.email);
                     const likeClass = isLiked ? 'liked' : '';
                     const likeIcon = isLiked ? 'thumb_up' : 'thumb_up_off_alt';
-                    let commentsHtml = post.comments.map(c => `<div class="comment-item"><span class="comment-user">${c.name}:</span> ${c.text}</div>`).join('');
+                    let commentsHtml = '';
+                    post.comments.forEach(c => {
+                        const isBot = c.uid === 'bot_system';
+                        const botStyle = isBot ? 'bot-comment' : '';
+                        const botBadge = isBot ? `<span class="bot-badge">BOT</span>` : '';
+                        
+                        commentsHtml += `
+                            <div class="comment-item ${botStyle}">
+                                <span class="comment-user">${c.name} ${botBadge}</span>: ${c.text}
+                            </div>
+                        `;
+                    });
+
                     const deleteBtn = user.isAdmin ? `<button class="delete-btn" onclick="app.deletePost(${post.id})"><span class="material-icons-round">delete</span></button>` : '';
                     
                     // Admin Auto Comment Button
@@ -1429,6 +1540,8 @@
                         dataService.data.users[uIdx].balance += parseFloat(coins);
                         if(dataService.data.users[uIdx].totalInvestmentPKR === undefined) dataService.data.users[uIdx].totalInvestmentPKR = 0;
                         dataService.data.users[uIdx].totalInvestmentPKR += parseFloat(req.amount);
+                        
+                        // Trigger Referral Check
                         app.checkReferrals(req.uid);
                     }
                     req.status = 'approved';
@@ -1440,7 +1553,8 @@
             checkReferrals: (userEmail) => {
                 const user = dataService.data.users.find(u => u.email === userEmail);
                 if(!user || !user.referrals) return;
-                
+
+                // Check if user has invited people
                 if(user.referrals) {
                     user.referrals.forEach(ref => {
                         if(ref.status === 'pending') {
@@ -1493,6 +1607,7 @@
                     document.body.dir = "ltr";
                 }
 
+                // Update all text elements with data-i18n
                 document.querySelectorAll('[data-i18n]').forEach(el => {
                     const key = el.getAttribute('data-i18n');
                     if(i18n[app.currentLang][key]) {
@@ -1500,6 +1615,7 @@
                     }
                 });
                 
+                // Update specific placeholders
                 if(document.getElementById('post-content')) {
                     document.getElementById('post-content').placeholder = i18n[app.currentLang]['post_placeholder'];
                 }
