@@ -7,7 +7,7 @@
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <!-- Google Fonts (Added Urdu Font) -->
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
 
@@ -105,36 +105,31 @@
         .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .chart-title { font-size: 0.9rem; font-weight: 600; color: var(--primary); }
         .chart-date { font-size: 0.8rem; color: var(--text-sec); background: var(--bg-body); padding: 4px 8px; border-radius: 4px; }
-        .chart-row { display: flex; align-items: center; margin-top: 5px; }
-        .price-big { font-size: 1.8rem; font-weight: 700; color: var(--primary); }
-        .trend-icon { font-size: 2rem; margin: 0 5px; }
-        .trend-up { color: var(--success); animation: pulse 2s infinite; }
-        .trend-down { color: var(--danger); animation: pulse 2s infinite; }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.05); opacity: 0.8; }
-            100% { transform: scale(1); opacity: 1; }
+        .chart-row { display: flex; align-items: center; margin-top: 5px; gap: 10px; }
+        .price-big { font-size: 1.8rem; font-weight: 700; color: var(--text-main); transition: color 0.5s; }
+        /* Heartbeat Animation */
+        .price-big.heartbeat { animation: pricePulse 1.5s infinite; }
+        @keyframes pricePulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
         }
-
-        .bar-chart { display: flex; gap: 4px; height: 60px; align-items: flex-end; margin-top: 10px; }
-        .chart-bar { width: 8%; background: var(--bg-body); border-radius: 4px 4px 0; transition: height 0.5s ease-in-out, background-color 0.3s ease; position: relative; overflow: hidden; }
-        .chart-bar::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: rgba(255,255,255,0.5); }
-        .chart-bar.active { box-shadow: 0 0 10px rgba(0,0,0,0.2); z-index: 10; border: 1px solid rgba(0,0,0,0.1); }
+        
+        .trend-icon { font-size: 2rem; }
+        .trend-up { color: var(--success); }
+        .trend-down { color: var(--danger); }
+        
+        .bar-chart { display: flex; gap: 2px; height: 60px; align-items: flex-end; margin-top: 10px; }
+        .chart-bar { width: 7%; background: var(--bg-body); border-radius: 4px 4px 0; transition: height 0.5s ease-in-out, background-color 0.5s ease; position: relative; overflow: hidden; }
+        .chart-bar::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 1px; background: rgba(255,255,255,0.5); }
+        /* Directional Colors */
         .chart-bar.up { background: var(--success); }
         .chart-bar.down { background: var(--danger); }
-        .chart-bar.live { border: 2px solid var(--primary); animation: live-pulse 1.5s infinite; }
-        .chart-bar.live::after { height: 100%; background: var(--primary); opacity: 0.5; }
-
-        @keyframes live-pulse {
-            0% { opacity: 0.3; }
-            50% { opacity: 1; }
-            100% { opacity: 0.3; }
-        }
+        .chart-bar.neutral { background: var(--primary-light); }
 
         /* Market Styles */
         .market-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab-btn { flex: 1; padding: 10px; border-radius: 8px; border: none; background: var(--bg-card); color: var(--text-sec); border: 1px solid var(--border); font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .tab-btn { flex: 1; padding: 10px; border-radius: 8px; border: none; background: var(--bg-card); color: var(--text-sec); border: 1px solid var(--border); font-weight: 600; cursor: pointer; }
         .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
         .method-card { background: var(--primary-light); padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #bbdefb; }
         .method-info strong { display: block; color: var(--primary); }
@@ -246,7 +241,7 @@
                 <p><span data-i18n="company_lbl">Company:</span> TK COIN PTE LTD</p>
                 <p><span data-i18n="location_lbl">Location:</span> <span data-i18n="location_val">Singapore</span></p>
                 <p data-i18n="mission">We provide a secure and fast environment for buying, selling, and trading TK Coins.</p>
-                <p>Version 2.4 (Live Auto Chart)</p>
+                <p>Version 2.5 (Heartbeat Chart)</p>
             </div>
             <button class="btn btn-primary" style="margin-top:15px;" onclick="app.closeModal('about-modal')">Close</button>
         </div>
@@ -269,7 +264,7 @@
                 </div>
                 <div class="checkbox-group">
                     <input type="checkbox" id="login-tc">
-                    <div>I agree to the <span class="btn-text" onclick="app.openModal('tc-modal')">Terms & Conditions</span></div>
+                    <div>I agree to <span class="btn-text" onclick="app.openModal('tc-modal')">Terms & Conditions</span></div>
                 </div>
                 <button class="btn btn-primary" style="margin-top:15px;" onclick="app.login()" data-i18n="login_btn">Login</button>
             </div>
@@ -288,7 +283,7 @@
                 </div>
                 <div class="checkbox-group">
                     <input type="checkbox" id="reg-tc">
-                    <div>I agree to the <span class="btn-text" onclick="app.openModal('tc-modal')">Terms & Conditions</span></div>
+                    <div>I agree to <span class="btn-text" onclick="app.openModal('tc-modal')">Terms & Conditions</span></div>
                 </div>
                 <button class="btn btn-primary" style="margin-top:15px;" onclick="app.signup()" data-i18n="signup_btn">Create Account</button>
             </div>
@@ -317,7 +312,7 @@
         <!-- 1. MARKETPLACE -->
         <section id="market-section" class="section active">
             
-            <!-- LIVE AUTO CHART -->
+            <!-- LIVE AUTO CHART (Heartbeat Version) -->
             <div class="chart-card">
                 <div class="chart-header">
                     <div>
@@ -330,7 +325,7 @@
                 </div>
                 
                 <div class="chart-row">
-                    <span class="price-big" id="live-price-display">0.00</span>
+                    <span class="price-big heartbeat" id="live-price-display">0.00</span>
                 </div>
 
                 <div class="bar-chart" id="bar-chart-container">
@@ -343,7 +338,6 @@
                 <button class="tab-btn active" id="btn-buy" onclick="app.switchMarketTab('buy')" data-i18n="buy_tk">Buy TK</button>
                 <button class="tab-btn" id="btn-sell" onclick="app.switchMarketTab('sell')" data-i18n="sell_withdraw">Sell / Withdraw</button>
             </div>
-            
             <div id="buy-tab">
                 <div class="form-group">
                     <label data-i18n="select_method">Select Payment Method</label>
@@ -447,7 +441,6 @@
                 <div id="profile-badge-container"></div>
             </div>
 
-            <!-- Referral Section -->
             <div class="ref-card">
                 <h4 style="color: var(--warning); margin-bottom: 10px;" data-i18n="invite_earn">Invite & Earn</h4>
                 <p class="text-small" data-i18n="invite_desc">Share your code. Get <strong>2 TK</strong> for every valid member (10 TK for 5).</p>
@@ -458,7 +451,6 @@
                 <div class="ref-list" id="referral-list"></div>
             </div>
 
-            <!-- Win/Loss Card -->
             <div class="pnl-card">
                 <div class="pnl-row">
                     <span data-i18n="invested">Invested:</span>
@@ -535,6 +527,7 @@
             </div>
             <div class="admin-panel">
                 <h4 data-i18n="dep_req">Deposit Requests</h4>
+                <p class="text-small" style="color:var(--text-sec);" data-i18n="pending_req">Yeh deposits/withdraws mein yeh hai</p>
                 <div id="admin-deposit-list"></div>
             </div>
             <div class="admin-panel">
@@ -723,8 +716,8 @@
         };
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         
-        // CHANGE KEY TO v10 FOR NEW DATABASE
-        const MOCK_DB_KEY = 'tkcoin_db_v10'; 
+        // CHANGE KEY TO v11 FOR NEW DATABASE
+        const MOCK_DB_KEY = 'tkcoin_db_v11'; 
         const initialState = {
             users: [],
             posts: [],
@@ -744,6 +737,7 @@
                     this.data = initialState;
                     localStorage.removeItem(MOCK_DB_KEY);
                 }
+
                 try {
                     this.currentUser = JSON.parse(localStorage.getItem('tk_user')) || null;
                 } catch (e) {
@@ -795,9 +789,31 @@
         const app = {
             currentLang: 'en',
             botNames: ['Ali', 'Zeeshan', 'Smad', 'Ahmed', 'Usman', 'Bilal', 'Hassan', 'Kamran', 'Farhan', 'Rizwan'],
-            liveChartInterval: null,
+            commentBank: {
+                profit: [
+                    "Huge profit on TK Coin! 🚀",
+                    "Best platform ever for TK Coin! 💎",
+                    "Short term gain incoming! 📈",
+                    "TK Coin is the future! 🌕"
+                ],
+                short: [
+                    "Hold for short term! 🛑",
+                    "Scalp trade confirmed. ✅"
+                ],
+                long: [
+                    "Long hold for big wins! 🕐",
+                    "TK Coin is the gold standard! ✨"
+                ],
+                general: [
+                    "TK COIN Official: Verified Post ✅",
+                    "Good trading!",
+                    "Verified content."
+                ]
+            },
+            livePrice: 0,
             chartHistory: [],
-            
+            heartbeatInterval: null,
+
             init: () => {
                 // Set Date
                 const now = new Date();
@@ -814,7 +830,6 @@
                     document.getElementById('auth-screen').classList.add('hidden');
                     document.getElementById('main-app').classList.remove('hidden');
                     app.loadUI();
-                    app.initLiveChart(); // Start Chart
                 }
             },
             toggleTheme: () => {
@@ -842,105 +857,123 @@
             },
             generateRefCode: () => Math.random().toString(36).substring(2, 8).toUpperCase(),
             
-            // --- LIVE CHART SYSTEM ---
-            initLiveChart: () => {
-                // Initialize chart with current price
+            // --- HEARTBEAT SYSTEM (Smart Operation) ---
+            startHeartbeat: () => {
+                // Initial Chart History
                 const rate = dataService.getRate();
                 app.livePrice = rate;
-                
-                // Create fake history (10 bars)
-                // Start slightly below current price
                 for(let i=0; i<9; i++) {
-                    app.chartHistory.push(rate * (0.9 + (i * 0.01)));
+                    app.chartHistory.push(rate * (0.95 + (i * 0.01))); // Fake history for visual
                 }
                 app.chartHistory.push(rate); // Add current
-
                 app.renderChart();
 
-                // Start Auto Operation Loop
-                if(app.liveChartInterval) clearInterval(app.liveChartInterval);
-                app.liveChartInterval = setInterval(() => {
-                    app.simulateMarket();
-                }, 3000); // Update every 3 seconds
+                // Clear old intervals
+                if(app.heartbeatInterval) clearInterval(app.heartbeatInterval);
+
+                // Run every 3 seconds
+                app.heartbeatInterval = setInterval(() => {
+                    app.heartbeatTick();
+                }, 3000);
             },
-            simulateMarket: () => {
-                // Fluctuate price slightly (-0.2% to +0.2%)
-                const change = (Math.random() - 0.5) * 0.04;
-                const oldPrice = app.livePrice;
-                app.livePrice = app.livePrice + (app.livePrice * change);
-                
-                // Update History Array (Shift left, add new right)
+            heartbeatTick: () => {
+                // Micro-movement simulation (Random tick +/- 0.2%)
+                const changePercent = (Math.random() * 0.004) - 0.002; 
+                app.livePrice = app.livePrice * (1 + changePercent);
+
+                // Update History (Shift Left, Add New Right)
                 app.chartHistory.shift();
                 app.chartHistory.push(app.livePrice);
 
+                // Render Chart with Smart Auto Operation
                 app.renderChart();
+            },
+
+            // --- RENDER CHART (Directional Logic) ---
+            renderChart: () => {
+                const container = document.getElementById('bar-chart-container');
+                container.innerHTML = '';
+                const priceEl = document.getElementById('live-price-display');
+                const trendIcon = document.getElementById('chart-trend-icon');
+
+                // Set Price
+                priceEl.innerText = app.livePrice.toFixed(2);
+
+                // Determine Trend (Compare new price vs 2nd last price)
+                // If current > previous => UP. If current < previous => DOWN.
+                const len = app.chartHistory.length;
+                let trend = 'neutral';
+                let colorClass = 'neutral';
+                
+                if(len >= 2) {
+                    const current = app.chartHistory[len-1];
+                    const previous = app.chartHistory[len-2];
+                    if(current > previous) { trend = 'up'; colorClass = 'up'; }
+                    else if (current < previous) { trend = 'down'; colorClass = 'down'; }
+                }
+
+                // Update UI Colors based on trend
+                priceEl.style.color = trend === 'up' ? 'var(--success)' : (trend === 'down' ? 'var(--danger)' : 'var(--text-main)');
+                trendIcon.innerText = trend === 'up' ? 'trending_up' : (trend === 'down' ? 'trending_down' : 'trending_flat');
+                trendIcon.className = `material-icons-round trend-icon ${trend === 'up' ? 'trend-up' : (trend === 'down' ? 'trend-down' : '')}`;
+
+                // Generate Bars (Directional)
+                // If trend is UP, bars are Green. If DOWN, Red.
+                app.chartHistory.forEach((p, index) => {
+                    // Logic: Is this bar higher than the bar before it?
+                    let barClass = 'neutral';
+                    if(index > 0) {
+                        const prev = app.chartHistory[index-1];
+                        if(p > prev) { barClass = 'up'; }
+                        else if(p < prev) { barClass = 'down'; }
+                    }
+
+                    // Adjust height relative to range (min 20%, max 100%)
+                    // Find min/max in visible window or current history
+                    const min = Math.min(...app.chartHistory) * 0.9;
+                    const max = Math.max(...app.chartHistory) * 1.1;
+                    const range = max - min || 1;
+                    const height = 20 + ((p - min) / range) * 80;
+
+                    container.innerHTML += `
+                        <div class="chart-bar ${barClass}" style="height: ${height}%"></div>
+                    `;
+                });
             },
             manualUpdatePrice: (newPrice) => {
                 app.livePrice = Number(newPrice);
-                // Refresh history to new baseline
+                // Reset history slightly to avoid massive spikes visually
                 app.chartHistory = [];
                 for(let i=0; i<10; i++) {
                     app.chartHistory.push(app.livePrice * (0.9 + (i * 0.01)));
                 }
                 app.renderChart();
-                app.toast('Chart Updated', 'success');
-            },
-            renderChart: () => {
-                const container = document.getElementById('bar-chart-container');
-                container.innerHTML = '';
-                
-                // Normalize bars for height (min height 20%, max 100%)
-                const min = Math.min(...app.chartHistory, app.livePrice);
-                const max = Math.max(...app.chartHistory, app.livePrice);
-                const range = max - min || 1;
-
-                app.chartHistory.forEach((p, index) => {
-                    const height = 20 + ((p - min) / range) * 80; // Scale 20-100
-                    const isLive = (index === 9); // Last one is live
-                    const isUp = p > app.chartHistory[index-1];
-                    
-                    let className = 'chart-bar';
-                    if(isLive) className += ' live';
-                    else if (isUp) className += ' up';
-                    else className += ' down';
-
-                    // RTL Support
-                    const directionClass = app.currentLang === 'ur' ? 'dir-rtl' : '';
-
-                    container.innerHTML += `
-                        <div class="${className} ${directionClass}" style="height: ${height}%"></div>
-                    `;
-                });
+                app.toast('Price Updated', 'success');
             },
 
-            // BOT ACTIVITY SYSTEM
+            // --- REMAINING APP LOGIC (BOT, AUTH, etc) ---
             triggerBotActivity: (postId, content) => {
                 // Random delay 2-5 seconds
                 const delay = Math.floor(Math.random() * 3000) + 2000;
-                
                 setTimeout(() => {
-                    const randomName = app.botNames[Math.floor(Math.random() * app.botNames.length)];
-                    
-                    // 1. Add Like
                     const post = dataService.data.posts.find(p => p.id === postId);
                     if(post) {
-                        post.likedBy.push('bot_like_' + randomName); 
+                        // 1. Add Like
+                        post.likedBy.push('bot_like_' + app.botNames[Math.floor(Math.random() * app.botNames.length)]); 
                         dataService.save();
                         
                         // 2. Check for TK Coin Keyword for Auto Comment
-                        if(content.toLowerCase().includes('tk coin')) {
+                        if(content.toLowerCase().includes('tk coin') || content.toLowerCase().includes('tkcoin')) {
                             const botComment = {
                                 uid: 'bot_system',
-                                name: randomName,
+                                name: app.botNames[Math.floor(Math.random() * app.botNames.length)],
                                 text: "TK COIN Official: Verified Post ✅",
                                 date: new Date().toISOString()
                             };
                             post.comments.push(botComment);
                             dataService.save();
-                            app.toast(`Bot Comment by ${randomName}`, 'success');
+                            app.toast(`Bot Comment`, 'success');
                         }
-                        
-                        // Refresh UI
                         app.renderFeed();
                     }
                 }, delay);
@@ -1050,6 +1083,7 @@
                 document.getElementById('profile-rate').innerText = rate;
                 document.getElementById('profile-posts').innerText = dataService.data.posts.filter(p => p.uid === user.email).length;
 
+                // --- Referral UI ---
                 document.getElementById('my-referral-code').innerText = user.referralCode || 'N/A';
                 const refList = document.getElementById('referral-list');
                 refList.innerHTML = '';
@@ -1067,6 +1101,7 @@
                     refList.innerHTML = '<p class="text-small" style="text-align:center">No invites yet.</p>';
                 }
 
+                // --- Win/Loss Calculation ---
                 const investment = user.totalInvestmentPKR || 0;
                 const currentVal = user.balance * rate;
                 const pnl = currentVal - investment;
@@ -1241,19 +1276,7 @@
                     const isLiked = post.likedBy.includes(user.email);
                     const likeClass = isLiked ? 'liked' : '';
                     const likeIcon = isLiked ? 'thumb_up' : 'thumb_up_off_alt';
-                    let commentsHtml = '';
-                    post.comments.forEach(c => {
-                        const isBot = c.uid === 'bot_system';
-                        const botStyle = isBot ? 'bot-comment' : '';
-                        const botBadge = isBot ? `<span class="bot-badge">BOT</span>` : '';
-                        
-                        commentsHtml += `
-                            <div class="comment-item ${botStyle}">
-                                <span class="comment-user">${c.name} ${botBadge}</span>: ${c.text}
-                            </div>
-                        `;
-                    });
-
+                    let commentsHtml = post.comments.map(c => `<div class="comment-item"><span class="comment-user">${c.name}:</span> ${c.text}</div>`).join('');
                     const deleteBtn = user.isAdmin ? `<button class="delete-btn" onclick="app.deletePost(${post.id})"><span class="material-icons-round">delete</span></button>` : '';
                     
                     // Admin Auto Comment Button
@@ -1389,16 +1412,14 @@
                 });
             },
             updateSettings: () => {
-                const rate = document.getElementById('admin-rate').value;
                 dataService.updateSettings(
-                    rate,
+                    document.getElementById('admin-rate').value,
                     document.getElementById('admin-easypaisa').value,
                     document.getElementById('admin-jazzcash').value,
                     document.getElementById('admin-binance').value
                 );
-                
-                // Auto Update Chart when Admin changes price
-                app.manualUpdatePrice(rate);
+                app.toast('Updated', 'success');
+                app.loadUI();
             },
             approveReq: (id, coins) => {
                 const req = dataService.data.requests.find(r => r.id === id);
@@ -1408,8 +1429,6 @@
                         dataService.data.users[uIdx].balance += parseFloat(coins);
                         if(dataService.data.users[uIdx].totalInvestmentPKR === undefined) dataService.data.users[uIdx].totalInvestmentPKR = 0;
                         dataService.data.users[uIdx].totalInvestmentPKR += parseFloat(req.amount);
-                        
-                        // Trigger Referral Check
                         app.checkReferrals(req.uid);
                     }
                     req.status = 'approved';
@@ -1421,8 +1440,7 @@
             checkReferrals: (userEmail) => {
                 const user = dataService.data.users.find(u => u.email === userEmail);
                 if(!user || !user.referrals) return;
-
-                // Check if user has invited people
+                
                 if(user.referrals) {
                     user.referrals.forEach(ref => {
                         if(ref.status === 'pending') {
@@ -1475,13 +1493,6 @@
                     document.body.dir = "ltr";
                 }
 
-                // Update Chart Date
-                const now = new Date();
-                document.getElementById('chart-date').innerText = app.currentLang === 'ur' 
-                    ? `آج ${now.toLocaleDateString('ur-PK')}` 
-                    : `Today ${now.toLocaleDateString()}`;
-
-                // Update all text elements with data-i18n
                 document.querySelectorAll('[data-i18n]').forEach(el => {
                     const key = el.getAttribute('data-i18n');
                     if(i18n[app.currentLang][key]) {
