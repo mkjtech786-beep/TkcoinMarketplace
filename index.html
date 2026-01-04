@@ -855,6 +855,7 @@
                 const user = { 
                     email: email, 
                     name: name, 
+                    pass: pass, // PASSWORD SAVED HERE
                     balance: 0, 
                     isPro: false, 
                     joinDate: new Date().toISOString(), 
@@ -878,12 +879,20 @@
                 app.loadUI();
             },
             login: () => {
+                // FIX 1: Wait for data to load
+                if(!dataService.isReady) {
+                    app.toast('Loading Database... Please wait.', 'error');
+                    return;
+                }
+
                 const email = document.getElementById('login-email').value.trim().toLowerCase();
+                const pass = document.getElementById('login-pass').value.trim(); // Get Password
                 const tc = document.getElementById('login-tc').checked;
                 
                 if(!email) return app.toast('Please enter email', 'error');
                 if(!tc) return app.toast('Please agree to Terms & Conditions', 'error');
                 
+                // Admin Login (No password check for admin in this version as requested)
                 if (email === 'admin@tkcoin.com') {
                     const adminUser = { email: 'admin@tkcoin.com', name: 'Admin', balance: 999999, isPro: true, isAdmin: true, totalInvestmentPKR: 0, referralCode: 'ADMIN', referrals: [] };
                     dataService.currentUser = adminUser;
@@ -897,6 +906,11 @@
                 
                 let user = dataService.data.users.find(u => u.email === email);
                 if(user) {
+                    // FIX 2: Password Validation Check
+                    if(user.pass !== pass) {
+                        return app.toast('Incorrect Password', 'error');
+                    }
+
                     // Migration checks
                     if(user.totalInvestmentPKR === undefined) user.totalInvestmentPKR = 0;
                     if(!user.referralCode) user.referralCode = app.generateRefCode();
