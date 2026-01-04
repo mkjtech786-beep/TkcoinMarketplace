@@ -7,7 +7,7 @@
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <!-- Google Fonts (Added Urdu Font) -->
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
 
@@ -674,8 +674,11 @@
         };
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         
-        // CHANGE KEY TO v7 TO FORCE CLEAN SLATE FOR THIS VERSION
-        const MOCK_DB_KEY = 'tkcoin_db_v7'; 
+        // Firebase Database Reference
+        const db = firebase.database();
+        const DB_ROOT = 'tkcoin_data_v2'; // Unique root key to keep data clean
+
+        // Initial Structure
         const initialState = {
             users: [],
             posts: [],
@@ -686,32 +689,67 @@
             }
         };
 
+        // --- UPDATED DATA SERVICE (FIREBASE CONNECTION) ---
         class DataService {
             constructor() {
-                // Safe loading with try-catch to handle corrupted data
-                try {
-                    this.data = JSON.parse(localStorage.getItem(MOCK_DB_KEY)) || initialState;
-                } catch (e) {
-                    console.error("Data corrupted, resetting...");
-                    this.data = initialState;
-                    localStorage.removeItem(MOCK_DB_KEY);
-                }
+                this.data = initialState; // Default local state
+                this.currentUser = null;
+                this.isReady = false; // Flag to check if data loaded from Firebase
 
+                // 1. Load Session (Login) from LocalStorage
                 try {
                     this.currentUser = JSON.parse(localStorage.getItem('tk_user')) || null;
                 } catch (e) {
                     console.error("Session corrupted, clearing...");
                     localStorage.removeItem('tk_user');
-                    this.currentUser = null;
+                }
+
+                // 2. Load DATA from FIREBASE (Async)
+                db.ref(DB_ROOT).once('value', (snapshot) => {
+                    if (snapshot.exists()) {
+                        this.data = snapshot.val();
+                        console.log("Data loaded from Firebase successfully.");
+                    } else {
+                        // First time run? Save initial state
+                        console.log("Database empty. Initializing...");
+                        this.save(); // Save initial structure to Firebase
+                    }
+                    
+                    this.isReady = true;
+                    
+                    // Trigger App UI Load once data is ready
+                    if(app.onDataReady) app.onDataReady();
+                }).catch((error) => {
+                    console.error("Firebase Connection Error:", error);
+                    app.toast("Database connection failed. Check console.", "error");
+                });
+            }
+
+            save() {
+                // Push entire data object to Firebase
+                db.ref(DB_ROOT).set(this.data)
+                    .then(() => console.log("Saved to Firebase"))
+                    .catch(err => console.error("Save Failed", err));
+                
+                // Backup to localStorage (optional but good for speed)
+                localStorage.setItem('tkcoin_local_backup', JSON.stringify(this.data));
+            }
+
+            saveUser() {
+                // Save session in browser
+                localStorage.setItem('tk_user', JSON.stringify(this.currentUser));
+                
+                // Update user in main data array
+                const idx = this.data.users.findIndex(u => u.email === this.currentUser.email);
+                if (idx !== -1) { 
+                    this.data.users[idx] = this.currentUser; 
+                    this.save(); // Sync to Firebase
                 }
             }
-            save() { localStorage.setItem(MOCK_DB_KEY, JSON.stringify(this.data)); }
-            saveUser() {
-                localStorage.setItem('tk_user', JSON.stringify(this.currentUser));
-                const idx = this.data.users.findIndex(u => u.email === this.currentUser.email);
-                if (idx !== -1) { this.data.users[idx] = this.currentUser; this.save(); }
+            getPosts() { 
+                if(!this.data.posts) return [];
+                return this.data.posts.sort((a, b) => new Date(b.date) - new Date(a.date)); 
             }
-            getPosts() { return this.data.posts.sort((a, b) => new Date(b.date) - new Date(a.date)); }
             addPost(content) {
                 const post = { id: Date.now(), uid: this.currentUser.email, name: this.currentUser.name, isPro: this.currentUser.isPro, content: content, likedBy: [], comments: [], date: new Date().toISOString() };
                 this.data.posts.push(post); this.save(); return post;
@@ -720,7 +758,6 @@
             toggleLike(id) {
                 const post = this.data.posts.find(p => p.id === id);
                 if(post) {
-                    // If Admin, we handle directly in controller to avoid array issues with unlimited likes
                     if(!this.currentUser.isAdmin) {
                         const email = this.currentUser.email;
                         post.likedBy = post.likedBy.includes(email) ? post.likedBy.filter(e => e !== email) : [...post.likedBy, email];
@@ -736,7 +773,10 @@
                 }
             }
             addRequest(req) { this.data.requests.push(req); this.save(); }
-            getPendingRequests() { return this.data.requests.filter(r => r.status === 'pending'); }
+            getPendingRequests() { 
+                if(!this.data.requests) return [];
+                return this.data.requests.filter(r => r.status === 'pending'); 
+            }
             getRate() { return this.data.settings.rate; }
             updateSettings(newRate, ep, jc, bin) {
                 this.data.settings.rate = Number(newRate);
@@ -748,16 +788,24 @@
 
         const app = {
             currentLang: 'en',
-            init: () => {
-                const theme = localStorage.getItem('tk_theme');
-                if(theme === 'dark') document.body.classList.add('dark-mode');
-                app.updateThemeIcon();
-
+            
+            // Called when DataService finishes loading from Firebase
+            onDataReady: () => {
                 if(dataService.currentUser) {
                     document.getElementById('auth-screen').classList.add('hidden');
                     document.getElementById('main-app').classList.remove('hidden');
                     app.loadUI();
                 }
+            },
+
+            init: () => {
+                // Theme Load
+                const theme = localStorage.getItem('tk_theme');
+                if(theme === 'dark') document.body.classList.add('dark-mode');
+                app.updateThemeIcon();
+
+                // Check if data is already loaded (rare case on very fast load)
+                if(dataService.isReady) app.onDataReady();
             },
             toggleTheme: () => {
                 document.body.classList.toggle('dark-mode');
@@ -799,7 +847,6 @@
                     const inviter = dataService.data.users.find(u => u.referralCode === refCode);
                     if(inviter) {
                         invitedBy = inviter.email;
-                        // Add this user to inviter's referral list
                         if(!inviter.referrals) inviter.referrals = [];
                         inviter.referrals.push({ email: email, date: new Date().toISOString(), status: 'pending' });
                     }
@@ -820,9 +867,11 @@
                 };
                 
                 dataService.data.users.push(user);
-                dataService.save();
+                dataService.save(); // Save to Firebase
+                
                 dataService.currentUser = user;
-                dataService.saveUser();
+                dataService.saveUser(); // Save session
+                
                 document.getElementById('auth-screen').classList.add('hidden');
                 document.getElementById('main-app').classList.remove('hidden');
                 app.toast('Account Created!', 'success');
@@ -848,7 +897,7 @@
                 
                 let user = dataService.data.users.find(u => u.email === email);
                 if(user) {
-                    // Migrations for old fields
+                    // Migration checks
                     if(user.totalInvestmentPKR === undefined) user.totalInvestmentPKR = 0;
                     if(!user.referralCode) user.referralCode = app.generateRefCode();
                     if(!user.referrals) user.referrals = [];
@@ -1070,7 +1119,6 @@
                     let commentsHtml = post.comments.map(c => `<div class="comment-item"><span class="comment-user">${c.name}:</span> ${c.text}</div>`).join('');
                     const deleteBtn = user.isAdmin ? `<button class="delete-btn" onclick="app.deletePost(${post.id})"><span class="material-icons-round">delete</span></button>` : '';
                     
-                    // Admin Auto Comment Button
                     const adminCommentBtn = user.isAdmin ? `
                         <button class="btn btn-primary btn-sm" style="width:auto; font-size:0.7rem;" onclick="app.adminAutoComment(${post.id})">
                             <span class="material-icons-round" style="font-size:14px; margin-right:4px;">auto_mode</span> ${i18n[app.currentLang]['auto_comment_btn']}
@@ -1111,18 +1159,15 @@
             deletePost: (id) => { if(confirm('Delete?')) { dataService.deletePost(id); app.renderFeed(); app.toast('Deleted', 'success'); } },
             toggleLike: (id) => {
                 const user = dataService.currentUser;
-                
                 if(user.isAdmin) {
-                    // Admin Unlimited Like: Simply increment counter
                     const post = dataService.data.posts.find(p => p.id === id);
                     if(post) {
-                        post.likedBy.push("admin_boost_" + Date.now()); // Hacky way to increase length without toggle logic affecting display
-                        post.likes = post.likedBy.length; // Store explicit like count for clarity
+                        post.likedBy.push("admin_boost_" + Date.now());
+                        post.likes = post.likedBy.length;
                         dataService.save();
                         app.renderFeed();
                     }
                 } else {
-                    // User Logic: Toggle
                     dataService.toggleLike(id);
                     app.renderFeed();
                 }
@@ -1199,47 +1244,31 @@
                 app.loadUI();
             },
             checkReferrals: (userEmail) => {
-                // Find the user object
                 const user = dataService.data.users.find(u => u.email === userEmail);
                 if(!user || !user.referrals) return;
 
-                // Check if this user has made a deposit
                 const userHasDeposited = dataService.data.requests.some(r => r.uid === userEmail && r.type === 'deposit' && r.status === 'approved');
 
-                // Check if user has an inviter (Logic for invitee being rewarded? 
-                // No, request is for "User deposit aur invited members bhi deposit". 
-                // So we check both directions from the USER perspective.
-
-                // 1. Check if this USER was invited. If yes, check if INVITER deposited.
                 if(user.invitedBy) {
                     const inviter = dataService.data.users.find(u => u.email === user.invitedBy);
                     if(inviter && userHasDeposited) {
-                        // Check if inviter deposited
                         const inviterDeposited = dataService.data.requests.some(r => r.uid === inviter.email && r.type === 'deposit' && r.status === 'approved');
                         if(inviterDeposited && !inviter.rewardedReferrals.includes(user.email)) {
-                            // VALID PAIR! Give reward to INVITER
-                            inviter.balance += 2; // 2 TK per valid member
+                            inviter.balance += 2;
                             if(!inviter.rewardedReferrals) inviter.rewardedReferrals = [];
                             inviter.rewardedReferrals.push(user.email);
-                            
-                            // Update status in inviter's referral list
                             const refObj = inviter.referrals.find(r => r.email === user.email);
                             if(refObj) refObj.status = 'valid';
-
                             app.toast(`Referral Reward: ${inviter.email} earned 2 TK!`, 'success');
-                            // We don't need to reload UI here if not admin, just data save
                         }
                     }
                 }
 
-                // 2. Check people this USER invited.
                 if(user.referrals) {
                     user.referrals.forEach(ref => {
                         if(ref.status === 'pending') {
-                            // Check if invited user deposited
                             const inviteeDeposited = dataService.data.requests.some(r => r.uid === ref.email && r.type === 'deposit' && r.status === 'approved');
                             if(inviteeDeposited && userHasDeposited) {
-                                // VALID PAIR! Give reward to THIS USER
                                 user.balance += 2;
                                 ref.status = 'valid';
                                 if(!user.rewardedReferrals) user.rewardedReferrals = [];
@@ -1259,8 +1288,6 @@
                         dataService.data.users[uIdx].balance += parseFloat(coins);
                         if(dataService.data.users[uIdx].totalInvestmentPKR === undefined) dataService.data.users[uIdx].totalInvestmentPKR = 0;
                         dataService.data.users[uIdx].totalInvestmentPKR += parseFloat(req.amount);
-                        
-                        // Trigger Referral Check
                         app.checkReferrals(req.uid);
                     }
                     req.status = 'approved';
@@ -1303,7 +1330,6 @@
                     document.body.dir = "ltr";
                 }
 
-                // Update all text elements with data-i18n
                 document.querySelectorAll('[data-i18n]').forEach(el => {
                     const key = el.getAttribute('data-i18n');
                     if(i18n[app.currentLang][key]) {
@@ -1311,7 +1337,6 @@
                     }
                 });
                 
-                // Update specific placeholders
                 if(document.getElementById('post-content')) {
                     document.getElementById('post-content').placeholder = i18n[app.currentLang]['post_placeholder'];
                 }
