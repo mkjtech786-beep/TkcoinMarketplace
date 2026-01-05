@@ -367,13 +367,23 @@
         <!-- 2. COMMUNITY FEED -->
         <section id="feed-section" class="section">
             <h3 style="margin-bottom: 15px;" data-i18n="community_feed">Community Feed</h3>
-            <div class="post-create">
+            
+            <!-- Pro Only Message (Shown to Normal Users) -->
+            <div id="post-pro-only-msg" class="post-create hidden" style="text-align:center; border: 1px dashed var(--pro-gold);">
+                <span class="material-icons-round" style="font-size: 32px; color: var(--pro-gold); display:block; margin-bottom:10px;">lock</span>
+                <p style="color: var(--text-main); margin-bottom: 10px;">Only <strong>PRO Members</strong> can post in the community feed.</p>
+                <button class="btn btn-primary btn-sm" onclick="app.navToProfile()" style="margin: 0 auto; width: auto;">Upgrade to PRO</button>
+            </div>
+
+            <!-- Post Input (Shown to Pro Users) -->
+            <div id="post-create-wrapper" class="post-create">
                 <textarea id="post-content" rows="2" placeholder="What's on your mind?"></textarea>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
-                    <span id="post-limit-msg" class="text-small">Daily Limit: 1/1</span>
+                    <span id="post-limit-msg" class="text-small">Daily Limit: Unlimited</span>
                     <button class="btn btn-primary btn-sm" onclick="app.createPost()" data-i18n="post_btn">Post</button>
                 </div>
             </div>
+
             <div id="posts-container"></div>
             <div id="feed-limit-msg" class="hidden" style="text-align: center; padding: 20px; color: var(--text-sec);">
                 <p data-i18n="limit_reached">View limit reached. <span style="color:var(--primary); font-weight:bold; cursor:pointer;" onclick="app.navToProfile()">Buy Pro</span>.</p>
@@ -953,6 +963,16 @@
                 
                 document.getElementById('user-status-display').innerText = user.isPro ? "PRO" : "Normal";
 
+                // --- PRO ONLY UI LOGIC ---
+                if (user.isPro) {
+                    document.getElementById('post-create-wrapper').classList.remove('hidden');
+                    document.getElementById('post-pro-only-msg').classList.add('hidden');
+                } else {
+                    document.getElementById('post-create-wrapper').classList.add('hidden');
+                    document.getElementById('post-pro-only-msg').classList.remove('hidden');
+                }
+                // ---------------------------------
+
                 if (user.isAdmin) {
                     document.getElementById('admin-nav-link').classList.remove('hidden');
                 }
@@ -978,7 +998,7 @@
                 
                 const myPostCount = posts.filter(p => p.uid === user.email).length;
                 const limitMsg = document.getElementById('post-limit-msg');
-                limitMsg.innerText = `Daily Limit: ${myPostCount}/1`;
+                limitMsg.innerText = `Daily Limit: Unlimited`;
 
                 posts.forEach(post => {
                     const isLiked = post.likedBy && post.likedBy.includes(user.email);
@@ -1088,11 +1108,9 @@
                 
                 if (!content) return app.toast('Content empty', 'error');
                 
-                const posts = await dataService.getPosts();
-                const myPosts = posts.filter(p => p.uid === user.email && p.date.startsWith(new Date().toISOString().split('T')[0]));
-                
-                if (!user.isPro && myPosts.length >= 1) {
-                    return app.toast('Daily post limit reached. Buy Pro!', 'error');
+                // --- STRICT PRO CHECK ---
+                if (!user.isPro) {
+                    return app.toast('Only PRO Members can post.', 'error');
                 }
 
                 const postObj = { 
