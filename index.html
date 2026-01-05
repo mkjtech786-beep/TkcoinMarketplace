@@ -4,348 +4,353 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TK COIN</title>
-    <!-- Font Awesome -->
+    <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --primary: #FF9800; /* ORANGE */
-            --primary-dark: #E65100;
-            --bg: #f4f4f9;
-            --white: #ffffff;
-            --text: #333333;
-            --gray: #9e9e9e;
-            --danger: #f44336;
-            --success: #4CAF50;
+            --primary: #FFA500; /* Orange */
+            --primary-dark: #cc8400;
+            --bg: #000000;
+            --card-bg: #121212;
+            --text: #ffffff;
+            --text-muted: #aaaaaa;
+            --danger: #ff4444;
+            --success: #00C851;
+            --border: #333;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-        body { background-color: var(--bg); color: var(--text); padding-bottom: 70px; }
-
-        /* Helpers */
+        body { background-color: var(--bg); color: var(--text); padding-bottom: 80px; }
+        
+        /* Utils */
         .hidden { display: none !important; }
         .text-orange { color: var(--primary); }
-        .text-bold { font-weight: 600; }
-        .btn { border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.3s; }
-        .btn-primary { background: var(--primary); color: white; width: 100%; }
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.3s; width: 100%; }
+        .btn-primary { background: var(--primary); color: #000; }
         .btn-primary:hover { background: var(--primary-dark); }
-        .btn-outline { border: 2px solid var(--primary); color: var(--primary); background: transparent; }
+        .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
         .btn-danger { background: var(--danger); color: white; }
-        .btn-sm { padding: 5px 10px; font-size: 0.8rem; }
-
-        /* Toast */
-        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 1000; }
-        .toast { background: #333; color: white; padding: 15px; margin-bottom: 10px; border-radius: 5px; border-left: 5px solid var(--primary); animation: slideIn 0.3s; }
-        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
-
-        /* Auth */
-        .auth-container { display: flex; justify-content: center; align-items: center; height: 100vh; padding: 20px; }
-        .auth-box { background: var(--white); padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
-        .auth-box input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; }
-        .logo { font-size: 2rem; font-weight: bold; color: var(--primary); margin-bottom: 20px; }
+        
+        /* Login Screen */
+        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
+        .logo-area { text-align: center; margin-bottom: 30px; }
+        .logo-icon { font-size: 50px; color: var(--primary); }
+        .app-name { font-size: 32px; font-weight: 700; letter-spacing: 2px; }
+        .login-input { width: 100%; max-width: 300px; padding: 15px; margin-bottom: 15px; background: var(--card-bg); border: 1px solid var(--border); color: white; border-radius: 8px; text-align: center; }
 
         /* Navigation */
-        .navbar { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--white); display: flex; justify-content: space-around; padding: 15px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 100; }
-        .nav-item { color: var(--gray); text-align: center; font-size: 0.8rem; cursor: pointer; }
+        nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--card-bg); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 15px 0; z-index: 100; }
+        .nav-item { color: var(--text-muted); text-align: center; font-size: 12px; cursor: pointer; }
         .nav-item.active { color: var(--primary); }
-        .nav-item i { font-size: 1.2rem; display: block; margin-bottom: 3px; }
+        .nav-item i { font-size: 20px; display: block; margin-bottom: 4px; }
 
         /* Header */
-        .header { background: var(--white); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 90; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .balance-card { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 20px; border-radius: 15px; margin: 15px; box-shadow: 0 4px 10px rgba(255, 152, 0, 0.3); }
-        
+        header { padding: 20px; background: var(--card-bg); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 90; }
+        .header-logo { font-weight: bold; font-size: 20px; color: var(--primary); }
+        .user-balance-mini { font-size: 14px; background: #222; padding: 5px 10px; border-radius: 20px; border: 1px solid var(--primary); }
+
         /* Sections */
-        .section { padding: 15px; animation: fadeIn 0.4s; }
+        .section { padding: 20px; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Market / Wallet */
-        .card { background: var(--white); padding: 15px; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .rate-display { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .copy-box { background: #eee; padding: 10px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; margin-top: 5px; cursor: pointer; }
+        /* Home / Market */
+        .rate-card { background: linear-gradient(135deg, #222, #000); padding: 20px; border-radius: 15px; border: 1px solid var(--primary); margin-bottom: 20px; text-align: center; }
+        .rate-value { font-size: 36px; font-weight: 700; color: var(--primary); margin: 10px 0; }
+        .market-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .action-card { background: var(--card-bg); padding: 15px; border-radius: 10px; text-align: center; border: 1px solid var(--border); }
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 5px; }
+        .input-group input, .input-group select { width: 100%; padding: 10px; background: #222; border: 1px solid var(--border); color: white; border-radius: 6px; }
+
+        /* Pro Banner */
+        .pro-banner { background: linear-gradient(90deg, #FFA500, #FF4500); padding: 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; color: white; }
         
-        /* Feed */
-        .post { background: var(--white); padding: 15px; border-radius: 10px; margin-bottom: 15px; border-bottom: 3px solid transparent; }
+        /* Community Feed */
+        .create-post { background: var(--card-bg); padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+        .create-post textarea { width: 100%; background: #222; border: 1px solid var(--border); color: white; padding: 10px; border-radius: 8px; resize: none; min-height: 80px; }
+        .post-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 15px; margin-bottom: 15px; }
         .post-header { display: flex; align-items: center; margin-bottom: 10px; }
-        .avatar { width: 40px; height: 40px; border-radius: 50%; background: #ddd; margin-right: 10px; display: flex; justify-content: center; align-items: center; color: white; font-weight: bold; }
-        .badge-verified { color: #1DA1F2; margin-left: 5px; }
-        .post-actions { display: flex; gap: 15px; margin-top: 10px; color: var(--gray); border-top: 1px solid #eee; padding-top: 10px; }
-        .action-item { cursor: pointer; display: flex; align-items: center; gap: 5px; }
-        .action-item:hover, .action-item.liked { color: var(--primary); }
-        
-        /* Pro Badge */
-        .pro-badge { background: #FFD700; color: #333; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; margin-left: 5px; text-transform: uppercase; font-weight: bold; }
+        .avatar { width: 40px; height: 40px; background: var(--primary); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; color: black; margin-right: 10px; }
+        .post-info h4 { font-size: 14px; }
+        .post-info span { font-size: 10px; color: var(--text-muted); }
+        .badge-pro { color: #1DA1F2; margin-left: 5px; font-size: 12px; }
+        .post-content { font-size: 14px; line-height: 1.5; margin-bottom: 10px; white-space: pre-wrap; }
+        .post-actions { display: flex; gap: 20px; border-top: 1px solid #222; padding-top: 10px; }
+        .action-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 13px; }
+        .action-btn.liked { color: var(--primary); }
+        .comments-section { margin-top: 10px; border-top: 1px solid #222; padding-top: 10px; font-size: 12px; }
+        .comment { background: #1a1a1a; padding: 5px 8px; border-radius: 5px; margin-bottom: 5px; }
+        .comment-add { display: flex; gap: 5px; margin-top: 5px; }
+        .comment-add input { flex: 1; background: #222; border: none; color: white; padding: 5px; border-radius: 4px; }
 
-        /* Form Elements */
-        select, input, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; background: #fff; }
-        label { font-size: 0.9rem; color: var(--gray); display: block; margin-bottom: 5px; }
+        /* Wallet */
+        .deposit-methods { display: grid; gap: 10px; margin-bottom: 20px; }
+        .method-card { background: var(--card-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .copy-btn { background: #333; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+        .history-list { margin-top: 20px; }
+        .history-item { background: #111; padding: 10px; border-radius: 5px; margin-bottom: 8px; border-left: 3px solid var(--primary); font-size: 13px; }
+        .status-pending { color: orange; }
+        .status-approved { color: var(--success); }
+        .status-rejected { color: var(--danger); }
 
-        /* Admin Panel */
-        .admin-stat { background: var(--white); padding: 15px; border-radius: 8px; text-align: center; border: 1px solid #eee; }
-        .request-item { border-left: 4px solid var(--primary); padding: 10px; margin-bottom: 10px; background: #fff; }
+        /* Admin */
+        .admin-stat { background: #222; padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; }
+        .req-card { background: var(--card-bg); padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 1px solid #333; }
+        .req-actions { margin-top: 8px; display: flex; gap: 10px; }
+        .req-actions button { flex: 1; padding: 5px; font-size: 12px; }
 
+        /* Toast */
+        #toast { visibility: hidden; min-width: 250px; background-color: var(--primary); color: #000; text-align: center; border-radius: 4px; padding: 16px; position: fixed; z-index: 1000; bottom: 80px; left: 50%; transform: translateX(-50%); font-weight: bold; }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        @keyframes fadein { from {bottom: 60px; opacity: 0;} to {bottom: 80px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 80px; opacity: 1;} to {bottom: 60px; opacity: 0;} }
     </style>
 </head>
 <body>
 
-    <!-- Toast Notification Container -->
-    <div id="toast-container"></div>
+    <!-- Toast Notification -->
+    <div id="toast">Message here</div>
 
-    <!-- AUTH SCREEN -->
-    <div id="auth-screen" class="auth-container">
-        <div class="auth-box">
-            <div class="logo"><i class="fas fa-coins"></i> TK COIN</div>
-            <h3 id="auth-title">Login</h3>
-            <input type="email" id="auth-email" placeholder="Email">
-            <input type="password" id="auth-password" placeholder="Password">
-            <button class="btn btn-primary" onclick="handleAuth()">Enter</button>
-            <p style="margin-top:15px; font-size:0.9rem;">
-                <span id="auth-toggle-text">New here?</span> 
-                <a href="#" class="text-orange" onclick="toggleAuthMode()">Click here</a>
-            </p>
+    <!-- Login Screen -->
+    <div id="login-screen">
+        <div class="logo-area">
+            <i class="fa-solid fa-coins logo-icon"></i>
+            <div class="app-name">TK COIN</div>
         </div>
+        <input type="text" id="username" class="login-input" placeholder="Enter Username (Use 'admin' for Admin Panel)">
+        <button class="btn btn-primary" style="max-width: 300px;" onclick="app.login()">LOGIN</button>
     </div>
 
-    <!-- MAIN APP -->
-    <div id="app-screen" class="hidden">
-        
-        <!-- Header -->
-        <header class="header">
-            <div class="logo" style="font-size: 1.5rem; margin:0;">TK <span class="text-orange">COIN</span></div>
-            <div id="user-badge-display"></div>
+    <!-- Main App -->
+    <div id="main-app" class="hidden">
+        <header>
+            <div class="header-logo">TK <span class="text-orange">COIN</span></div>
+            <div class="user-balance-mini">
+                <i class="fa-solid fa-wallet"></i> <span id="nav-balance">0</span> TK
+            </div>
         </header>
 
-        <!-- 1. HOME / MARKET SECTION -->
+        <!-- HOME SECTION -->
         <section id="home-section" class="section">
-            <div class="balance-card">
-                <small>Available Balance</small>
-                <h2 id="user-balance">0.00 TK</h2>
-                <div id="user-balance-pkr" style="font-size: 0.9rem; opacity: 0.9;">0 PKR</div>
+            <!-- Pro Upgrade -->
+            <div id="pro-upgrade-card" class="pro-banner hidden">
+                <div>
+                    <h3>Upgrade to PRO</h3>
+                    <small>0% Tax • Unlimited Posts • Verified Badge</small>
+                </div>
+                <button class="btn" style="background: white; color: var(--primary); width: auto;" onclick="app.buyPro()">BUY PRO</button>
             </div>
 
-            <!-- Live Rate -->
-            <div class="card">
-                <div class="rate-display">
-                    <span>Current Rate</span>
-                    <span class="text-bold text-orange" style="font-size: 1.2rem;">1 TK = <span id="current-rate-display">0</span> PKR</span>
-                </div>
-                <hr style="margin: 10px 0; border: 0; border-top: 1px solid #eee;">
-                
-                <h4>Deposit Methods</h4>
-                <div class="copy-box" onclick="copyToClipboard('deposit-easypaisa')">
-                    <div>
-                        <small>Easypaisa</small>
-                        <div id="deposit-easypaisa" class="text-bold">0300-0000000</div>
-                    </div>
-                    <i class="far fa-copy text-orange"></i>
-                </div>
-                <div class="copy-box" onclick="copyToClipboard('deposit-jazzcash')">
-                    <div>
-                        <small>JazzCash</small>
-                        <div id="deposit-jazzcash" class="text-bold">0300-0000000</div>
-                    </div>
-                    <i class="far fa-copy text-orange"></i>
-                </div>
-                <button class="btn btn-primary" style="margin-top: 10px;" onclick="showDepositRequest()">Send Deposit Slip</button>
+            <div class="rate-card">
+                <small>Current Rate</small>
+                <div class="rate-value">PKR <span id="market-rate">0</span></div>
+                <small>Last updated: Just now</small>
             </div>
 
-            <div class="card">
-                <h4>Quick Actions</h4>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
-                    <button class="btn btn-outline" onclick="openWithdrawModal()">Withdraw</button>
-                    <button class="btn btn-outline" onclick="navigateTo('shop-section')">Buy Coins</button>
+            <div class="market-actions">
+                <div class="action-card">
+                    <h4>Buy TK</h4>
+                    <div class="input-group">
+                        <input type="number" id="buy-amount-pkr" placeholder="Amount in PKR" oninput="app.calcBuy()">
+                    </div>
+                    <div class="text-orange" style="margin-bottom: 10px;">You get: <span id="buy-calc-tk">0</span> TK</div>
+                    <button class="btn btn-primary" onclick="app.requestDeposit('BUY')">BUY NOW</button>
+                </div>
+                <div class="action-card">
+                    <h4>Sell TK</h4>
+                    <div class="input-group">
+                        <input type="number" id="sell-amount-tk" placeholder="Amount in TK" oninput="app.calcSell()">
+                    </div>
+                    <div class="text-orange" style="margin-bottom: 10px;">You get: <span id="sell-calc-pkr">0</span> PKR</div>
+                    <button class="btn btn-danger" onclick="app.withdrawUI('INSTANT')">SELL NOW</button>
                 </div>
             </div>
-            
-            <!-- Pro Promo -->
-            <div id="pro-promo-card" class="card hidden" style="border: 2px solid #FFD700; background: #fffdf0;">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <h3><i class="fas fa-crown text-orange"></i> Go PRO</h3>
-                    <span class="pro-badge">PREMIUM</span>
-                </div>
-                <ul style="margin: 10px 0; padding-left: 20px; font-size: 0.9rem; color: #555;">
-                    <li>0% Withdrawal Tax</li>
-                    <li>Unlimited Posting</li>
-                    <li>View All Feed Posts</li>
-                    <li>Blue Verified Tick</li>
-                </ul>
-                <button class="btn btn-primary" onclick="buyPro()">Buy Pro (500 TK)</button>
+
+            <div class="action-card">
+                <h4><i class="fa-solid fa-money-bill-wave"></i> Withdraw Funds</h4>
+                <p style="font-size: 12px; color: #888; margin: 10px 0;">Normal users pay 3% tax on Instant. Pro users pay 0%.</p>
+                <button class="btn btn-outline" onclick="app.withdrawUI('HOLD')">Request Withdraw (Hold)</button>
             </div>
         </section>
 
-        <!-- 2. FEED SECTION -->
-        <section id="feed-section" class="section hidden">
-            <!-- Create Post -->
-            <div class="card">
-                <textarea id="post-content" rows="3" placeholder="What's on your mind?"></textarea>
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <small id="post-limit-hint" class="text-orange"></small>
-                    <button class="btn btn-primary btn-sm" onclick="createPost()">Post</button>
-                </div>
-            </div>
-
-            <h4>Community Feed</h4>
-            <div id="feed-container">
-                <!-- Posts injected here -->
-            </div>
-        </section>
-
-        <!-- 3. PROFILE SECTION -->
-        <section id="profile-section" class="section hidden">
-            <div class="card" style="text-align: center;">
-                <div class="avatar" style="width: 80px; height: 80px; font-size: 2rem; margin: 0 auto 10px;">U</div>
-                <h3 id="profile-name">User Name</h3>
-                <p id="profile-email" style="color: #777; font-size: 0.9rem;">email@example.com</p>
-                <div id="profile-badges" style="margin-top: 5px;"></div>
-            </div>
-
-            <div class="card">
-                <h4>Account Stats</h4>
+        <!-- COMMUNITY SECTION -->
+        <section id="community-section" class="section hidden">
+            <div class="create-post">
+                <textarea id="post-content" placeholder="What's on your mind?"></textarea>
                 <div style="display: flex; justify-content: space-between; margin-top: 10px;">
-                    <span>Posts Today:</span>
-                    <span class="text-bold"><span id="stat-posts-today">0</span> / <span id="stat-posts-limit">1</span></span>
-                </div>
-                <div style="display: flex; justify-content: space-between; margin-top: 5px;">
-                    <span>Tax Rate:</span>
-                    <span class="text-bold" id="stat-tax-rate">3%</span>
+                    <small class="text-muted" id="post-limit-info">1 Post / Day (Normal)</small>
+                    <button class="btn btn-primary" style="width: auto;" onclick="app.createPost()">POST</button>
                 </div>
             </div>
-
-            <button class="btn btn-danger" onclick="logout()">Logout</button>
+            <div id="feed-container">
+                <!-- Posts go here -->
+            </div>
         </section>
 
-        <!-- 4. ADMIN PANEL (Only visible to Admin) -->
-        <section id="admin-section" class="section hidden">
-            <h3>Admin Panel</h3>
-            <br>
+        <!-- WALLET SECTION -->
+        <section id="wallet-section" class="section hidden">
+            <h3>Deposit Methods</h3>
+            <p style="font-size: 12px; color: #888; margin-bottom: 15px;">Send payment and click "I Have Paid".</p>
             
-            <!-- Settings -->
-            <div class="card">
-                <h4>Global Settings</h4>
-                <label>TK Coin Rate (PKR)</label>
-                <input type="number" id="admin-rate-input">
-                
+            <div class="deposit-methods">
+                <div class="method-card">
+                    <div>
+                        <strong>Easypaisa</strong><br>
+                        <span class="text-orange" id="depo-easypaisa">Loading...</span>
+                    </div>
+                    <button class="copy-btn" onclick="app.copyText('depo-easypaisa')"><i class="fa-regular fa-copy"></i></button>
+                </div>
+                <div class="method-card">
+                    <div>
+                        <strong>JazzCash</strong><br>
+                        <span class="text-orange" id="depo-jazzcash">Loading...</span>
+                    </div>
+                    <button class="copy-btn" onclick="app.copyText('depo-jazzcash')"><i class="fa-regular fa-copy"></i></button>
+                </div>
+                <div class="method-card">
+                    <div>
+                        <strong>Binance ID</strong><br>
+                        <span class="text-orange" id="depo-binance">Loading...</span>
+                    </div>
+                    <button class="copy-btn" onclick="app.copyText('depo-binance')"><i class="fa-regular fa-copy"></i></button>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="app.requestDeposit('ADD_FUNDS')">I HAVE PAID (SUBMIT REQUEST)</button>
+
+            <h3 style="margin-top: 30px;">Transaction History</h3>
+            <div id="history-container" class="history-list">
+                <!-- History items -->
+            </div>
+        </section>
+
+        <!-- ADMIN SECTION -->
+        <section id="admin-section" class="section hidden">
+            <h2 class="text-orange">Admin Panel</h2>
+            
+            <h4 style="margin-top: 20px;">Settings</h4>
+            <div class="input-group">
+                <label>Current Coin Rate (PKR)</label>
+                <input type="number" id="admin-rate">
+            </div>
+            <div class="input-group">
                 <label>Easypaisa Number</label>
-                <input type="text" id="admin-easypaisa">
-                
+                <input type="text" id="admin-easy">
+            </div>
+            <div class="input-group">
                 <label>JazzCash Number</label>
-                <input type="text" id="admin-jazzcash">
-
-                <button class="btn btn-primary" onclick="adminUpdateSettings()">Update Settings</button>
+                <input type="text" id="admin-jazz">
             </div>
-
-            <!-- Requests -->
-            <div class="card">
-                <h4>Deposit & Withdraw Requests</h4>
-                <div id="admin-requests-list"></div>
+            <div class="input-group">
+                <label>Binance ID</label>
+                <input type="text" id="admin-binance">
             </div>
+            <button class="btn btn-primary" onclick="admin.saveSettings()">Update Settings</button>
 
-            <!-- User Management -->
-            <div class="card">
-                <h4>User Management</h4>
-                <input type="text" id="admin-search-user" placeholder="Search User Email" onkeyup="adminSearchUsers(this.value)">
-                <div id="admin-users-list"></div>
-            </div>
+            <h4 style="margin-top: 30px;">Pending Requests</h4>
+            <div id="admin-requests"></div>
+
+            <h4 style="margin-top: 30px;">User List</h4>
+            <div id="admin-users"></div>
         </section>
 
-        <!-- 5. SHOP / BUY COINS -->
-        <section id="shop-section" class="section hidden">
-            <div class="card">
-                <h4>Buy TK Coins</h4>
-                <p class="text-gray" style="font-size:0.9rem;">Transfer via Easypaisa/JazzCash/Binance to Admin numbers and send request.</p>
-                <hr style="margin: 10px 0; border: 0; border-top: 1px solid #eee;">
-                
-                <label>Amount Paid (PKR)</label>
-                <input type="number" id="shop-amount" placeholder="e.g. 500" oninput="calculateCoins()">
-                
-                <div class="text-center" style="margin: 15px 0;">
-                    <span class="text-gray">You will receive:</span><br>
-                    <h2 class="text-orange"><span id="shop-coins-calc">0</span> TK</h2>
-                </div>
-
-                <label>Transaction ID / Reference</label>
-                <input type="text" id="shop-ref" placeholder="TRX ID">
-                
-                <label>Method</label>
-                <select id="shop-method">
-                    <option value="Easypaisa">Easypaisa</option>
-                    <option value="JazzCash">JazzCash</option>
-                    <option value="Binance">Binance</option>
-                </select>
-
-                <button class="btn btn-primary" onclick="submitBuyRequest()">Submit Request</button>
+        <!-- PROFILE SECTION -->
+        <section id="profile-section" class="section hidden">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <div class="avatar" style="width: 80px; height: 80px; font-size: 30px; margin: 0 auto 10px;">U</div>
+                <h2 id="profile-username">Username</h2>
+                <div id="profile-badge"></div>
             </div>
+
+            <div class="rate-card">
+                <small>Total Balance</small>
+                <div class="rate-value"><span id="profile-balance">0</span> TK</div>
+                <small>≈ PKR <span id="profile-pkr">0</span></small>
+            </div>
+
+            <div class="action-card" style="text-align: left;">
+                <p><strong>Account Type:</strong> <span id="profile-role" class="text-orange">Normal</span></p>
+                <p><strong>Withdraw Tax:</strong> <span id="profile-tax">3%</span></p>
+                <p><strong>Post Limit:</strong> <span id="profile-post-limit">1 / Day</span></p>
+                <p><strong>Joined:</strong> <span id="profile-joined">-</span></p>
+            </div>
+            
+            <button class="btn btn-outline" onclick="app.logout()" style="margin-top: 20px;">Logout</button>
         </section>
 
-        <!-- WITHDRAW MODAL -->
-        <div id="withdraw-modal" class="hidden" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:200; display:flex; align-items:center; justify-content:center;">
-            <div class="card" style="width: 90%; max-width: 400px; animation: fadeIn 0.3s;">
-                <h4>Withdraw Funds</h4>
-                <label>Amount (TK)</label>
-                <input type="number" id="withdraw-amount" placeholder="Min 10 TK">
+        <!-- Withdraw Modal Overlay -->
+        <div id="withdraw-modal" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 200; padding: 20px; display: flex; justify-content: center; align-items: center;">
+            <div style="background: #222; padding: 20px; border-radius: 10px; width: 100%; max-width: 400px; border: 1px solid var(--primary);">
+                <h3>Withdraw Request</h3>
+                <p class="text-muted" style="font-size: 12px; margin-bottom: 15px;">Rate locked at request time.</p>
                 
-                <div id="withdraw-preview" style="background: #f9f9f9; padding: 10px; border-radius: 5px; margin-bottom: 10px; font-size: 0.9rem;">
-                    Calculating...
+                <div class="input-group">
+                    <label>Amount (TK)</label>
+                    <input type="number" id="wd-amount" oninput="app.calcWd()">
+                </div>
+                <div class="input-group">
+                    <label>Method</label>
+                    <select id="wd-method">
+                        <option value="Easypaisa">Easypaisa</option>
+                        <option value="JazzCash">JazzCash</option>
+                        <option value="Binance">Binance</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Account Number / ID</label>
+                    <input type="text" id="wd-account">
+                </div>
+                
+                <!-- Hold Options -->
+                <div id="hold-options" class="input-group">
+                    <label>Hold Duration (No Tax)</label>
+                    <select id="wd-hold">
+                        <option value="1">1 Day</option>
+                        <option value="7">7 Days</option>
+                        <option value="10">10 Days</option>
+                    </select>
                 </div>
 
-                <label>Duration / Hold</label>
-                <select id="withdraw-hold" onchange="calculateWithdraw()">
-                    <option value="instant">Instant Withdraw (3% Tax)</option>
-                    <option value="1">1 Day Hold (0% Tax)</option>
-                    <option value="7">7 Days Hold (0% Tax)</option>
-                    <option value="10">10 Days Hold (0% Tax)</option>
-                </select>
-
-                <label>Account Number</label>
-                <input type="text" id="withdraw-account" placeholder="0300-XXXXXXX">
+                <div class="rate-value" style="font-size: 20px; margin: 10px 0;">
+                    PKR <span id="wd-result">0</span>
+                </div>
+                <small id="wd-tax-note" class="text-danger"></small>
 
                 <div style="display: flex; gap: 10px;">
                     <button class="btn btn-outline" onclick="document.getElementById('withdraw-modal').classList.add('hidden')">Cancel</button>
-                    <button class="btn btn-primary" onclick="submitWithdraw()">Submit</button>
+                    <button class="btn btn-primary" onclick="app.submitWithdraw()">Submit Request</button>
                 </div>
             </div>
         </div>
 
-        <!-- DEPOSIT MODAL -->
-        <div id="deposit-modal" class="hidden" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:200; display:flex; align-items:center; justify-content:center;">
-            <div class="card" style="width: 90%; max-width: 400px;">
-                <h4>Deposit Request</h4>
-                <label>Amount (PKR)</label>
-                <input type="number" id="deposit-amount">
-                <label>Transaction ID</label>
-                <input type="text" id="deposit-trx">
-                <div style="display: flex; gap: 10px; margin-top: 10px;">
-                    <button class="btn btn-outline" onclick="document.getElementById('deposit-modal').classList.add('hidden')">Cancel</button>
-                    <button class="btn btn-primary" onclick="submitDepositRequest()">Send</button>
-                </div>
+        <nav>
+            <div class="nav-item active" onclick="app.nav('home', this)">
+                <i class="fa-solid fa-home"></i> Home
             </div>
-        </div>
-
-        <!-- BOTTOM NAV -->
-        <nav class="navbar" id="main-nav">
-            <div class="nav-item active" onclick="navigateTo('home-section')">
-                <i class="fas fa-home"></i> Home
+            <div class="nav-item" onclick="app.nav('community', this)">
+                <i class="fa-solid fa-users"></i> Community
             </div>
-            <div class="nav-item" onclick="navigateTo('feed-section')">
-                <i class="fas fa-users"></i> Feed
+            <div class="nav-item" onclick="app.nav('wallet', this)">
+                <i class="fa-solid fa-wallet"></i> Wallet
             </div>
-            <div class="nav-item" onclick="navigateTo('profile-section')">
-                <i class="fas fa-user"></i> Profile
+            <div class="nav-item hidden" id="nav-admin" onclick="app.nav('admin', this)">
+                <i class="fa-solid fa-lock"></i> Admin
             </div>
-            <div class="nav-item hidden" id="nav-admin" onclick="navigateTo('admin-section')">
-                <i class="fas fa-shield-alt"></i> Admin
+            <div class="nav-item" onclick="app.nav('profile', this)">
+                <i class="fa-solid fa-user"></i> Profile
             </div>
         </nav>
     </div>
 
     <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script>
-        // --- 1. CONFIGURATION ---
+        // CONFIGURATION
         const firebaseConfig = {
             apiKey: "AIzaSyArw_JZNXKJ_bXdi3yUR1efQ7pAsoaGd4k",
             authDomain: "tkcoin-8281a.firebaseapp.com",
@@ -358,535 +363,566 @@
         };
 
         // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
         const db = firebase.database();
 
-        // State
-        let currentUser = null;
-        let userData = null;
-        let appSettings = { rate: 25, easypaisa: "0300-1234567", jazzcash: "0300-7654321" };
-        let isLoginMode = true;
-        let feedCache = [];
+        // APP STATE
+        let currentUser = null; // { username, balance, role, ... }
+        let marketRate = 25; // Default
+        let adminSettings = {
+            easypaisa: "03001234567",
+            jazzcash: "03007654321",
+            binance: "123456789",
+            proPrice: 500
+        };
 
-        // --- 2. AUTH LOGIC ---
-        function toggleAuthMode() {
-            isLoginMode = !isLoginMode;
-            document.getElementById('auth-title').innerText = isLoginMode ? 'Login' : 'Register';
-            document.getElementById('auth-toggle-text').innerText = isLoginMode ? 'New here?' : 'Have an account?';
-        }
+        // UTILS
+        const showToast = (msg) => {
+            const t = document.getElementById("toast");
+            t.textContent = msg;
+            t.className = "show";
+            setTimeout(() => { t.className = t.className.replace("show", ""); }, 3000);
+        };
 
-        function handleAuth() {
-            const email = document.getElementById('auth-email').value;
-            const pass = document.getElementById('auth-password').value;
+        const getEl = (id) => document.getElementById(id);
 
-            if (!email || !pass) return showToast("Please fill all fields");
+        // MAIN APP LOGIC
+        const app = {
+            login: () => {
+                const username = getEl('username').value.trim();
+                if (!username) return showToast("Enter username");
 
-            if (isLoginMode) {
-                auth.signInWithEmailAndPassword(email, pass)
-                    .catch(e => showToast(e.message));
-            } else {
-                auth.createUserWithEmailAndPassword(email, pass)
-                    .then((u) => {
-                        // Create default user entry in DB
-                        db.ref('users/' + u.user.uid).set({
-                            email: email,
+                // Simple simulated login
+                const userRef = db.ref('users/' + username);
+                
+                userRef.once('value', (snapshot) => {
+                    if (snapshot.exists()) {
+                        currentUser = snapshot.val();
+                        currentUser.key = username; // Keep key reference
+                    } else {
+                        // Create new user
+                        const newUser = {
+                            username: username,
                             balance: 0,
-                            isPro: false,
-                            role: 'user',
-                            joined: firebase.database.ServerValue.TIMESTAMP,
-                            lastPostDate: 'none'
-                        });
-                    })
-                    .catch(e => showToast(e.message));
-            }
-        }
-
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                currentUser = user;
-                document.getElementById('auth-screen').classList.add('hidden');
-                document.getElementById('app-screen').classList.remove('hidden');
-                initApp();
-            } else {
-                currentUser = null;
-                document.getElementById('auth-screen').classList.remove('hidden');
-                document.getElementById('app-screen').classList.add('hidden');
-            }
-        });
-
-        function logout() {
-            auth.signOut();
-            location.reload();
-        }
-
-        // --- 3. APP INITIALIZATION ---
-        function initApp() {
-            // Listeners
-            db.ref('settings').on('value', snap => {
-                const data = snap.val();
-                if(data) {
-                    appSettings = data;
-                    updateSettingsUI();
-                }
-            });
-
-            db.ref('users/' + currentUser.uid).on('value', snap => {
-                userData = snap.val();
-                if (userData) {
-                    updateProfileUI();
-                    updateFeedUI(); // Re-render feed based on user status
-                }
-            });
-
-            // Feed Listener
-            db.ref('posts').orderByChild('timestamp').limitToLast(50).on('value', snap => {
-                const posts = [];
-                snap.forEach(c => posts.push(c.val()));
-                feedCache = posts.reverse(); // Newest first
-                updateFeedUI();
-            });
-
-            // Admin Requests Listener
-            if(isAdmin()) {
-                db.ref('requests').orderByChild('status').equalTo('pending').on('value', snap => {
-                    const list = document.getElementById('admin-requests-list');
-                    list.innerHTML = '';
-                    snap.forEach(c => {
-                        const req = c.val();
-                        const div = document.createElement('div');
-                        div.className = 'request-item';
-                        div.innerHTML = `
-                            <div class="text-bold">${req.type.toUpperCase()} - ${req.userId.substring(0,5)}...</div>
-                            <small>${req.method || ''} | ${req.amount}</small>
-                            <div style="margin-top:5px;">
-                                <button class="btn btn-sm btn-success" onclick="adminHandleRequest('${c.key}', 'approve')">Approve</button>
-                                <button class="btn btn-sm btn-danger" onclick="adminHandleRequest('${c.key}', 'reject')">Reject</button>
-                            </div>
-                        `;
-                        list.appendChild(div);
-                    });
-                });
-            }
-        }
-
-        // --- 4. UI UPDATES ---
-        function updateSettingsUI() {
-            document.getElementById('current-rate-display').innerText = appSettings.rate || 0;
-            document.getElementById('deposit-easypaisa').innerText = appSettings.easypaisa || '...';
-            document.getElementById('deposit-jazzcash').innerText = appSettings.jazzcash || '...';
-            
-            // Admin inputs
-            document.getElementById('admin-rate-input').value = appSettings.rate || 0;
-            document.getElementById('admin-easypaisa').value = appSettings.easypaisa || '';
-            document.getElementById('admin-jazzcash').value = appSettings.jazzcash || '';
-        }
-
-        function updateProfileUI() {
-            if(!userData) return;
-            
-            document.getElementById('user-balance').innerText = parseFloat(userData.balance).toFixed(2) + " TK";
-            document.getElementById('user-balance-pkr').innerText = (parseFloat(userData.balance) * (appSettings.rate || 0)).toFixed(2) + " PKR";
-            
-            document.getElementById('profile-name').innerText = currentUser.email.split('@')[0];
-            document.getElementById('profile-email').innerText = currentUser.email;
-
-            // Badges
-            const badgesDiv = document.getElementById('profile-badges');
-            const userBadgeDisplay = document.getElementById('user-badge-display');
-            let badgeHTML = '';
-
-            if (userData.isPro) {
-                badgeHTML += `<span class="pro-badge"><i class="fas fa-crown"></i> PRO</span> `;
-                document.getElementById('user-balance-pkr').style.color = "#FFD700";
-                document.getElementById('pro-promo-card').classList.add('hidden'); // Hide promo if already pro
-                document.getElementById('stat-tax-rate').innerText = "0%";
-                document.getElementById('stat-posts-limit').innerText = "Unlimited";
-            } else {
-                document.getElementById('stat-tax-rate').innerText = "3%";
-                document.getElementById('stat-posts-limit').innerText = "1";
-                document.getElementById('pro-promo-card').classList.remove('hidden');
-            }
-
-            if(isAdmin()) badgeHTML += `<span class="badge-verified"><i class="fas fa-check-circle"></i> ADMIN</span>`;
-            else if (userData.isPro) badgeHTML += `<span class="badge-verified"><i class="fas fa-check-circle"></i> VERIFIED</span>`;
-
-            badgesDiv.innerHTML = badgeHTML;
-            userBadgeDisplay.innerHTML = badgeHTML;
-
-            // Post stats
-            const today = new Date().toDateString();
-            if(userData.lastPostDate === today) {
-                document.getElementById('stat-posts-today').innerText = "1";
-            } else {
-                document.getElementById('stat-posts-today').innerText = "0";
-            }
-
-            // Admin Visibility
-            if(isAdmin()) {
-                document.getElementById('nav-admin').classList.remove('hidden');
-            }
-        }
-
-        // --- 5. FEED & SOCIAL ---
-        function updateFeedUI() {
-            const container = document.getElementById('feed-container');
-            container.innerHTML = '';
-            
-            // Filter Logic
-            let visiblePosts = [];
-            if (userData && userData.isPro) {
-                visiblePosts = feedCache;
-            } else {
-                // Normal user: show only latest 3
-                visiblePosts = feedCache.slice(0, 3);
-            }
-
-            if (visiblePosts.length === 0) {
-                container.innerHTML = '<p class="text-center text-gray" style="margin-top:20px;">No posts yet.</p>';
-                return;
-            }
-
-            visiblePosts.forEach(post => {
-                const isLiked = post.likes && post.likes[currentUser.uid];
-                const div = document.createElement('div');
-                div.className = 'post';
-                div.innerHTML = `
-                    <div class="post-header">
-                        <div class="avatar">${post.authorName[0].toUpperCase()}</div>
-                        <div>
-                            <div class="text-bold">${post.authorName} ${post.isPro ? '<span class="pro-badge">PRO</span>' : ''}</div>
-                            <small class="text-gray">${new Date(post.timestamp).toLocaleString()}</small>
-                        </div>
-                        ${isAdmin() ? `<button class="btn btn-sm btn-danger" style="margin-left:auto;" onclick="deletePost('${post.id}')"><i class="fas fa-trash"></i></button>` : ''}
-                    </div>
-                    <p>${post.text}</p>
-                    <div class="post-actions">
-                        <div class="action-item ${isLiked ? 'liked' : ''}" onclick="toggleLike('${post.id}')">
-                            <i class="${isLiked ? 'fas' : 'far'} fa-heart"></i> ${post.likeCount || 0}
-                        </div>
-                        <div class="action-item" onclick="focusComment('${post.id}')">
-                            <i class="far fa-comment"></i> Comment
-                        </div>
-                    </div>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        function createPost() {
-            if(!userData) return;
-            
-            const text = document.getElementById('post-content').value;
-            if(!text) return showToast("Write something first");
-
-            const today = new Date().toDateString();
-
-            // Check Limit (Normal User: 1 post/day)
-            if (!userData.isPro && userData.lastPostDate === today) {
-                return showToast("Normal users can only post 1 time per day. Upgrade to PRO!");
-            }
-
-            const postId = db.ref('posts').push().key;
-            const postObj = {
-                id: postId,
-                text: text,
-                author: currentUser.uid,
-                authorName: currentUser.email.split('@')[0],
-                isPro: userData.isPro,
-                timestamp: firebase.database.ServerValue.TIMESTAMP,
-                likes: {},
-                likeCount: 0
-            };
-
-            db.ref('posts/' + postId).set(postObj)
-                .then(() => {
-                    // Update last post date
-                    db.ref('users/' + currentUser.uid).update({ lastPostDate: today });
-                    document.getElementById('post-content').value = '';
-                    showToast("Posted successfully!");
-                });
-        }
-
-        function deletePost(postId) {
-            if(confirm("Delete this post?")) {
-                db.ref('posts/' + postId).remove();
-            }
-        }
-
-        function toggleLike(postId) {
-            const postRef = db.ref('posts/' + postId);
-            
-            // Fetch current state to handle logic properly
-            postRef.once('value', snap => {
-                const post = snap.val();
-                if(!post) return;
-
-                const uid = currentUser.uid;
-                const hasLiked = post.likes && post.likes[uid];
-
-                if (hasLiked && !isAdmin()) {
-                    // Unlike
-                    postRef.child('likes').child(uid).remove();
-                    postRef.child('likeCount').set(post.likeCount - 1);
-                } else {
-                    // Like
-                    // Admin can like unlimited (bypass check) and users can like once
-                    if(!hasLiked) {
-                        postRef.child('likes/' + uid).set(true);
-                        postRef.child('likeCount').set((post.likeCount || 0) + 1);
-                    } else if (isAdmin()) {
-                        // Admin already liked, but likes again (Magic Likes)
-                        postRef.child('likeCount').set(post.likeCount + 1);
+                            role: 'normal', // normal or pro
+                            joined: new Date().toLocaleDateString(),
+                            postsToday: 0,
+                            lastPostDate: new Date().toDateString()
+                        };
+                        userRef.set(newUser);
+                        currentUser = newUser;
+                        currentUser.key = username;
                     }
-                }
-            });
-        }
-
-        // --- 6. WALLET & WITHDRAWAL ---
-        function calculateCoins() {
-            const pkr = parseFloat(document.getElementById('shop-amount').value) || 0;
-            const rate = appSettings.rate || 1;
-            document.getElementById('shop-coins-calc').innerText = (pkr / rate).toFixed(2);
-        }
-
-        function openWithdrawModal() {
-            document.getElementById('withdraw-modal').classList.remove('hidden');
-            calculateWithdraw();
-        }
-
-        function calculateWithdraw() {
-            const amount = parseFloat(document.getElementById('withdraw-amount').value) || 0;
-            const holdType = document.getElementById('withdraw-hold').value;
-            const rate = appSettings.rate || 1;
-            
-            let tax = 0;
-            let finalPKR = amount * rate;
-
-            // Logic: Normal user Instant = 3% Tax. Pro = 0%. Any Hold = 0% Tax.
-            if (!userData.isPro && holdType === 'instant') {
-                tax = finalPKR * 0.03;
-            }
-
-            const netPKR = finalPKR - tax;
-            
-            document.getElementById('withdraw-preview').innerHTML = `
-                <div>Rate: ${rate} PKR/TK</div>
-                <div>Gross: ${finalPKR.toFixed(2)} PKR</div>
-                <div class="text-orange">Tax: ${tax.toFixed(2)} PKR</div>
-                <div class="text-bold">Net Receive: ${netPKR.toFixed(2)} PKR</div>
-            `;
-        }
-
-        function submitWithdraw() {
-            const amount = parseFloat(document.getElementById('withdraw-amount').value);
-            const account = document.getElementById('withdraw-account').value;
-            const hold = document.getElementById('withdraw-hold').value;
-
-            if(!amount || amount < 10) return showToast("Minimum withdraw is 10 TK");
-            if(!account) return showToast("Enter account number");
-            if(amount > userData.balance) return showToast("Insufficient Balance");
-
-            const reqRef = db.ref('requests').push();
-            reqRef.set({
-                type: 'withdraw',
-                userId: currentUser.uid,
-                amount: amount,
-                method: account,
-                duration: hold,
-                status: 'pending',
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-            });
-
-            // Deduct balance locally immediately (or wait for admin approval - usually deduct on approval for safety, but deducting here prevents double spend. Let's deduct here for simplicity in this demo, Admin adds back on reject)
-            db.ref('users/' + currentUser.uid).transaction(b => {
-                return (b || 0) - amount;
-            });
-
-            document.getElementById('withdraw-modal').classList.add('hidden');
-            showToast("Withdraw request submitted");
-        }
-
-        // --- 7. DEPOSIT & BUY COINS ---
-        function showDepositRequest() {
-            document.getElementById('deposit-modal').classList.remove('hidden');
-        }
-
-        function submitDepositRequest() {
-            const amount = document.getElementById('deposit-amount').value;
-            const trx = document.getElementById('deposit-trx').value;
-            if(!amount || !trx) return showToast("Fill all fields");
-
-            db.ref('requests').push({
-                type: 'deposit',
-                userId: currentUser.uid,
-                amount: amount,
-                trxId: trx,
-                status: 'pending',
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-            });
-            document.getElementById('deposit-modal').classList.add('hidden');
-            showToast("Request sent to Admin");
-        }
-
-        function submitBuyRequest() {
-            // Same as deposit request basically, just flow via shop
-            const pkr = document.getElementById('shop-amount').value;
-            const trx = document.getElementById('shop-ref').value;
-            const method = document.getElementById('shop-method').value;
-
-            if(!pkr || !trx) return showToast("Missing details");
-
-            db.ref('requests').push({
-                type: 'buy_coins', // alias for deposit
-                userId: currentUser.uid,
-                amount: pkr,
-                method: method,
-                trxId: trx,
-                status: 'pending',
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-            });
-            showToast("Purchase request sent!");
-            navigateTo('home-section');
-        }
-
-        // --- 8. ADMIN FUNCTIONS ---
-        function isAdmin() {
-            return userData && (userData.role === 'admin' || currentUser.email === 'admin@tkcoin.com'); // Hardcoded fallback
-        }
-
-        function adminUpdateSettings() {
-            const rate = parseFloat(document.getElementById('admin-rate-input').value);
-            const ep = document.getElementById('admin-easypaisa').value;
-            const jc = document.getElementById('admin-jazzcash').value;
-            
-            db.ref('settings').update({
-                rate: rate,
-                easypaisa: ep,
-                jazzcash: jc
-            }).then(() => showToast("Settings Updated"));
-        }
-
-        function adminHandleRequest(reqId, action) {
-            const reqRef = db.ref('requests/' + reqId);
-            reqRef.once('value', snap => {
-                const req = snap.val();
-                if(!req) return;
-
-                if(action === 'approve') {
-                    // Logic based on type
-                    if(req.type === 'deposit' || req.type === 'buy_coins') {
-                        const pkr = parseFloat(req.amount);
-                        const coins = pkr / appSettings.rate;
-                        // Add coins
-                        db.ref('users/' + req.userId).child('balance').transaction(b => (b || 0) + coins);
-                    }
-                    // Withdraw: Balance already deducted, just mark complete
                     
-                    reqRef.update({ status: 'approved' });
-                    showToast("Request Approved");
-
-                } else {
-                    // Reject
-                    if(req.type === 'withdraw') {
-                        // Refund coins
-                        db.ref('users/' + req.userId).child('balance').transaction(b => (b || 0) + parseFloat(req.amount));
+                    // Admin Check
+                    if (username === 'admin') {
+                        currentUser.role = 'admin';
+                        getEl('nav-admin').classList.remove('hidden');
+                    } else {
+                        getEl('nav-admin').classList.add('hidden');
                     }
-                    reqRef.update({ status: 'rejected' });
-                    showToast("Request Rejected");
-                }
-            });
-        }
 
-        function adminSearchUsers(query) {
-            if(!query) { document.getElementById('admin-users-list').innerHTML = ''; return; }
+                    app.initData();
+                    getEl('login-screen').classList.add('hidden');
+                    getEl('main-app').classList.remove('hidden');
+                });
+            },
+
+            initData: () => {
+                // Listen to Settings
+                db.ref('settings').on('value', (snap) => {
+                    if(snap.exists()){
+                        const data = snap.val();
+                        marketRate = parseFloat(data.rate) || 25;
+                        adminSettings = data;
+                        // Update UI
+                        getEl('market-rate').innerText = marketRate;
+                        getEl('depo-easypaisa').innerText = data.easypaisa || 'N/A';
+                        getEl('depo-jazzcash').innerText = data.jazzcash || 'N/A';
+                        getEl('depo-binance').innerText = data.binance || 'N/A';
+                        
+                        // Pre-fill admin inputs
+                        getEl('admin-rate').value = marketRate;
+                        getEl('admin-easy').value = data.easypaisa;
+                        getEl('admin-jazz').value = data.jazzcash;
+                        getEl('admin-binance').value = data.binance;
+                    }
+                    app.updateProfileUI();
+                });
+
+                // Listen to User Balance (Real-time update)
+                db.ref('users/' + currentUser.key).on('value', (snap) => {
+                    currentUser = snap.val();
+                    currentUser.key = snap.key;
+                    getEl('nav-balance').innerText = currentUser.balance;
+                    app.updateProfileUI();
+                });
+
+                // Load Feed
+                app.loadFeed();
+                // Load History
+                app.loadHistory();
+                // Load Admin Data if needed
+                if(currentUser.role === 'admin') admin.loadRequests();
+            },
+
+            nav: (sectionId, el) => {
+                document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+                getEl(sectionId + '-section').classList.remove('hidden');
+                
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                if(el) el.classList.add('active');
+
+                if(sectionId === 'community') app.loadFeed();
+                if(sectionId === 'wallet') app.loadHistory();
+                if(sectionId === 'admin') admin.loadRequests();
+            },
+
+            updateProfileUI: () => {
+                getEl('profile-username').innerText = currentUser.username;
+                getEl('profile-balance').innerText = currentUser.balance;
+                getEl('profile-pkr').innerText = (currentUser.balance * marketRate).toFixed(0);
+                getEl('profile-joined').innerText = currentUser.joined;
+
+                const isPro = currentUser.role === 'pro';
+                const isAdmin = currentUser.role === 'admin';
+
+                getEl('profile-role').innerText = isAdmin ? "ADMIN" : (isPro ? "PRO USER" : "NORMAL");
+                getEl('profile-role').className = isAdmin ? "text-danger" : (isPro ? "text-orange" : "text-muted");
+                
+                // Badge
+                const badgeHTML = (isPro || isAdmin) ? '<i class="fa-solid fa-circle-check badge-pro"></i> Verified' : '';
+                getEl('profile-badge').innerHTML = badgeHTML;
+
+                // Features List
+                getEl('profile-tax').innerText = (isPro || isAdmin) ? "0%" : "3%";
+                getEl('profile-post-limit').innerText = (isPro || isAdmin) ? "Unlimited" : "1 / Day";
+
+                // Show/Hide Pro Upgrade Banner
+                if(!isPro && !isAdmin) {
+                    getEl('pro-upgrade-card').classList.remove('hidden');
+                } else {
+                    getEl('pro-upgrade-card').classList.add('hidden');
+                }
+            },
+
+            // MARKET LOGIC
+            calcBuy: () => {
+                const pkr = parseFloat(getEl('buy-amount-pkr').value) || 0;
+                getEl('buy-calc-tk').innerText = (pkr / marketRate).toFixed(2);
+            },
             
-            // Simple search simulation - in real app, use Algolia or client side filter of full list
-            // Here we just listen to all users (heavy) or fetch
-            db.ref('users').once('value', snap => {
-                const list = document.getElementById('admin-users-list');
-                list.innerHTML = '';
-                snap.forEach(c => {
-                    const u = c.val();
-                    if(u.email.includes(query)) {
-                        const div = document.createElement('div');
-                        div.className = 'card';
-                        div.style.padding = "10px";
-                        div.innerHTML = `
-                            <div><b>Email:</b> ${u.email}</div>
-                            <div><b>Balance:</b> ${u.balance}</div>
-                            <div>
-                                <button class="btn btn-sm ${u.isPro?'btn-danger':'btn-primary'}" onclick="adminTogglePro('${c.key}', ${u.isPro})">
-                                    ${u.isPro ? 'Remove Pro' : 'Make Pro'}
+            calcSell: () => {
+                const tk = parseFloat(getEl('sell-amount-tk').value) || 0;
+                getEl('sell-calc-pkr').innerText = (tk * marketRate).toFixed(0);
+            },
+
+            requestDeposit: (type) => {
+                let amount = 0;
+                let details = "";
+
+                if(type === 'BUY') {
+                    const pkr = parseFloat(getEl('buy-amount-pkr').value);
+                    if(!pkr || pkr < 100) return showToast("Minimum deposit 100 PKR");
+                    amount = pkr;
+                    details = `Buy TK Request`;
+                } else {
+                    // Just manual deposit
+                    amount = prompt("Enter amount sent (PKR):");
+                    if(!amount) return;
+                }
+
+                const req = {
+                    user: currentUser.key,
+                    type: 'DEPOSIT',
+                    amount: parseFloat(amount),
+                    details: details || 'Manual Deposit',
+                    status: 'pending',
+                    date: new Date().toISOString()
+                };
+
+                db.ref('requests').push(req);
+                showToast("Request Submitted!");
+                if(type === 'BUY') getEl('buy-amount-pkr').value = '';
+                app.loadHistory();
+            },
+
+            copyText: (id) => {
+                const text = getEl(id).innerText;
+                navigator.clipboard.writeText(text);
+                showToast("Copied!");
+            },
+
+            buyPro: () => {
+                // Logic to buy Pro
+                const cost = 500; // Hardcoded for demo, can be from settings
+                if(confirm(`Upgrade to PRO for ${cost} PKR equivalent in TK? (Approx ${(cost/marketRate).toFixed(2)} TK)`)) {
+                    // Check balance (simplified: assume user has balance or manual request)
+                    // For this demo, let's just create a request
+                    const req = {
+                        user: currentUser.key,
+                        type: 'BUY_PRO',
+                        amount: cost, // PKR value
+                        details: 'Upgrade to PRO',
+                        status: 'pending',
+                        date: new Date().toISOString()
+                    };
+                    db.ref('requests').push(req);
+                    showToast("Upgrade Request Sent!");
+                }
+            },
+
+            // WITHDRAW LOGIC
+            withdrawUI: (mode) => {
+                getEl('withdraw-modal').classList.remove('hidden');
+                getEl('wd-amount').value = '';
+                getEl('wd-result').innerText = '0';
+                
+                const isPro = currentUser.role === 'pro';
+                const holdDiv = getEl('hold-options');
+                const taxNote = getEl('wd-tax-note');
+
+                if(mode === 'INSTANT') {
+                    holdDiv.classList.add('hidden');
+                    if(!isPro) {
+                        taxNote.innerText = "3% Tax will be deducted";
+                    } else {
+                        taxNote.innerText = "Pro Member: 0% Tax";
+                    }
+                } else {
+                    holdDiv.classList.remove('hidden');
+                    taxNote.innerText = "No Tax on Hold Withdrawals";
+                }
+            },
+
+            calcWd: () => {
+                const tk = parseFloat(getEl('wd-amount').value) || 0;
+                const holdDays = getEl('wd-hold').value;
+                
+                // Check if UI is in Hold or Instant mode based on visibility of dropdown
+                const isHold = !getEl('hold-options').classList.contains('hidden');
+                const isPro = currentUser.role === 'pro';
+
+                let pkr = tk * marketRate;
+
+                if (!isHold && !isPro) {
+                    // Instant Normal: 3% Tax
+                    pkr = pkr * 0.97;
+                }
+
+                getEl('wd-result').innerText = pkr.toFixed(0);
+            },
+
+            submitWithdraw: () => {
+                const amount = parseFloat(getEl('wd-amount').value);
+                if(!amount || amount <= 0) return showToast("Invalid amount");
+                if(amount > currentUser.balance) return showToast("Insufficient Balance");
+
+                const method = getEl('wd-method').value;
+                const account = getEl('wd-account').value;
+                if(!account) return showToast("Enter account details");
+
+                const isHold = !getEl('hold-options').classList.contains('hidden');
+                const holdDays = isHold ? getEl('wd-hold').value : 0;
+                
+                // Lock Rate at current market rate
+                const lockedRate = marketRate;
+                const isPro = currentUser.role === 'pro';
+                let finalPkr = amount * lockedRate;
+                let taxDeducted = 0;
+
+                if (!isHold && !isPro) {
+                    taxDeducted = finalPkr * 0.03;
+                    finalPkr = finalPkr - taxDeducted;
+                }
+
+                // Deduct balance immediately (pending state)
+                const newBal = currentUser.balance - amount;
+                db.ref('users/' + currentUser.key).update({ balance: newBal });
+
+                const req = {
+                    user: currentUser.key,
+                    type: 'WITHDRAW',
+                    amount: amount, // Coins
+                    lockedRate: lockedRate,
+                    pkrExpected: finalPkr.toFixed(0),
+                    method: method,
+                    account: account,
+                    holdDays: parseInt(holdDays),
+                    status: holdDays > 0 ? 'hold' : 'pending',
+                    date: new Date().toISOString()
+                };
+
+                db.ref('requests').push(req);
+                showToast("Withdrawal Requested!");
+                getEl('withdraw-modal').classList.add('hidden');
+                app.loadHistory();
+            },
+
+            // COMMUNITY LOGIC
+            createPost: () => {
+                const content = getEl('post-content').value;
+                if(!content) return;
+
+                const today = new Date().toDateString();
+                if(currentUser.role === 'normal') {
+                    if(currentUser.lastPostDate !== today) {
+                        // Reset daily count if new day
+                        db.ref('users/' + currentUser.key).update({ postsToday: 1, lastPostDate: today });
+                    } else {
+                        if(currentUser.postsToday >= 1) return showToast("Daily limit reached (1/day). Upgrade to Pro!");
+                        db.ref('users/' + currentUser.key).update({ postsToday: currentUser.postsToday + 1 });
+                    }
+                }
+
+                const post = {
+                    author: currentUser.username,
+                    authorRole: currentUser.role,
+                    content: content,
+                    likes: 0,
+                    likedBy: [],
+                    comments: [],
+                    timestamp: Date.now()
+                };
+
+                db.ref('posts').push(post);
+                getEl('post-content').value = '';
+                showToast("Posted!");
+                app.loadFeed();
+            },
+
+            loadFeed: () => {
+                db.ref('posts').orderByChild('timestamp').limitToLast(50).once('value', (snap) => {
+                    const container = getEl('feed-container');
+                    container.innerHTML = '';
+                    const posts = [];
+                    snap.forEach(c => posts.push(c.val()));
+                    posts.reverse(); // Newest first
+
+                    // Normal User: Show only 3 posts
+                    const limit = (currentUser.role === 'normal') ? 3 : posts.length;
+                    const visiblePosts = posts.slice(0, limit);
+
+                    if(visiblePosts.length === 0) container.innerHTML = '<p class="text-muted text-center">No posts yet.</p>';
+
+                    visiblePosts.forEach(post => {
+                        const isLiked = post.likedBy && post.likedBy.includes(currentUser.username);
+                        const badge = (post.authorRole === 'pro' || post.authorRole === 'admin') ? '<i class="fa-solid fa-circle-check badge-pro"></i>' : '';
+                        const adminDel = (currentUser.role === 'admin') ? `<i class="fa-solid fa-trash text-danger" style="cursor:pointer; float:right;" onclick="admin.deletePost('${post.timestamp}')"></i>` : '';
+                        
+                        let commentsHtml = '';
+                        if(post.comments) {
+                            post.comments.forEach(c => {
+                                commentsHtml += `<div class="comment"><strong>${c.user}:</strong> ${c.text}</div>`;
+                            });
+                        }
+
+                        const html = `
+                        <div class="post-card">
+                            <div class="post-header">
+                                <div class="avatar">${post.author[0].toUpperCase()}</div>
+                                <div class="post-info">
+                                    <h4>${post.author} ${badge} <span class="text-muted">• ${new Date(post.timestamp).toLocaleTimeString()}</span></h4>
+                                </div>
+                                ${adminDel}
+                            </div>
+                            <div class="post-content">${post.content}</div>
+                            <div class="post-actions">
+                                <button class="action-btn ${isLiked ? 'liked' : ''}" onclick="app.likePost(${post.timestamp})">
+                                    <i class="fa-${isLiked ? 'solid' : 'regular'} fa-heart"></i> ${post.likes || 0}
+                                </button>
+                                <button class="action-btn" onclick="document.getElementById('comment-box-${post.timestamp}').classList.toggle('hidden')">
+                                    <i class="fa-regular fa-comment"></i> ${post.comments ? post.comments.length : 0}
                                 </button>
                             </div>
-                        `;
-                        list.appendChild(div);
-                    }
+                            <div class="comments-section">
+                                <div id="comments-list-${post.timestamp}">${commentsHtml}</div>
+                                <div id="comment-box-${post.timestamp}" class="comment-add hidden">
+                                    <input type="text" placeholder="Write a comment..." id="input-comment-${post.timestamp}">
+                                    <button class="btn btn-primary" style="width:auto; padding: 5px 10px;" onclick="app.commentPost(${post.timestamp})">Send</button>
+                                </div>
+                            </div>
+                        </div>`;
+                        container.innerHTML += html;
+                    });
                 });
-            });
-        }
+            },
 
-        function adminTogglePro(uid, currentStatus) {
-            db.ref('users/' + uid).update({ isPro: !currentStatus });
-            showToast("User Pro Status Updated");
-        }
+            likePost: (ts) => {
+                // Simplified like logic: fetch, modify, set
+                db.ref('posts').orderByChild('timestamp').equalTo(ts).once('value', (snap) => {
+                    const key = Object.keys(snap.val())[0];
+                    const post = snap.val()[key];
+                    let likes = post.likes || 0;
+                    let likedBy = post.likedBy || [];
 
-        // --- 9. UTILS ---
-        function navigateTo(sectionId) {
-            document.querySelectorAll('.section').forEach(el => el.classList.add('hidden'));
-            document.getElementById(sectionId).classList.remove('hidden');
-            
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            // Find nav item matching section
-            const navs = document.querySelectorAll('.nav-item');
-            if(sectionId === 'home-section') navs[0].classList.add('active');
-            if(sectionId === 'feed-section') navs[1].classList.add('active');
-            if(sectionId === 'profile-section') navs[2].classList.add('active');
-            if(sectionId === 'admin-section') navs[3].classList.add('active');
-        }
+                    if (likedBy.includes(currentUser.username)) {
+                        // Unlike
+                        likes--;
+                        likedBy = likedBy.filter(u => u !== currentUser.username);
+                    } else {
+                        // Like
+                        likes++;
+                        likedBy.push(currentUser.username);
+                    }
 
-        function buyPro() {
-            if(userData.balance >= 500) {
-                if(confirm("Spend 500 TK to upgrade to PRO?")) {
-                    db.ref('users/' + currentUser.uid).transaction(b => {
-                        if((b || 0) >= 500) {
-                            // Logic handled in transaction or separate update
-                            return b - 500;
+                    db.ref('posts/' + key).update({ likes, likedBy });
+                    app.loadFeed(); // Refresh UI
+                });
+            },
+
+            commentPost: (ts) => {
+                const text = getEl(`input-comment-${ts}`).value;
+                if(!text) return;
+
+                db.ref('posts').orderByChild('timestamp').equalTo(ts).once('value', (snap) => {
+                    const key = Object.keys(snap.val())[0];
+                    const post = snap.val()[key];
+                    let comments = post.comments || [];
+                    comments.push({ user: currentUser.username, text: text });
+
+                    db.ref('posts/' + key).update({ comments });
+                    app.loadFeed();
+                });
+            },
+
+            loadHistory: () => {
+                db.ref('requests').orderByChild('user').equalTo(currentUser.key).once('value', (snap) => {
+                    const container = getEl('history-container');
+                    container.innerHTML = '';
+                    const reqs = [];
+                    snap.forEach(c => reqs.push(c.val()));
+                    reqs.reverse(); // Newest first
+
+                    if(reqs.length === 0) container.innerHTML = '<p class="text-muted text-center">No history.</p>';
+
+                    reqs.forEach(r => {
+                        let color = 'orange';
+                        if(r.status === 'approved') color = 'var(--success)';
+                        if(r.status === 'rejected') color = 'var(--danger)';
+                        
+                        const info = r.type === 'WITHDRAW' 
+                            ? `Withdraw ${r.amount} TK` 
+                            : (r.type === 'BUY_PRO' ? 'Upgrade to PRO' : `Deposit ${r.amount} PKR`);
+                        
+                        const html = `
+                        <div class="history-item">
+                            <div style="display:flex; justify-content:space-between;">
+                                <strong>${info}</strong>
+                                <span class="status-${r.status}" style="text-transform:capitalize;">${r.status}</span>
+                            </div>
+                            <div style="font-size:10px; margin-top:5px;">${new Date(r.date).toLocaleString()}</div>
+                        </div>`;
+                        container.innerHTML += html;
+                    });
+                });
+            },
+
+            logout: () => {
+                location.reload();
+            }
+        };
+
+        // ADMIN LOGIC
+        const admin = {
+            saveSettings: () => {
+                const settings = {
+                    rate: parseFloat(getEl('admin-rate').value),
+                    easypaisa: getEl('admin-easy').value,
+                    jazzcash: getEl('admin-jazz').value,
+                    binance: getEl('admin-binance').value
+                };
+                db.ref('settings').update(settings);
+                showToast("Settings Saved");
+            },
+
+            loadRequests: () => {
+                db.ref('requests').orderByChild('status').equalTo('pending').on('value', (snap) => {
+                    const container = getEl('admin-requests');
+                    container.innerHTML = '<h5>Pending Approvals</h5>';
+                    snap.forEach(c => {
+                        const r = c.val();
+                        const k = c.key;
+                        container.innerHTML += `
+                        <div class="req-card">
+                            <p><strong>User:</strong> ${r.user}</p>
+                            <p><strong>Type:</strong> ${r.type} | <strong>Amount:</strong> ${r.amount}</p>
+                            ${r.type === 'WITHDRAW' ? `<p><strong>To:</strong> ${r.method} (${r.account})</p>` : ''}
+                            <div class="req-actions">
+                                <button class="btn btn-primary" onclick="admin.processReq('${k}', 'approved')">Approve</button>
+                                <button class="btn btn-danger" onclick="admin.processReq('${k}', 'rejected')">Reject</button>
+                            </div>
+                        </div>`;
+                    });
+                    if(!snap.exists()) container.innerHTML += '<p class="text-muted">No pending requests.</p>';
+                });
+                
+                // Also load users for "Unlimited Likes" or other mgmt
+                db.ref('users').limitToLast(10).once('value', (snap) => {
+                    const uContainer = getEl('admin-users');
+                    uContainer.innerHTML = '<h5>Recent Users</h5>';
+                    snap.forEach(c => {
+                        const u = c.val();
+                        uContainer.innerHTML += `<div style="background:#333; padding:5px; margin-bottom:2px; font-size:12px;">${u.username} (${u.role}) - Bal: ${u.balance}</div>`;
+                    });
+                });
+            },
+
+            processReq: (key, status) => {
+                db.ref('requests/' + key).once('value', (snap) => {
+                    const r = snap.val();
+                    if(status === 'approved') {
+                        if(r.type === 'DEPOSIT' || r.type === 'BUY') {
+                            // Add coins to user (Deposit amount / Rate) OR If BUY, use amount directly (assuming amount in PKR)
+                            // Logic: Amount in request is PKR. Convert to TK.
+                            const coinsToAdd = r.amount / marketRate;
+                            db.ref('users/' + r.user).transaction(bal => (bal || 0) + coinsToAdd);
+                        } else if (r.type === 'BUY_PRO') {
+                            db.ref('users/' + r.user).update({ role: 'pro' });
+                        } 
+                        // Withdrawal: Balance already deducted on request.
+                    } else {
+                        // Rejected
+                        if(r.type === 'WITHDRAW') {
+                            // Refund coins
+                            db.ref('users/' + r.user).transaction(bal => (bal || 0) + r.amount);
                         }
-                        return b; // Abort if not enough
-                    }, (error, committed, snapshot) => {
-                        if(committed) {
-                            db.ref('users/' + currentUser.uid).update({ isPro: true });
-                            showToast("Welcome to PRO!");
-                        } else {
-                            showToast("Transaction failed or low balance");
-                        }
+                    }
+                    db.ref('requests/' + key).update({ status: status });
+                    showToast(`Request ${status}`);
+                });
+            },
+
+            deletePost: (ts) => {
+                if(confirm("Delete this post?")) {
+                    db.ref('posts').orderByChild('timestamp').equalTo(ts).once('value', (snap) => {
+                        const key = Object.keys(snap.val())[0];
+                        db.ref('posts/' + key).remove();
+                        app.loadFeed();
                     });
                 }
-            } else {
-                showToast("Need 500 TK Balance. Buy coins first.");
+            },
+
+            // "Admin Unlimited Likes"
+            boostLikes: () => {
+                // Feature to add 100 likes to last post
+                db.ref('posts').limitToLast(1).once('value', (snap) => {
+                    if(snap.exists()) {
+                        const key = Object.keys(snap.val())[0];
+                        const post = snap.val()[key];
+                        db.ref('posts/' + key).update({ likes: post.likes + 100 });
+                        showToast("Added 100 Likes to last post");
+                    }
+                });
             }
-        }
+        };
 
-        function copyToClipboard(elementId) {
-            const text = document.getElementById(elementId).innerText;
-            navigator.clipboard.writeText(text).then(() => showToast("Copied!"));
-        }
-
-        function showToast(msg) {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.innerText = msg;
-            container.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
-        }
-
-        // Focus comment (placeholder functionality)
-        function focusComment(id) {
-            showToast("Comment feature simulated (Post ID: " + id + ")");
-        }
+        // Init - Check if already logged in (session storage simulation)
+        window.onload = () => {
+            // Just keeping it simple, always show login
+        };
 
     </script>
 </body>
