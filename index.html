@@ -680,11 +680,9 @@
         }
         const db = firebase.database();
 
-        // Data Service - Now uses Firebase instead of LocalStorage
+        // Data Service - Uses Firebase
         class DataService {
             constructor() {
-                // We still use localStorage to remember who is logged in (Session), 
-                // but all user data, posts, and requests come from Firebase.
                 const storedUser = localStorage.getItem('tk_user_session');
                 this.currentUser = storedUser ? JSON.parse(storedUser) : null;
             }
@@ -708,11 +706,8 @@
 
             async signup(userObj) {
                 const cleanEmail = userObj.email.replace('.', ',');
-                // Check if exists
                 const snapshot = await db.ref('users/' + cleanEmail).once('value');
                 if (snapshot.exists()) return false;
-
-                // Initialize User Data
                 await db.ref('users/' + cleanEmail).set(userObj);
                 return true;
             }
@@ -727,7 +722,6 @@
             async getSettings() {
                 const snapshot = await db.ref('settings').once('value');
                 if (snapshot.exists()) return snapshot.val();
-                // Default settings if not found
                 return {
                     rate: 91.07,
                     depositNums: { easypaisa: "03403874715", jazzcash: "03403874715", binance: "1176498939" }
@@ -738,18 +732,23 @@
                 await db.ref('settings').set(settings);
             }
 
-            // --- Post Methods ---
+            // --- Post Methods (FIXED: Include IDs) ---
 
             async getPosts() {
                 const snapshot = await db.ref('posts').once('value');
-                const data = snapshot.val();
-                if (!data) return [];
-                // Convert object of objects to array
-                return Object.values(data).sort((a, b) => new Date(b.date) - new Date(a.date));
+                const posts = [];
+                snapshot.forEach(child => {
+                    // CRITICAL FIX: Ensure ID is included in the object
+                    posts.push({ ...child.val(), id: child.key });
+                });
+                return posts.sort((a, b) => new Date(b.date) - new Date(a.date));
             }
 
             async addPost(postObj) {
                 const newRef = db.ref('posts').push();
+                const postId = newRef.key;
+                // CRITICAL FIX: Save ID within the post object
+                postObj.id = postId;
                 await newRef.set(postObj);
                 return postObj;
             }
@@ -758,20 +757,20 @@
                 await db.ref('posts/' + postId).remove();
             }
 
-            async toggleLike(postId, userEmail, isLiked) {
-                // We need to fetch the post first to be careful, 
-                // but for simplicity we can use a transaction or just overwrite if we had full post.
-                // Optimized: Fetch current likes, modify, save.
+            async toggleLike(postId, userEmail) {
+                // Get current state
                 const snapshot = await db.ref('posts/' + postId).once('value');
                 const post = snapshot.val();
                 if (!post) return;
 
                 let likedBy = post.likedBy || [];
-                if (isLiked) {
+                
+                if (likedBy.includes(userEmail)) {
                     likedBy = likedBy.filter(e => e !== userEmail);
                 } else {
                     likedBy.push(userEmail);
                 }
+                
                 await db.ref('posts/' + postId + '/likedBy').set(likedBy);
             }
 
@@ -789,9 +788,11 @@
 
             async getPendingRequests() {
                 const snapshot = await db.ref('requests').orderByChild('status').equalTo('pending').once('value');
-                const data = snapshot.val();
-                if (!data) return [];
-                return Object.values(data).sort((a, b) => new Date(b.date) - new Date(a.date));
+                const data = [];
+                snapshot.forEach(child => {
+                     data.push(child.val());
+                });
+                return data.sort((a, b) => new Date(b.date) - new Date(a.date));
             }
 
             async updateRequestStatus(reqId, status) {
@@ -810,11 +811,9 @@
                 if (theme === 'dark') document.body.classList.add('dark-mode');
                 app.updateThemeIcon();
 
-                // Load global settings immediately
                 app.globalSettings = await dataService.getSettings();
 
                 if (dataService.currentUser) {
-                    // Refresh user data from DB to ensure sync
                     const freshUser = await dataService.getUser(dataService.currentUser.email);
                     if (freshUser) {
                         dataService.currentUser = freshUser;
@@ -823,13 +822,10 @@
                         document.getElementById('main-app').classList.remove('hidden');
                         await app.loadUI();
                     } else {
-                        // Session exists but user deleted from DB
                         dataService.clearSession();
                     }
                 }
             },
-
-            // --- Auth Functions ---
 
             toggleAuth: (mode) => {
                 document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
@@ -855,19 +851,8 @@
                 if (!name || !email || !pass) return app.toast('Fill all fields', 'error');
                 if (!tc) return app.toast('Please agree to Terms & Conditions', 'error');
 
-                // Check local first (optimistic) but rely on Firebase check inside service
                 const existing = await dataService.getUser(email);
                 if (existing) return app.toast('Email already registered', 'error');
-
-                let invitedBy = null;
-                if (refCode) {
-                    // Find inviter (This requires scanning users or knowing the email. 
-                    // In a real app we'd store refCode->Email mapping. Here we scan simply).
-                    // Note: Scanning all users is inefficient in NoSQL, but works for this demo scale.
-                    // A better way is a separate 'referrals' node.
-                    // For simplicity, we skip auto-validation of refCode existence or assume valid logic if found.
-                    // To save inviter: We would need to query. Let's assume valid for now or fetch later.
-                }
 
                 const user = { 
                     email: email, 
@@ -878,22 +863,13 @@
                     lastPostDate: null, 
                     totalInvestmentPKR: 0,
                     referralCode: app.generateRefCode(),
-                    invitedBy: refCode || null, // Storing code
+                    invitedBy: refCode || null,
                     referrals: [],
                     rewardedReferrals: []
                 };
 
                 const success = await dataService.signup(user);
                 if (success) {
-                    // Handle Referral logic if code exists
-                    if (refCode) {
-                        // We need to find who owns this code.
-                        // Since we can't easily query by value in Firebase Realtime DB without indexing,
-                        // we will skip the complex inviter lookup here to keep code simple, 
-                        // OR we would need an index node 'ref_index/{code} = email'.
-                        // For this fix: We just store the invitedBy code on the user.
-                    }
-                    
                     dataService.saveSession(user);
                     document.getElementById('auth-screen').classList.add('hidden');
                     document.getElementById('main-app').classList.remove('hidden');
@@ -947,24 +923,19 @@
                 location.reload();
             },
 
-            // --- UI Loading & Updates ---
-
             loadUI: async () => {
                 const user = dataService.currentUser;
                 if (!user) return;
 
-                // Header Info
                 document.getElementById('user-balance').innerText = user.balance.toFixed(2);
                 document.getElementById('user-pkr-val').innerText = (user.balance * app.globalSettings.rate).toFixed(2);
                 
-                // Profile Info
                 document.getElementById('profile-name').innerText = user.name;
                 document.getElementById('profile-avatar').innerText = user.name.charAt(0).toUpperCase();
                 document.getElementById('profile-balance').innerText = user.balance.toFixed(2);
                 document.getElementById('my-referral-code').innerText = user.referralCode;
                 document.getElementById('profile-rate').innerText = app.globalSettings.rate.toFixed(2);
 
-                // PnL Calculation
                 const currentVal = user.balance * app.globalSettings.rate;
                 const invested = user.totalInvestmentPKR || 0;
                 const pnl = currentVal - invested;
@@ -975,7 +946,6 @@
                 pnlEl.innerText = "PKR " + pnl.toFixed(2);
                 pnlEl.className = pnl >= 0 ? 'pnl-positive' : 'pnl-negative';
 
-                // Badge
                 const badgeContainer = document.getElementById('profile-badge-container');
                 badgeContainer.innerHTML = user.isPro 
                     ? `<div class="pro-tag"><span class="material-icons-round" style="font-size:16px;">verified</span> PRO Member</div>` 
@@ -983,18 +953,13 @@
                 
                 document.getElementById('user-status-display').innerText = user.isPro ? "PRO" : "Normal";
 
-                // Admin Link
                 if (user.isAdmin) {
                     document.getElementById('admin-nav-link').classList.remove('hidden');
                 }
 
-                // Load Feed
                 await app.renderFeed();
-
-                // Load History
                 await app.renderHistory();
 
-                // Admin Panel
                 if (user.isAdmin) {
                     document.getElementById('admin-rate').value = app.globalSettings.rate;
                     document.getElementById('admin-easypaisa').value = app.globalSettings.depositNums.easypaisa || "";
@@ -1006,12 +971,11 @@
 
             renderFeed: async () => {
                 const container = document.getElementById('posts-container');
-                container.innerHTML = '';
+                container.innerHTML = ''; // FIX: Clear immediately to prevent duplication/loading loops
                 const user = dataService.currentUser;
 
                 const posts = await dataService.getPosts();
                 
-                // Count user posts for limit
                 const myPostCount = posts.filter(p => p.uid === user.email).length;
                 const limitMsg = document.getElementById('post-limit-msg');
                 limitMsg.innerText = `Daily Limit: ${myPostCount}/1`;
@@ -1066,15 +1030,6 @@
             renderHistory: async () => {
                 const list = document.getElementById('history-list');
                 list.innerHTML = '';
-                // In a real structure, we'd query requests filtered by email. 
-                // Here we fetch all pending for admin, but for user we need history.
-                // Since 'requests' node contains everyone, we fetch all and filter client-side (Not efficient for massive scale, ok here).
-                // Or better: The user object should contain a list of request IDs. 
-                // Given the constraints: Fetch all requests (pending + others? The original code only filtered pending).
-                // Let's create a separate path for 'history' or just filter requests.
-                
-                // FIX: We need a query for history. The original code didn't show history properly because of local storage limitations.
-                // We will fetch all requests and filter by email.
                 const snapshot = await db.ref('requests').once('value');
                 const data = snapshot.val();
                 if (!data) return;
@@ -1127,15 +1082,12 @@
                 });
             },
 
-            // --- Post Interactions ---
-
             createPost: async () => {
                 const user = dataService.currentUser;
                 const content = document.getElementById('post-content').value.trim();
                 
                 if (!content) return app.toast('Content empty', 'error');
                 
-                // Check limits
                 const posts = await dataService.getPosts();
                 const myPosts = posts.filter(p => p.uid === user.email && p.date.startsWith(new Date().toISOString().split('T')[0]));
                 
@@ -1144,7 +1096,7 @@
                 }
 
                 const postObj = { 
-                    id: '', // Set by push
+                    id: '',
                     uid: user.email, 
                     name: user.name, 
                     isPro: user.isPro, 
@@ -1158,19 +1110,15 @@
                 document.getElementById('post-content').value = '';
                 app.toast('Posted!', 'success');
                 app.renderFeed();
-                app.loadUI(); // To update counts
+                app.loadUI();
             },
 
             handleLike: async (postId) => {
-                const user = dataService.currentUser;
-                // We need to know if currently liked. UI has class, but we trust DB fetch? 
-                // For speed, let's read UI state or re-fetch.
-                // Re-fetch is safer.
-                const snapshot = await db.ref('posts/' + postId).once('value');
-                const post = snapshot.val();
-                const isLiked = post.likedBy && post.likedBy.includes(user.email);
+                // FIX: Check if ID exists
+                if(!postId) return;
                 
-                await dataService.toggleLike(postId, user.email, isLiked);
+                const user = dataService.currentUser;
+                await dataService.toggleLike(postId, user.email);
                 app.renderFeed();
             },
 
@@ -1200,11 +1148,15 @@
 
                 await dataService.addComment(postId, commentObj);
                 input.value = '';
-                app.renderFeed();
-                document.getElementById('comments-' + postId).classList.add('show'); // Keep open
+                
+                // FIX: Only re-render if necessary, or just append.
+                // Here we re-render to ensure sort order is correct and avoid duplication bugs
+                await app.renderFeed();
+                
+                // Re-open comments
+                const commentSection = document.getElementById('comments-' + postId);
+                if(commentSection) commentSection.classList.add('show');
             },
-
-            // --- Market & Transactions ---
 
             updateDepositInfo: () => {
                 const method = document.getElementById('deposit-method').value;
@@ -1284,15 +1236,11 @@
                 const coins = parseFloat(document.getElementById('sell-coins').value);
                 const account = document.getElementById('withdraw-account').value.trim();
                 const type = document.getElementById('withdraw-type').value;
-                const method = "Wallet Transfer"; // Simplified
+                const method = "Wallet Transfer"; 
 
                 if (!coins || coins <= 0) return app.toast('Enter valid coins', 'error');
                 if (coins > user.balance) return app.toast('Insufficient Balance', 'error');
                 if (!account) return app.toast('Enter account details', 'error');
-
-                // Deduct balance immediately? Or wait for approval? 
-                // Original code logic: "Pending". Usually we deduct on approval for withdraw to avoid negative balance if rejected,
-                // OR lock the funds. Let's deduct on approval as per standard "Request" flow.
 
                 const reqObj = {
                     type: 'withdraw',
@@ -1310,10 +1258,7 @@
                 app.renderHistory();
             },
 
-            // --- Admin Actions ---
-
             handleRequest: async (reqId, action) => {
-                // First get request details
                 const snapshot = await db.ref('requests/' + reqId).once('value');
                 const req = snapshot.val();
                 if (!req) return;
@@ -1374,8 +1319,6 @@
                 }
             },
 
-            // --- Utilities ---
-
             nav: (section, el) => {
                 document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
                 document.getElementById(section + '-section').classList.add('active');
@@ -1383,7 +1326,6 @@
                 document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
                 if(el) el.classList.add('active');
 
-                // Refresh data when switching tabs
                 if (section === 'feed') app.renderFeed();
                 if (section === 'history') app.renderHistory();
                 if (section === 'admin' && dataService.currentUser.isAdmin) app.renderAdminRequests();
@@ -1391,7 +1333,7 @@
             },
 
             navToProfile: () => {
-                const profileBtn = document.querySelectorAll('.nav-item')[3]; // 4th item
+                const profileBtn = document.querySelectorAll('.nav-item')[3];
                 app.nav('profile', profileBtn);
             },
 
