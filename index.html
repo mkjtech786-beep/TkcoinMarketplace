@@ -376,7 +376,7 @@
             <!-- Pro Only Message -->
             <div id="post-pro-only-msg" class="post-create hidden" style="text-align:center; border: 1px dashed var(--pro-gold);">
                 <span class="material-icons-round" style="font-size: 32px; color: var(--pro-gold); display:block; margin-bottom:10px;">lock</span>
-                <p style="color: var(--text-main); margin-bottom: 10px;">Only <strong>PRO Members</strong> can post in the community feed.</p>
+                <p style="color: var(--text-main); margin-bottom: 10px;">Only <strong>PRO Members</strong> can post in community feed.</p>
                 <button class="btn btn-primary btn-sm" onclick="app.navToProfile()" style="margin: 0 auto; width: auto;">Upgrade to PRO</button>
             </div>
 
@@ -703,7 +703,7 @@
                 return data.sort((a, b) => new Date(b.date) - new Date(a.date));
             }
 
-            // NEW: Get History for current user
+            // Get History for current user
             async getUserHistory(userEmail) {
                 const snapshot = await db.ref('requests').orderByChild('userEmail').equalTo(userEmail).once('value');
                 const data = [];
@@ -870,7 +870,7 @@
                 // Feed
                 app.renderFeed();
                 
-                // History (NOW FULLY FUNCTIONAL)
+                // History
                 app.renderHistory();
 
                 // Admin
@@ -908,7 +908,6 @@
                 if (!pkr || pkr <= 0) return app.toast('Enter valid amount', 'error');
                 if (!trx) return app.toast('Enter Transaction ID', 'error');
 
-                // CALCULATION FIX: Calculate coins BEFORE sending to DB
                 const rate = app.globalSettings.rate;
                 const coins = pkr / rate;
 
@@ -916,8 +915,8 @@
                     userEmail: dataService.currentUser.email,
                     userName: dataService.currentUser.name,
                     type: 'deposit',
-                    amountPkr: pkr, // Saving PKR just for record
-                    coins: coins,   // Saving COINS for approval logic
+                    amountPkr: pkr,
+                    coins: coins,
                     method: method,
                     trxId: trx,
                     status: 'pending',
@@ -929,9 +928,7 @@
                 document.getElementById('buy-pkr').value = '';
                 document.getElementById('deposit-trx').value = '';
                 document.getElementById('calc-coins').innerText = '0 TK';
-                
-                // Refresh history to show the new request immediately
-                app.renderHistory(); 
+                app.renderHistory();
             },
 
             updateWithdrawUI: () => {
@@ -943,21 +940,16 @@
             },
 
             calcSell: () => {
-                // FIXED: Now input is PKR, calculate Coins
                 const pkrToReceive = parseFloat(document.getElementById('sell-pkr').value);
                 const rate = app.globalSettings.rate;
                 const type = document.getElementById('withdraw-type').value;
                 
                 if (!pkrToReceive || !rate) return;
-
-                // Calculate Coins needed to get this PKR amount
                 let coinsNeeded = pkrToReceive / rate;
-                
                 let tax = 0;
                 let totalCoinsDeduct = coinsNeeded;
 
                 if (type === 'instant' && !dataService.currentUser.isPro) {
-                    // 3% Tax on Coins
                     tax = coinsNeeded * 0.03; 
                     totalCoinsDeduct = coinsNeeded + tax;
                 }
@@ -974,7 +966,6 @@
                 if (!pkrToReceive || pkrToReceive <= 0) return app.toast('Enter valid PKR amount', 'error');
                 if (!account) return app.toast('Enter account details', 'error');
 
-                // Recalculate to be sure
                 const rate = app.globalSettings.rate;
                 let coinsNeeded = pkrToReceive / rate;
                 let type = document.getElementById('withdraw-type').value;
@@ -986,34 +977,45 @@
                     totalCoinsDeduct = coinsNeeded + tax;
                 }
 
-                // BALANCE VALIDATION: Check if user has enough coins BEFORE sending request
                 const currentBalance = parseFloat(dataService.currentUser.balance);
                 if (totalCoinsDeduct > currentBalance) {
                     return app.toast(`Insufficient Balance. You need ${totalCoinsDeduct.toFixed(2)} TK coins.`, 'error');
                 }
 
+                // --- INSTANT DEDUCTION LOGIC START ---
+                // 1. Update User Balance in DB Immediately (Hold coins)
+                const newBalance = currentBalance - totalCoinsDeduct;
+                const email = dataService.currentUser.email;
+                const cleanEmail = email.replace('.', ',');
+
+                await db.ref('users/' + cleanEmail).update({ balance: newBalance });
+
+                // 2. Update Local State & UI
+                dataService.currentUser.balance = newBalance;
+                app.loadUI(); // This will update the header balance to show 0 or remaining
+                // --- INSTANT DEDUCTION LOGIC END ---
+
                 const req = {
                     userEmail: dataService.currentUser.email,
                     userName: dataService.currentUser.name,
                     type: 'withdraw',
-                    amountPkr: pkrToReceive, // Store requested PKR
-                    coins: Number(totalCoinsDeduct), // Store TOTAL coins to deduct (Ensure Number)
+                    amountPkr: pkrToReceive,
+                    coins: Number(totalCoinsDeduct),
                     account: account,
                     status: 'pending',
                     date: new Date().toISOString()
                 };
 
                 await dataService.addRequest(req);
-                app.toast('Withdrawal Request Sent!', 'success');
+                app.toast('Withdrawal Request Sent! Coins Deducted.', 'success');
                 document.getElementById('sell-pkr').value = '';
                 document.getElementById('withdraw-account').value = '';
                 document.getElementById('calc-coins-deduct').innerText = '0 TK';
-                
-                // Refresh history
                 app.renderHistory();
             },
 
-            // --- History (IMPLEMENTED) ---
+            // --- History ---
+
             renderHistory: async () => {
                 const list = document.getElementById('history-list');
                 list.innerHTML = '<p style="text-align:center; color:var(--text-sec);">Loading...</p>';
@@ -1064,11 +1066,9 @@
                 const container = document.getElementById('posts-container');
                 container.innerHTML = '';
                 
-                // Filter posts for Normal Users
                 const isPro = dataService.currentUser.isPro;
                 const visiblePosts = isPro ? posts : posts.slice(0, 5);
 
-                // Toggle Post Input
                 if (isPro) {
                     document.getElementById('post-create-wrapper').classList.remove('hidden');
                     document.getElementById('post-pro-only-msg').classList.add('hidden');
@@ -1077,7 +1077,6 @@
                     document.getElementById('post-pro-only-msg').classList.remove('hidden');
                 }
 
-                // Limit Msg
                 if (!isPro && posts.length > 5) {
                     document.getElementById('feed-limit-msg').classList.remove('hidden');
                 } else {
@@ -1191,7 +1190,7 @@
                                 <div class="req-detail"><strong>TRX:</strong> ${r.trxId}</div>
                             ` : `
                                 <div class="req-detail"><strong>PKR to Pay:</strong> ${r.amountPkr}</div>
-                                <div class="req-detail"><strong>Coins to Deduct:</strong> ${r.coins.toFixed(2)}</div>
+                                <div class="req-detail"><strong>Coins Deducted:</strong> ${r.coins.toFixed(2)}</div>
                                 <div class="req-detail"><strong>Account:</strong> ${r.account}</div>
                             `}
                             <div class="req-actions">
@@ -1207,7 +1206,6 @@
             },
 
             processRequest: async (reqId, status, type) => {
-                // Get Request Details
                 const reqSnapshot = await db.ref('requests/' + reqId).once('value');
                 const req = reqSnapshot.val();
 
@@ -1215,29 +1213,25 @@
 
                 if (status === 'approved') {
                     if (type === 'deposit') {
-                        // --- DEPOSIT LOGIC ---
-                        // Fetch User
+                        // Deposit: Add coins (Already validated)
                         const userSnapshot = await db.ref('users/' + req.userEmail.replace('.', ',')).once('value');
                         const user = userSnapshot.val();
                         
                         if (user) {
-                            // Add COINS (not PKR amount) to balance
                             const newBalance = parseFloat(user.balance) + parseFloat(req.coins);
                             const newInvestment = parseFloat(user.totalInvestmentPKR || 0) + parseFloat(req.amountPkr);
 
-                            // Update User
                             await db.ref('users/' + req.userEmail.replace('.', ',')).update({
                                 balance: newBalance,
                                 totalInvestmentPKR: newInvestment
                             });
 
-                            // Referral Reward Logic (If first deposit)
                             if (user.invitedBy && (!user.referrals || user.referrals.length === 0)) {
                                 const referrerEmail = user.invitedBy;
                                 const referrerSnap = await db.ref('users/' + referrerEmail.replace('.', ',')).once('value');
                                 const referrer = referrerSnap.val();
                                 if (referrer) {
-                                    const reward = 2; // 2 TK Coins Reward
+                                    const reward = 2; 
                                     await db.ref('users/' + referrerEmail.replace('.', ',')).update({
                                         balance: parseFloat(referrer.balance) + reward
                                     });
@@ -1247,32 +1241,33 @@
                         }
 
                     } else if (type === 'withdraw') {
-                        // --- WITHDRAW LOGIC ---
-                        // Deduct Coins
+                        // Withdraw: ALREADY DEDUCTED AT REQUEST TIME.
+                        // No action needed on balance here.
+                        console.log("Withdraw Approved. Balance was already deducted.");
+                    }
+                } else if (status === 'rejected') {
+                     if (type === 'withdraw') {
+                        // WITHDRAW REJECTED: REFUND COINS
                         const userSnapshot = await db.ref('users/' + req.userEmail.replace('.', ',')).once('value');
                         const user = userSnapshot.val();
                         if (user) {
-                            // Deduct stored 'coins' value (which includes tax)
-                            // Fallback: If coins not stored in old data, calculate from PKR
-                            let coinsToDeduct = parseFloat(req.coins);
-                            if(isNaN(coinsToDeduct)) {
-                                coinsToDeduct = parseFloat(req.amountPkr) / app.globalSettings.rate;
-                            }
-
-                            const newBalance = parseFloat(user.balance) - coinsToDeduct;
+                            // Refund the coins that were deducted
+                            const refundAmount = parseFloat(req.coins);
+                            const newBalance = parseFloat(user.balance) + refundAmount;
+                            
                             await db.ref('users/' + req.userEmail.replace('.', ',')).update({ balance: newBalance });
+                            app.toast('Withdrawal Rejected. Coins Refunded.', 'error');
                         }
                     }
                 }
 
-                // Update Request Status
                 await db.ref('requests/' + reqId).update({ status: status });
                 app.renderAdmin();
-                app.toast(`Request ${status}`, status === 'approved' ? 'success' : 'error');
+                if(status !== 'rejected') app.toast(`Request ${status}`, status === 'approved' ? 'success' : 'error');
                 
-                // Refresh UI to show updated balance if it's current user
+                // Refresh UI if it's current user
                 if(dataService.currentUser.email === req.userEmail) {
-                    app.loadUI(); // Reload everything including balance and history
+                    app.loadUI();
                 }
             },
 
@@ -1354,7 +1349,6 @@
                         el.innerText = i18n[app.currentLang][key];
                     }
                 });
-                // Fix placeholders
                 if(app.currentLang === 'ur') {
                     document.getElementById('post-content').placeholder = "آپ کے ذہن میں کیا ہے؟";
                 } else {
