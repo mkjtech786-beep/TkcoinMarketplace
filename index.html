@@ -398,7 +398,10 @@
         <!-- 3. HISTORY -->
         <section id="history-section" class="section">
             <h3 style="margin-bottom: 15px;" data-i18n="transactions">My Transactions</h3>
-            <div id="history-list"></div>
+            <div id="history-list">
+                <!-- History items will be loaded here -->
+                <p style="text-align:center; color:var(--text-sec);">Loading history...</p>
+            </div>
         </section>
 
         <!-- 4. PROFILE -->
@@ -699,6 +702,16 @@
                 });
                 return data.sort((a, b) => new Date(b.date) - new Date(a.date));
             }
+
+            // NEW: Get History for current user
+            async getUserHistory(userEmail) {
+                const snapshot = await db.ref('requests').orderByChild('userEmail').equalTo(userEmail).once('value');
+                const data = [];
+                snapshot.forEach(child => {
+                     data.push(child.val());
+                });
+                return data.sort((a, b) => new Date(b.date) - new Date(a.date));
+            }
         }
 
         const dataService = new DataService();
@@ -857,7 +870,7 @@
                 // Feed
                 app.renderFeed();
                 
-                // History
+                // History (NOW FULLY FUNCTIONAL)
                 app.renderHistory();
 
                 // Admin
@@ -916,6 +929,9 @@
                 document.getElementById('buy-pkr').value = '';
                 document.getElementById('deposit-trx').value = '';
                 document.getElementById('calc-coins').innerText = '0 TK';
+                
+                // Refresh history to show the new request immediately
+                app.renderHistory(); 
             },
 
             updateWithdrawUI: () => {
@@ -970,12 +986,18 @@
                     totalCoinsDeduct = coinsNeeded + tax;
                 }
 
+                // BALANCE VALIDATION: Check if user has enough coins BEFORE sending request
+                const currentBalance = parseFloat(dataService.currentUser.balance);
+                if (totalCoinsDeduct > currentBalance) {
+                    return app.toast(`Insufficient Balance. You need ${totalCoinsDeduct.toFixed(2)} TK coins.`, 'error');
+                }
+
                 const req = {
                     userEmail: dataService.currentUser.email,
                     userName: dataService.currentUser.name,
                     type: 'withdraw',
                     amountPkr: pkrToReceive, // Store requested PKR
-                    coins: totalCoinsDeduct, // Store TOTAL coins to deduct
+                    coins: Number(totalCoinsDeduct), // Store TOTAL coins to deduct (Ensure Number)
                     account: account,
                     status: 'pending',
                     date: new Date().toISOString()
@@ -986,6 +1008,53 @@
                 document.getElementById('sell-pkr').value = '';
                 document.getElementById('withdraw-account').value = '';
                 document.getElementById('calc-coins-deduct').innerText = '0 TK';
+                
+                // Refresh history
+                app.renderHistory();
+            },
+
+            // --- History (IMPLEMENTED) ---
+            renderHistory: async () => {
+                const list = document.getElementById('history-list');
+                list.innerHTML = '<p style="text-align:center; color:var(--text-sec);">Loading...</p>';
+                
+                try {
+                    const history = await dataService.getUserHistory(dataService.currentUser.email);
+                    list.innerHTML = '';
+
+                    if (history.length === 0) {
+                        list.innerHTML = '<p style="text-align:center; color:var(--text-sec);">No transactions found.</p>';
+                        return;
+                    }
+
+                    history.forEach(item => {
+                        const isDeposit = item.type === 'deposit';
+                        const amountLabel = isDeposit ? `+ ${item.coins.toFixed(2)} TK` : `- ${item.coins.toFixed(2)} TK`;
+                        const amountColor = isDeposit ? 'var(--success)' : 'var(--primary)';
+                        
+                        let statusClass = '';
+                        if(item.status === 'pending') statusClass = 'status-pending';
+                        else if(item.status === 'approved') statusClass = 'status-approved';
+                        else if(item.status === 'rejected') statusClass = 'status-rejected';
+
+                        const dateStr = new Date(item.date).toLocaleDateString() + ' ' + new Date(item.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+                        const html = `
+                        <div class="history-item ${item.type}">
+                            <div class="hist-head">
+                                <span style="text-transform:capitalize; font-weight:600;">${item.type}</span>
+                                <span class="status-badge ${statusClass}">${item.status}</span>
+                            </div>
+                            <div class="hist-amount" style="color:${amountColor}">${amountLabel}</div>
+                            <div class="hist-detail">${isDeposit ? 'Sent ' + item.amountPkr + ' PKR via ' + item.method : 'Receiving ' + item.amountPkr + ' PKR to ' + item.account}</div>
+                            <div class="hist-date">${dateStr}</div>
+                        </div>`;
+                        list.innerHTML += html;
+                    });
+                } catch (error) {
+                    console.error(error);
+                    list.innerHTML = '<p style="text-align:center; color:var(--danger);">Error loading history.</p>';
+                }
             },
 
             // --- Feed ---
@@ -1162,7 +1231,7 @@
                                 totalInvestmentPKR: newInvestment
                             });
 
-                            // Referral Reward Logic
+                            // Referral Reward Logic (If first deposit)
                             if (user.invitedBy && (!user.referrals || user.referrals.length === 0)) {
                                 const referrerEmail = user.invitedBy;
                                 const referrerSnap = await db.ref('users/' + referrerEmail.replace('.', ',')).once('value');
@@ -1183,8 +1252,14 @@
                         const userSnapshot = await db.ref('users/' + req.userEmail.replace('.', ',')).once('value');
                         const user = userSnapshot.val();
                         if (user) {
-                            // Deduct the stored 'coins' value (which includes tax)
-                            const newBalance = parseFloat(user.balance) - parseFloat(req.coins);
+                            // Deduct stored 'coins' value (which includes tax)
+                            // Fallback: If coins not stored in old data, calculate from PKR
+                            let coinsToDeduct = parseFloat(req.coins);
+                            if(isNaN(coinsToDeduct)) {
+                                coinsToDeduct = parseFloat(req.amountPkr) / app.globalSettings.rate;
+                            }
+
+                            const newBalance = parseFloat(user.balance) - coinsToDeduct;
                             await db.ref('users/' + req.userEmail.replace('.', ',')).update({ balance: newBalance });
                         }
                     }
@@ -1197,7 +1272,7 @@
                 
                 // Refresh UI to show updated balance if it's current user
                 if(dataService.currentUser.email === req.userEmail) {
-                    app.loadUI();
+                    app.loadUI(); // Reload everything including balance and history
                 }
             },
 
@@ -1285,11 +1360,6 @@
                 } else {
                     document.getElementById('post-content').placeholder = "What's on your mind?";
                 }
-            },
-
-            renderHistory: async () => {
-                const list = document.getElementById('history-list');
-                list.innerHTML = `<p class="text-small" style="text-align:center">History shows latest transactions.</p>`;
             },
 
             openModal: (id) => {
