@@ -344,8 +344,8 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label data-i18n="coins_withdraw">Coins to Withdraw</label>
-                    <input type="number" id="sell-coins" placeholder="Enter Coins" oninput="app.calcSell()">
+                    <label data-i18n="withdraw_pkr_input">Amount in PKR to Receive</label>
+                    <input type="number" id="sell-pkr" placeholder="e.g. 5000" oninput="app.calcSell()">
                 </div>
                 <div class="form-group">
                     <label data-i18n="account_details">Account Details (EasyPaisa/JazzCash/Binance ID)</label>
@@ -353,11 +353,15 @@
                 </div>
                 <div style="background: #fff3cd; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
                     <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                        <span data-i18n="tax">Tax/Deduction:</span>
+                        <span class="text-bold" data-i18n="coins_deduct">Coins to Deduct:</span>
+                        <span id="calc-coins-deduct" style="color:var(--primary); font-weight:bold;">0</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                         <span data-i18n="tax">Tax/Deduction:</span>
                         <span id="sell-tax" style="color:var(--danger)">0</span>
                     </div>
                     <div style="display:flex; justify-content:space-between;">
-                        <span class="text-bold" data-i18n="receive_pkr">You will receive (PKR):</span>
+                        <span class="text-bold" data-i18n="receive_pkr">You will receive:</span>
                         <span id="calc-pkr" style="color: var(--success); font-weight: bold;">0</span>
                     </div>
                 </div>
@@ -542,17 +546,18 @@
                 copy: "COPY", amount_pkr: "Amount in PKR", enter_trx: "Enter the reference number from your app.", receive: "You will receive:",
                 submit_deposit: "Submit Deposit Request", withdraw_type: "Withdraw Type", instant_tax: "Instant Withdraw (Tax: 3% for Normal)",
                 hold_tax: "Hold Withdraw (Low/No Tax, Lock Period)", select_hold: "Select Hold Duration", coins_withdraw: "Coins to Withdraw",
-                account_details: "Account Details (EasyPaisa/JazzCash/Binance ID)", tax: "Tax/Deduction:", receive_pkr: "You will receive (PKR):",
-                req_withdraw: "Request Withdrawal", community_feed: "Community Feed", post_btn: "Post", limit_reached: "View limit reached. ",
-                buy_pro_link: "Buy Pro", transactions: "My Transactions", invite_earn: "Invite & Earn", invite_desc: "Share your code. Get 2 TK for every valid member (10 TK for 5).",
-                invite_cond: "Condition: Both you and your friend must deposit.", copy_code: "Copy Code", invested: "Invested:", current_val: "Current Value:",
-                win_loss: "Win / Loss:", posts_lbl: "Posts", about_btn: "About TK COIN", upgrade_pro: "Upgrade to PRO",
-                feat1: "Unlimited Posting", feat2: "View All Feed Posts", feat3: "Verified Blue Tick", feat4: "0% Withdrawal Tax",
-                buy_pro_btn: "Buy Pro (500 TK)", current_rates: "Current Rates", logout: "Logout", admin_dash: "Admin Dashboard",
-                settings: "Settings", deposit_nums: "Deposit Numbers", update_btn: "Update Settings", dep_req: "Deposit Requests",
-                with_req: "Withdrawal Requests", nav_market: "Market", nav_feed: "Feed", nav_history: "History", nav_profile: "Profile",
-                about_title: "About TK COIN", about_desc: "is a premier digital currency trading platform.", company_lbl: "Company:",
-                location_lbl: "Location:", location_val: "Singapore", mission: "We provide a secure and fast environment for buying, selling, and trading TK Coins."
+                withdraw_pkr_input: "Amount in PKR to Receive",
+                account_details: "Account Details (EasyPaisa/JazzCash/Binance ID)", tax: "Tax/Deduction:", receive_pkr: "You will receive:",
+                req_withdraw: "Request Withdrawal", coins_deduct: "Coins to Deduct:", community_feed: "Community Feed", post_btn: "Post",
+                limit_reached: "View limit reached. ", buy_pro_link: "Buy Pro", transactions: "My Transactions", invite_earn: "Invite & Earn",
+                invite_desc: "Share your code. Get 2 TK for every valid member (10 TK for 5).", invite_cond: "Condition: Both you and your friend must deposit.",
+                copy_code: "Copy Code", invested: "Invested:", current_val: "Current Value:", win_loss: "Win / Loss:", posts_lbl: "Posts",
+                about_btn: "About TK COIN", upgrade_pro: "Upgrade to PRO", feat1: "Unlimited Posting", feat2: "View All Feed Posts",
+                feat3: "Verified Blue Tick", feat4: "0% Withdrawal Tax", buy_pro_btn: "Buy Pro (500 TK)", current_rates: "Current Rates",
+                logout: "Logout", admin_dash: "Admin Dashboard", settings: "Settings", deposit_nums: "Deposit Numbers", update_btn: "Update Settings",
+                dep_req: "Deposit Requests", with_req: "Withdrawal Requests", nav_market: "Market", nav_feed: "Feed", nav_history: "History",
+                nav_profile: "Profile", about_title: "About TK COIN", about_desc: "is a premier digital currency trading platform.",
+                company_lbl: "Company:", location_lbl: "Location:", location_val: "Singapore", mission: "We provide a secure and fast environment for buying, selling, and trading TK Coins."
             },
             ur: {
                 login: "لاگ ان کریں", signup: "سائن اپ کریں", terms: "شرائط و ضوابط", terms_body: "اس ایپلیکیشن کا استعمال کرنے پر، آپ درج ذیل شرائط پر راضی ہیں:",
@@ -561,17 +566,18 @@
                 copy: "کاپی", amount_pkr: "PKR میں رقم", enter_trx: "اپنے ایپ سے حوالہ نمبر درج کریں۔", receive: "آپ کو ملے گا:",
                 submit_deposit: "ڈپازٹ کی درخواست بھیجیں", withdraw_type: "واپسی کی قسم", instant_tax: "فوری واپسی (عام صارفین پر 3% ٹیکس)",
                 hold_tax: "ہولڈ واپسی (کم/کوئی ٹیکس)", select_hold: "ہولڈ کی مدت منتخب کریں", coins_withdraw: "کوئنز واپس لینے کے لیے",
+                withdraw_pkr_input: "وصول کرنے کے لیے PKR میں رقم",
                 account_details: "اکاؤنٹ کی تفصیلات (ایزی پیسہ/جاز کیش/بیننس)", tax: "ٹیکس/کٹوتی:", receive_pkr: "آپ کو PKR میں ملے گا:",
-                req_withdraw: "ویڈرال درخواست بھیجیں", community_feed: "کمیونٹی فیڈ", post_btn: "پوسٹ کریں", limit_reached: "دیکھنے کی حد ختم ہو گئی۔ ",
-                buy_pro_link: "پرو خریدیں", transactions: "میرے لین دین", invite_earn: "دعوت دیں اور کمائیں", invite_desc: "اپنا کوڈ شیئر کریں۔ ہر درست رکن کے لیے 2 ٹی کے ملیں گے (5 کے لیے 10 ٹی کے)۔",
-                invite_cond: "شرط: آپ اور آپ کا دوست دونوں ڈپازٹ کریں۔", copy_code: "کوڈ کاپی کریں", invested: "سرمایہ کاری:", current_val: "موجودہ قدر:",
-                win_loss: "نفعان / نقصان:", posts_lbl: "پوسٹس", about_btn: "ٹی کے سکے کے بارے میں", upgrade_pro: "پرو میں اپگریڈ",
-                feat1: "لامحدود پوسٹنگ", feat2: "تمام پوسٹس دیکھیں", feat3: "تصدیق شدہ نیلے ٹک", feat4: "0% واپسی ٹیکس",
-                buy_pro_btn: "پرو خریدیں (500 ٹی کے)", current_rates: "موجودہ شرح", logout: "لاگ آؤٹ", admin_dash: "ایڈمن ڈیش بورڈ",
-                settings: "ترتیبات", deposit_nums: "ڈپازٹ نمبرز", update_btn: "ترتیبات اپ ڈیٹ کریں", dep_req: "ڈپازٹ کی درخواستیں",
-                with_req: "ویڈرال کی درخواستیں", nav_market: "مارکیٹ", nav_feed: "فیڈ", nav_history: "تاریخ", nav_profile: "پروفائل",
-                about_title: "ٹی کے سکے کے بارے میں", about_desc: "ڈیجیٹ کرنسی ٹریڈنگ کا ایک پریمیر پلیٹ فارم ہے۔", company_lbl: "کمپنی:",
-                location_lbl: "مقام:", location_val: "سنگاپور", mission: "ہم ٹی کے سکے خریدنے، بیچنے اور ٹریڈ کرنے کے لیے محفوظ اور تیز ماحول فراہم کرتے ہیں۔"
+                req_withdraw: "ویڈرال درخواست بھیجیں", coins_deduct: "کتنے کوئنز کاٹے جائیں گے:", community_feed: "کمیونٹی فیڈ", post_btn: "پوسٹ کریں",
+                limit_reached: "دیکھنے کی حد ختم ہو گئی۔ ", buy_pro_link: "پرو خریدیں", transactions: "میرے لین دین", invite_earn: "دعوت دیں اور کمائیں",
+                invite_desc: "اپنا کوڈ شیئر کریں۔ ہر درست رکن کے لیے 2 ٹی کے ملیں گے (5 کے لیے 10 ٹی کے)۔", invite_cond: "شرط: آپ اور آپ کا دوست دونوں ڈپازٹ کریں۔",
+                copy_code: "کوڈ کاپی کریں", invested: "سرمایہ کاری:", current_val: "موجودہ قدر:", win_loss: "نفعان / نقصان:", posts_lbl: "پوسٹس",
+                about_btn: "ٹی کے سکے کے بارے میں", upgrade_pro: "پرو میں اپگریڈ", feat1: "لامحدود پوسٹنگ", feat2: "تمام پوسٹس دیکھیں",
+                feat3: "تصدیق شدہ نیلے ٹک", feat4: "0% واپسی ٹیکس", buy_pro_btn: "پرو خریدیں (500 ٹی کے)", current_rates: "موجودہ شرح",
+                logout: "لاگ آؤٹ", admin_dash: "ایڈمن ڈیش بورڈ", settings: "ترتیبات", deposit_nums: "ڈپازٹ نمبرز", update_btn: "ترتیبات اپ ڈیٹ کریں",
+                dep_req: "ڈپازٹ کی درخواستیں", with_req: "ویڈرال کی درخواستیں", nav_market: "مارکیٹ", nav_feed: "فیڈ", nav_history: "تاریخ",
+                nav_profile: "پروفائل", about_title: "ٹی کے سکے کے بارے میں", about_desc: "ڈیجیٹ کرنسی ٹریڈنگ کا ایک پریمیر پلیٹ فارم ہے۔",
+                company_lbl: "کمپنی:", location_lbl: "مقام:", location_val: "سنگاپور", mission: "ہم ٹی کے سکے خریدنے، بیچنے اور ٹریڈ کرنے کے لیے محفوظ اور تیز ماحول فراہم کرتے ہیں۔"
             }
         };
 
@@ -921,36 +927,55 @@
             },
 
             calcSell: () => {
-                const coins = parseFloat(document.getElementById('sell-coins').value);
+                // FIXED: Now input is PKR, calculate Coins
+                const pkrToReceive = parseFloat(document.getElementById('sell-pkr').value);
                 const rate = app.globalSettings.rate;
                 const type = document.getElementById('withdraw-type').value;
                 
-                if (!coins || !rate) return;
+                if (!pkrToReceive || !rate) return;
 
+                // Calculate Coins needed to get this PKR amount
+                let coinsNeeded = pkrToReceive / rate;
+                
                 let tax = 0;
+                let totalCoinsDeduct = coinsNeeded;
+
                 if (type === 'instant' && !dataService.currentUser.isPro) {
-                    tax = coins * 0.03; // 3% tax
+                    // 3% Tax on Coins
+                    tax = coinsNeeded * 0.03; 
+                    totalCoinsDeduct = coinsNeeded + tax;
                 }
 
-                const netCoins = coins - tax;
-                const pkr = netCoins * rate;
-
-                document.getElementById('sell-tax').innerText = tax.toFixed(2) + " Coins";
-                document.getElementById('calc-pkr').innerText = pkr.toFixed(2) + " PKR";
+                document.getElementById('calc-coins-deduct').innerText = totalCoinsDeduct.toFixed(2) + " TK";
+                document.getElementById('sell-tax').innerText = tax.toFixed(2) + " TK";
+                document.getElementById('calc-pkr').innerText = pkrToReceive.toFixed(2) + " PKR";
             },
 
             requestWithdraw: async () => {
-                const coins = parseFloat(document.getElementById('sell-coins').value);
+                const pkrToReceive = parseFloat(document.getElementById('sell-pkr').value);
                 const account = document.getElementById('withdraw-account').value.trim();
 
-                if (!coins || coins <= 0) return app.toast('Enter valid coins', 'error');
+                if (!pkrToReceive || pkrToReceive <= 0) return app.toast('Enter valid PKR amount', 'error');
                 if (!account) return app.toast('Enter account details', 'error');
+
+                // Recalculate to be sure
+                const rate = app.globalSettings.rate;
+                let coinsNeeded = pkrToReceive / rate;
+                let type = document.getElementById('withdraw-type').value;
+                let tax = 0;
+                let totalCoinsDeduct = coinsNeeded;
+
+                if (type === 'instant' && !dataService.currentUser.isPro) {
+                    tax = coinsNeeded * 0.03;
+                    totalCoinsDeduct = coinsNeeded + tax;
+                }
 
                 const req = {
                     userEmail: dataService.currentUser.email,
                     userName: dataService.currentUser.name,
                     type: 'withdraw',
-                    coins: coins, // Deducted amount from user balance
+                    amountPkr: pkrToReceive, // Store requested PKR
+                    coins: totalCoinsDeduct, // Store TOTAL coins to deduct
                     account: account,
                     status: 'pending',
                     date: new Date().toISOString()
@@ -958,9 +983,9 @@
 
                 await dataService.addRequest(req);
                 app.toast('Withdrawal Request Sent!', 'success');
-                document.getElementById('sell-coins').value = '';
+                document.getElementById('sell-pkr').value = '';
                 document.getElementById('withdraw-account').value = '';
-                document.getElementById('calc-pkr').innerText = '0 PKR';
+                document.getElementById('calc-coins-deduct').innerText = '0 TK';
             },
 
             // --- Feed ---
@@ -1096,7 +1121,8 @@
                                 <div class="req-detail"><strong>Method:</strong> ${r.method}</div>
                                 <div class="req-detail"><strong>TRX:</strong> ${r.trxId}</div>
                             ` : `
-                                <div class="req-detail"><strong>Coins to Deduct:</strong> ${r.coins}</div>
+                                <div class="req-detail"><strong>PKR to Pay:</strong> ${r.amountPkr}</div>
+                                <div class="req-detail"><strong>Coins to Deduct:</strong> ${r.coins.toFixed(2)}</div>
                                 <div class="req-detail"><strong>Account:</strong> ${r.account}</div>
                             `}
                             <div class="req-actions">
@@ -1120,13 +1146,13 @@
 
                 if (status === 'approved') {
                     if (type === 'deposit') {
-                        // --- FIX IS HERE ---
+                        // --- DEPOSIT LOGIC ---
                         // Fetch User
                         const userSnapshot = await db.ref('users/' + req.userEmail.replace('.', ',')).once('value');
                         const user = userSnapshot.val();
                         
                         if (user) {
-                            // 1. Add COINS (not PKR amount) to balance
+                            // Add COINS (not PKR amount) to balance
                             const newBalance = parseFloat(user.balance) + parseFloat(req.coins);
                             const newInvestment = parseFloat(user.totalInvestmentPKR || 0) + parseFloat(req.amountPkr);
 
@@ -1136,7 +1162,7 @@
                                 totalInvestmentPKR: newInvestment
                             });
 
-                            // 2. Referral Reward Logic (If first deposit)
+                            // Referral Reward Logic
                             if (user.invitedBy && (!user.referrals || user.referrals.length === 0)) {
                                 const referrerEmail = user.invitedBy;
                                 const referrerSnap = await db.ref('users/' + referrerEmail.replace('.', ',')).once('value');
@@ -1146,22 +1172,18 @@
                                     await db.ref('users/' + referrerEmail.replace('.', ',')).update({
                                         balance: parseFloat(referrer.balance) + reward
                                     });
-                                    // Mark referral as rewarded (simplified logic here)
                                     app.toast(`Referral reward sent to ${referrer.name}`, 'success');
                                 }
                             }
-
-                            // Add to user's referral list (mark as rewarded)
-                            const newRef = { email: req.userEmail, rewarded: true };
-                            // Note: In a real app, you need to read array, push, write back. Here is simplified direct push logic for demo structure
-                            // Ideally handled by user specific logic
                         }
 
                     } else if (type === 'withdraw') {
+                        // --- WITHDRAW LOGIC ---
                         // Deduct Coins
                         const userSnapshot = await db.ref('users/' + req.userEmail.replace('.', ',')).once('value');
                         const user = userSnapshot.val();
                         if (user) {
+                            // Deduct the stored 'coins' value (which includes tax)
                             const newBalance = parseFloat(user.balance) - parseFloat(req.coins);
                             await db.ref('users/' + req.userEmail.replace('.', ',')).update({ balance: newBalance });
                         }
@@ -1266,14 +1288,8 @@
             },
 
             renderHistory: async () => {
-                // In a real app, fetch user specific history. 
-                // For now, just showing "History Loaded" as fetching all requests is heavy without user-indexed queries
                 const list = document.getElementById('history-list');
                 list.innerHTML = `<p class="text-small" style="text-align:center">History shows latest transactions.</p>`;
-                
-                // Simulating fetching recent requests for this user
-                const allReqs = await dataService.getPendingRequests(); // This gets pending, modify to get all for full history
-                // For this demo, we will just keep it simple or fetch if Admin
             },
 
             openModal: (id) => {
