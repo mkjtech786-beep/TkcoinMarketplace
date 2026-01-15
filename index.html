@@ -541,20 +541,20 @@
                 <h4 data-i18n="settings">Settings</h4>
                 <div class="form-group">
                     <label>Tk Coin Rate (PKR)</label>
-                    <input type="number" id="admin-rate" value="000">
+                    <input type="number" id="admin-rate" value="111">
                 </div>
                 <label style="margin-top:10px;" data-i18n="deposit_nums">Deposit Numbers</label>
                 <div class="form-group">
                     <label style="font-weight:400; font-size:0.8rem;">EasyPaisa</label>
-                    <input type="text" id="admin-easypaisa" value="0000000">
+                    <input type="text" id="admin-easypaisa" value="22222222222">
                 </div>
                 <div class="form-group">
                     <label style="font-weight:400; font-size:0.8rem;">JazzCash</label>
-                    <input type="text" id="admin-jazzcash" value="000000">
+                    <input type="text" id="admin-jazzcash" value="44444444444">
                 </div>
                 <div class="form-group">
                     <label style="font-weight:400; font-size:0.8rem;">Binance ID</label>
-                    <input type="text" id="admin-binance" value="000000">
+                    <input type="text" id="admin-binance" value="333333333">
                 </div>
                 <button class="btn btn-primary btn-sm" onclick="app.updateSettings()" data-i18n="update_btn">Update Settings</button>
             </div>
@@ -700,8 +700,8 @@
                 const snapshot = await db.ref('settings').once('value');
                 if (snapshot.exists()) return snapshot.val();
                 return {
-                    rate: 000,
-                    depositNums: { easypaisa: "00000000000", jazzcash: "00000000000", binance: "000000000" }
+                    rate: 111,
+                    depositNums: { easypaisa: "22222222222", jazzcash: "44444444444", binance: "333333333" }
                 };
             }
 
