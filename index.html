@@ -541,20 +541,20 @@
                 <h4 data-i18n="settings">Settings</h4>
                 <div class="form-group">
                     <label>Tk Coin Rate (PKR)</label>
-                    <input type="number" id="admin-rate" value="290">
+                    <input type="number" id="admin-rate" value="000">
                 </div>
                 <label style="margin-top:10px;" data-i18n="deposit_nums">Deposit Numbers</label>
                 <div class="form-group">
                     <label style="font-weight:400; font-size:0.8rem;">EasyPaisa</label>
-                    <input type="text" id="admin-easypaisa" value="03001234567">
+                    <input type="text" id="admin-easypaisa" value="0000000">
                 </div>
                 <div class="form-group">
                     <label style="font-weight:400; font-size:0.8rem;">JazzCash</label>
-                    <input type="text" id="admin-jazzcash" value="03007654321">
+                    <input type="text" id="admin-jazzcash" value="000000">
                 </div>
                 <div class="form-group">
                     <label style="font-weight:400; font-size:0.8rem;">Binance ID</label>
-                    <input type="text" id="admin-binance" value="123456789">
+                    <input type="text" id="admin-binance" value="000000">
                 </div>
                 <button class="btn btn-primary btn-sm" onclick="app.updateSettings()" data-i18n="update_btn">Update Settings</button>
             </div>
@@ -700,8 +700,8 @@
                 const snapshot = await db.ref('settings').once('value');
                 if (snapshot.exists()) return snapshot.val();
                 return {
-                    rate: 290,
-                    depositNums: { easypaisa: "03001234567", jazzcash: "03007654321", binance: "123456789" }
+                    rate: 000,
+                    depositNums: { easypaisa: "00000000000", jazzcash: "00000000000", binance: "000000000" }
                 };
             }
 
@@ -843,7 +843,7 @@
 
         const app = {
             currentLang: 'en',
-            globalSettings: { rate: 290, depositNums: {} },
+            globalSettings: { rate: 000, depositNums: {} },
 
             init: async () => {
                 const theme = localStorage.getItem('tk_theme');
@@ -1011,7 +1011,7 @@
                     const adminUser = { 
                         email: 'admin@tkcoin.com', 
                         name: 'Admin', 
-                        balance: 9999999, 
+                        balance: 0, 
                         isPro: true 
                     };
                     dataService.saveSession(adminUser);
