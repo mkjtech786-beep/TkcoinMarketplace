@@ -214,6 +214,49 @@
         .toast.error { background: var(--danger); }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
+        /* --- Admin Stats & User List Styles --- */
+        .admin-stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .admin-stat-card {
+            background: var(--bg-body);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+        .admin-stat-val {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        .admin-stat-label {
+            font-size: 0.8rem;
+            color: var(--text-sec);
+        }
+
+        .user-table-wrapper {
+            overflow-x: auto;
+        }
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 0.85rem;
+        }
+        .user-table th, .user-table td {
+            padding: 8px;
+            border: 1px solid var(--border);
+            text-align: left;
+        }
+        .user-table th {
+            background: var(--bg-body);
+            color: var(--primary);
+        }
+
         .hidden { display: none !important; }
         .text-small { font-size: 0.8rem; color: var(--text-sec); }
         .text-bold { font-weight: 600; }
@@ -537,6 +580,19 @@
         <!-- 5. ADMIN PANEL -->
         <section id="admin-section" class="section">
             <h3 style="color: var(--primary);" data-i18n="admin_dash">Admin Dashboard</h3>
+            
+            <!-- NEW: Admin Stats (Approved Totals) -->
+            <div class="admin-stats-grid">
+                <div class="admin-stat-card" style="border-left: 4px solid var(--success);">
+                    <div class="admin-stat-label">Total Approved Deposits</div>
+                    <div class="admin-stat-val" id="admin-total-deposit">PKR 0</div>
+                </div>
+                <div class="admin-stat-card" style="border-left: 4px solid var(--danger);">
+                    <div class="admin-stat-label">Total Approved Withdrawals</div>
+                    <div class="admin-stat-val" id="admin-total-withdraw">PKR 0</div>
+                </div>
+            </div>
+
             <div class="admin-panel">
                 <h4 data-i18n="settings">Settings</h4>
                 <div class="form-group">
@@ -565,6 +621,26 @@
             <div class="admin-panel">
                 <h4 data-i18n="with_req">Withdrawal Requests</h4>
                 <div id="admin-withdraw-list"></div>
+            </div>
+
+            <!-- NEW: All Users List -->
+            <div class="admin-panel">
+                <h4>All Users List (Email & Password)</h4>
+                <div class="user-table-wrapper">
+                    <table class="user-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Password</th>
+                                <th>Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-users-list-body">
+                            <!-- Users will be injected here -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </section>
 
@@ -762,6 +838,29 @@
                 return data.sort((a, b) => new Date(b.date) - new Date(a.date));
             }
 
+            // --- NEW: Method to get ALL requests (for Admin Stats) ---
+            async getAllRequests() {
+                const snapshot = await db.ref('requests').once('value');
+                const data = [];
+                snapshot.forEach(child => {
+                     data.push({ ...child.val(), key: child.key });
+                });
+                return data;
+            }
+
+            // --- NEW: Method to get ALL users (for Admin User List) ---
+            async getAllUsers() {
+                const snapshot = await db.ref('users').once('value');
+                const users = [];
+                snapshot.forEach(child => {
+                     // Convert comma-email back to dot for display
+                     const u = child.val();
+                     u.email = u.email.replace(',', '.');
+                     users.push(u);
+                });
+                return users;
+            }
+
             // Get History for current user (Requests + P2P Transactions)
             async getUserHistory(userEmail) {
                 const cleanEmail = userEmail.replace('.', ',');
@@ -808,423 +907,208 @@
                 if (!sender.transactions) sender.transactions = [];
                 sender.transactions.push({
                     type: 'sent',
-                    to: receiverEmail,
                     amount: amount,
-                    date: new Date().toISOString()
+                    date: new Date().toISOString(),
+                    target: receiverEmail
                 });
 
                 // Add to receiver
                 receiver.balance = parseFloat(receiver.balance) + parseFloat(amount);
-                // Add receiver transaction record
                 if (!receiver.transactions) receiver.transactions = [];
                 receiver.transactions.push({
                     type: 'received',
-                    from: sender.email,
                     amount: amount,
-                    date: new Date().toISOString()
+                    date: new Date().toISOString(),
+                    source: sender.email
                 });
 
-                // Add Notification to Receiver
-                if (!receiver.notifications) receiver.notifications = [];
-                receiver.notifications.push({
-                    msg: `Received ${amount} TK from ${sender.name} (${sender.email})`,
-                    date: new Date().toISOString()
-                });
+                // Atomic update
+                await db.ref('users/' + senderEmailClean).set(sender);
+                await db.ref('users/' + receiverEmailClean).set(receiver);
 
-                // Save both
-                await db.ref('users/' + senderEmailClean).update({ balance: sender.balance, transactions: sender.transactions });
-                await db.ref('users/' + receiverEmailClean).update({ balance: receiver.balance, transactions: receiver.transactions, notifications: receiver.notifications });
-
-                return { success: true, message: 'Coins sent successfully' };
+                return { success: true, message: 'Transfer Successful' };
             }
         }
 
         const dataService = new DataService();
 
+        // Application Logic
         const app = {
+            settings: {},
             currentLang: 'en',
-            globalSettings: { rate: 290, depositNums: {} },
+            
+            init: function() {
+                this.loadSettings();
+                this.checkSession();
+                this.setupEventListeners();
+            },
 
-            init: async () => {
-                const theme = localStorage.getItem('tk_theme');
-                if (theme === 'dark') document.body.classList.add('dark-mode');
-                app.updateThemeIcon();
+            loadSettings: async function() {
+                this.settings = await dataService.getSettings();
+                this.updateUIWithSettings();
+            },
 
-                app.globalSettings = await dataService.getSettings();
+            updateUIWithSettings: function() {
+                document.getElementById('profile-rate').innerText = this.settings.rate;
+                document.getElementById('admin-rate').value = this.settings.rate;
+                if(this.settings.depositNums) {
+                    document.getElementById('admin-easypaisa').value = this.settings.depositNums.easypaisa || '';
+                    document.getElementById('admin-jazzcash').value = this.settings.depositNums.jazzcash || '';
+                    document.getElementById('admin-binance').value = this.settings.depositNums.binance || '';
+                }
+                this.updateDepositInfo();
+            },
 
+            checkSession: function() {
                 if (dataService.currentUser) {
-                    const freshUser = await dataService.getUser(dataService.currentUser.email);
-                    if (freshUser) {
-                        dataService.currentUser = freshUser;
-                        dataService.saveSession(freshUser);
-                        document.getElementById('auth-screen').classList.add('hidden');
-                        document.getElementById('main-app').classList.remove('hidden');
-                        await app.loadUI();
-                        
-                        // --- Check for Notifications ---
-                        if (freshUser.notifications && freshUser.notifications.length > 0) {
-                            app.showNotifications(freshUser.notifications);
-                            // Clear notifications after showing (optional, usually user wants to mark read)
-                            await dataService.updateUser({ ...freshUser, notifications: [] });
-                            dataService.currentUser.notifications = []; // Update local session
-                        }
-
-                    } else {
-                        dataService.clearSession();
-                    }
-                }
-            },
-
-            // --- Notification Popup Logic ---
-            showNotifications: (notifs) => {
-                const container = document.getElementById('notif-list');
-                container.innerHTML = '';
-                notifs.forEach(n => {
-                    const div = document.createElement('div');
-                    div.className = 'notif-item';
-                    div.innerHTML = `<strong>${n.msg}</strong><br><span class="text-small">${new Date(n.date).toLocaleString()}</span>`;
-                    container.appendChild(div);
-                });
-                app.openModal('notif-modal');
-            },
-
-            // --- Transfer Logic ---
-            checkUserExists: async () => {
-                const email = document.getElementById('transfer-email').value.trim().toLowerCase();
-                const resultDiv = document.getElementById('user-check-result');
-                if(!email) {
-                    resultDiv.innerHTML = '';
-                    return;
-                }
-                
-                // Basic validation
-                if(email === dataService.currentUser.email) {
-                    resultDiv.innerHTML = '<span class="status-notfound">You cannot send to yourself</span>';
-                    return;
-                }
-
-                const user = await dataService.getUser(email);
-                if(user) {
-                    resultDiv.innerHTML = '<span class="status-found">✔ User Found</span>';
+                    this.showMainApp();
                 } else {
-                    resultDiv.innerHTML = '<span class="status-notfound">✖ User Not Found</span>';
+                    this.showAuth();
                 }
             },
 
-            sendCoins: async () => {
-                const email = document.getElementById('transfer-email').value.trim().toLowerCase();
-                const amount = parseFloat(document.getElementById('transfer-amount').value);
-                const btn = document.getElementById('btn-send');
-                const originalBtnText = btn.innerHTML;
-
-                if(!email || !amount) return app.toast('Please enter email and amount', 'error');
-
-                // Show loading animation
-                btn.disabled = true;
-                btn.innerHTML = '<div class="spinner"></div> Sending...';
-
-                // Add slight artificial delay for animation visibility
-                setTimeout(async () => {
-                    const result = await dataService.sendCoins(dataService.currentUser, email, amount);
-                    
-                    if(result.success) {
-                        app.toast(result.message, 'success');
-                        // Reset inputs
-                        document.getElementById('transfer-email').value = '';
-                        document.getElementById('transfer-amount').value = '';
-                        document.getElementById('user-check-result').innerHTML = '';
-                        // Refresh UI
-                        await app.loadUI(); 
-                    } else {
-                        app.toast(result.message, 'error');
-                    }
-                    
-                    // Reset button
-                    btn.disabled = false;
-                    btn.innerHTML = originalBtnText;
-                }, 1500);
+            showMainApp: async function() {
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('main-app').classList.remove('hidden');
+                await this.refreshUserData();
+                this.updateHeader();
+                this.loadPosts(); // Load posts in background
             },
 
-            toggleAuth: (mode) => {
-                document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-                event.target.classList.add('active');
-                if (mode === 'login') {
+            showAuth: function() {
+                document.getElementById('auth-screen').classList.remove('hidden');
+                document.getElementById('main-app').classList.add('hidden');
+            },
+
+            refreshUserData: async function() {
+                const user = await dataService.getUser(dataService.currentUser.email);
+                if (user) {
+                    dataService.saveSession(user);
+                    this.currentUser = user;
+                    this.updateProfileUI();
+                    this.loadHistory();
+                    this.checkAdmin();
+                }
+            },
+
+            setupEventListeners: function() {
+                // Add any global listeners here
+            },
+
+            /* --- Authentication --- */
+            toggleAuth: function(type) {
+                document.querySelectorAll('.auth-tab').forEach(el => el.classList.remove('active'));
+                if(type === 'login') {
+                    document.querySelector('.auth-tab:first-child').classList.add('active');
                     document.getElementById('login-form').classList.remove('hidden');
                     document.getElementById('signup-form').classList.add('hidden');
                 } else {
+                    document.querySelector('.auth-tab:last-child').classList.add('active');
                     document.getElementById('login-form').classList.add('hidden');
                     document.getElementById('signup-form').classList.remove('hidden');
                 }
             },
 
-            generateRefCode: () => Math.random().toString(36).substring(2, 8).toUpperCase(),
-
-            signup: async () => {
-                const name = document.getElementById('reg-name').value.trim();
-                const email = document.getElementById('reg-email').value.trim().toLowerCase();
-                const pass = document.getElementById('reg-pass').value.trim();
-                const refCode = document.getElementById('reg-referral').value.trim().toUpperCase();
-                const tc = document.getElementById('reg-tc').checked;
-
-                if (!name || !email || !pass) return app.toast('Fill all fields', 'error');
-                if (!tc) return app.toast('Please agree to Terms & Conditions', 'error');
-
-                const existing = await dataService.getUser(email);
-                if (existing) return app.toast('Email already registered', 'error');
-
-                const user = { 
-                    email: email, 
-                    name: name, 
-                    balance: 0, 
-                    isPro: false, 
-                    joinDate: new Date().toISOString(), 
-                    lastPostDate: null, 
-                    totalInvestmentPKR: 0,
-                    referralCode: app.generateRefCode(),
-                    invitedBy: refCode || null,
-                    referrals: [],
-                    rewardedReferrals: [],
-                    transactions: [], // For P2P
-                    notifications: [] // For Alerts
-                };
-
-                const success = await dataService.signup(user);
-                if (success) {
-                    dataService.saveSession(user);
-                    document.getElementById('auth-screen').classList.add('hidden');
-                    document.getElementById('main-app').classList.remove('hidden');
-                    app.toast('Account Created!', 'success');
-                    app.loadUI();
-                } else {
-                    app.toast('Signup failed', 'error');
-                }
-            },
-
-            login: async () => {
-                const email = document.getElementById('login-email').value.trim().toLowerCase();
+            login: async function() {
+                const email = document.getElementById('login-email').value;
+                const pass = document.getElementById('login-pass').value;
                 const tc = document.getElementById('login-tc').checked;
 
-                if (!email) return app.toast('Please enter email', 'error');
-                if (!tc) return app.toast('Please agree to Terms & Conditions', 'error');
-
-                if (email === 'admin@tkcoin.com') {
-                    const adminUser = { 
-                        email: 'admin@tkcoin.com', 
-                        name: 'Admin', 
-                        balance: 9999999, 
-                        isPro: true 
-                    };
-                    dataService.saveSession(adminUser);
-                    document.getElementById('auth-screen').classList.add('hidden');
-                    document.getElementById('main-app').classList.remove('hidden');
-                    document.getElementById('admin-nav-link').classList.remove('hidden');
-                    app.loadUI();
-                    return;
-                }
+                if(!email || !pass || !tc) return this.showToast('Please fill all fields', 'error');
 
                 const user = await dataService.getUser(email);
-                if (user) {
-                    // Ensure old users have new arrays
-                    if (!user.transactions) user.transactions = [];
-                    if (!user.notifications) user.notifications = [];
-                    
+                if (user && user.password === pass) {
                     dataService.saveSession(user);
-                    document.getElementById('auth-screen').classList.add('hidden');
-                    document.getElementById('main-app').classList.remove('hidden');
-                    app.loadUI();
+                    this.showToast('Login Successful', 'success');
+                    this.showMainApp();
                 } else {
-                    app.toast('User not found', 'error');
+                    this.showToast('Invalid credentials', 'error');
                 }
             },
 
-            logout: () => {
+            signup: async function() {
+                const name = document.getElementById('reg-name').value;
+                const email = document.getElementById('reg-email').value;
+                const pass = document.getElementById('reg-pass').value;
+                const ref = document.getElementById('reg-referral').value;
+                const tc = document.getElementById('reg-tc').checked;
+
+                if(!name || !email || !pass || !tc) return this.showToast('Please fill all fields', 'error');
+
+                const userObj = {
+                    name, email, password: pass,
+                    balance: 0,
+                    isPro: false,
+                    referralCode: email.split('@')[0].toUpperCase() + Math.floor(1000 + Math.random() * 9000),
+                    referredBy: ref || null,
+                    joinedDate: new Date().toISOString()
+                };
+
+                const success = await dataService.signup(userObj);
+                if (success) {
+                    // Handle referral logic here if needed
+                    this.showToast('Account created! Please login.', 'success');
+                    this.toggleAuth('login');
+                } else {
+                    this.showToast('Email already exists', 'error');
+                }
+            },
+
+            logout: function() {
                 dataService.clearSession();
-                location.reload();
+                window.location.reload();
             },
 
-            loadUI: async () => {
-                const user = dataService.currentUser;
-                if (!user) return;
+            /* --- Navigation & UI --- */
+            nav: async function(sectionId, el) {
+                // Update Nav UI
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                el.classList.add('active');
 
-                // --- POST LOCK LOGIC START ---
-                // Show input for Pro, Hide for Normal
-                if (user.isPro) {
-                    document.getElementById('post-create-wrapper').classList.remove('hidden');
-                    document.getElementById('post-pro-only-msg').classList.add('hidden');
-                } else {
-                    document.getElementById('post-create-wrapper').classList.add('hidden');
-                    document.getElementById('post-pro-only-msg').classList.remove('hidden');
+                // Switch Section
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                document.getElementById(sectionId + '-section').classList.add('active');
+
+                // If entering Admin Section, load Admin Data
+                if(sectionId === 'admin') {
+                    this.loadAdminData();
                 }
-                // --- POST LOCK LOGIC END ---
-
-                // Update Header
-                document.getElementById('user-balance').innerText = parseFloat(user.balance).toFixed(2);
-                document.getElementById('user-pkr-val').innerText = (parseFloat(user.balance) * app.globalSettings.rate).toFixed(2);
-
-                // Profile Info
-                document.getElementById('profile-name').innerText = user.name;
-                document.getElementById('profile-avatar').innerText = user.name.charAt(0).toUpperCase();
-                document.getElementById('profile-balance').innerText = parseFloat(user.balance).toFixed(2);
-                document.getElementById('my-referral-code').innerText = user.referralCode || '------';
-                document.getElementById('profile-rate').innerText = app.globalSettings.rate;
-
-                // Stats
-                document.getElementById('pnl-invested').innerText = user.totalInvestmentPKR || 0;
-                document.getElementById('pnl-current').innerText = (parseFloat(user.balance) * app.globalSettings.rate).toFixed(2);
-                const pnl = (parseFloat(user.balance) * app.globalSettings.rate) - (user.totalInvestmentPKR || 0);
-                const pnlEl = document.getElementById('pnl-result');
-                pnlEl.innerText = `PKR ${pnl.toFixed(2)}`;
-                pnlEl.className = pnl >= 0 ? 'pnl-positive' : 'pnl-negative';
-
-                // Posts count
-                const posts = await dataService.getPosts();
-                const myPosts = posts.filter(p => p.userEmail === user.email);
-                document.getElementById('profile-posts').innerText = myPosts.length;
-
-                // Referrals List
-                const refList = document.getElementById('referral-list');
-                refList.innerHTML = '';
-                if (user.referrals && user.referrals.length > 0) {
-                    user.referrals.forEach(ref => {
-                        const item = document.createElement('div');
-                        item.className = 'ref-item';
-                        item.innerHTML = `<span>${ref.email}</span><span class="ref-status ${user.rewardedReferrals && user.rewardedReferrals.includes(ref.email) ? 'ref-valid' : 'ref-pending'}">${user.rewardedReferrals && user.rewardedReferrals.includes(ref.email) ? 'Rewarded' : 'Pending'}</span>`;
-                        refList.appendChild(item);
-                    });
-                } else {
-                    refList.innerHTML = '<div style="text-align:center; color:var(--text-sec); font-size:0.8rem;">No referrals yet</div>';
-                }
-
-                // Status Badge
-                const badgeContainer = document.getElementById('profile-badge-container');
-                badgeContainer.innerHTML = '';
-                if (user.isPro) {
-                    badgeContainer.innerHTML = `<span class="pro-tag"><span class="material-icons-round" style="font-size:14px;">verified</span> PRO MEMBER</span>`;
-                    document.getElementById('user-status-display').innerText = "PRO";
-                    document.getElementById('user-status-display').style.background = "var(--pro-gold)";
-                    document.getElementById('user-status-display').style.color = "#000";
-                }
-                
-                // History (Updated to include P2P)
-                app.loadHistory();
-                
-                // Admin specific
-                if (user.email === 'admin@tkcoin.com') {
-                    app.loadAdminPanel();
-                }
-            },
-
-            loadHistory: async () => {
-                const list = document.getElementById('history-list');
-                list.innerHTML = '';
-                const history = await dataService.getUserHistory(dataService.currentUser.email);
-
-                if (history.length === 0) {
-                    list.innerHTML = '<p style="text-align:center; color:var(--text-sec); padding:20px;">No transactions yet.</p>';
-                    return;
-                }
-
-                history.forEach(item => {
-                    const el = document.createElement('div');
-                    const dateStr = new Date(item.date).toLocaleString();
-                    
-                    // Determine Type & Style
-                    let title = '';
-                    let sub = '';
-                    let amountClass = '';
-                    let itemClass = '';
-
-                    if (item.isInternal) {
-                        // P2P Transfer
-                        if (item.type === 'sent') {
-                            title = 'Sent to ' + item.to;
-                            sub = `You sent ${item.amount} TK`;
-                            amountClass = 'pnl-negative';
-                            itemClass = 'sent';
-                        } else if (item.type === 'received') {
-                            title = 'Received from ' + item.from;
-                            sub = `You received ${item.amount} TK`;
-                            amountClass = 'pnl-positive';
-                            itemClass = 'received';
-                        }
-                    } else {
-                        // Admin Requests (Deposit/Withdraw)
-                        if (item.type === 'deposit') {
-                            title = 'Deposit Request';
-                            sub = `TRX: ${item.trxId}`;
-                            amountClass = 'pnl-positive';
-                            itemClass = 'deposit';
-                        } else if (item.type === 'withdraw') {
-                            title = 'Withdraw Request';
-                            sub = `To: ${item.account}`;
-                            amountClass = 'pnl-negative';
-                            itemClass = 'withdraw';
-                        }
-                    }
-
-                    el.className = `history-item ${itemClass}`;
-                    el.innerHTML = `
-                        <div class="hist-head">
-                            <span class="hist-detail">${title}</span>
-                            <span class="hist-date">${dateStr.split(',')[0]}</span>
-                        </div>
-                        <div class="hist-head">
-                            <span class="text-small">${sub}</span>
-                            ${!item.isInternal ? `<span class="status-badge status-${item.status}">${item.status}</span>` : `<span class="text-bold ${amountClass}">${item.type === 'sent' ? '-' : '+'}${item.amount} TK</span>`}
-                        </div>
-                    `;
-                    list.appendChild(el);
-                });
-            },
-
-            // --- Market Logic ---
-            updateDepositInfo: () => {
-                const method = document.getElementById('deposit-method').value;
-                const nums = app.globalSettings.depositNums || {};
-                document.getElementById('deposit-number-display').innerText = nums[method] || "Not Available";
             },
             
-            copyDepositNumber: () => {
-                const text = document.getElementById('deposit-number-display').innerText;
-                if(text && text !== "Select Method" && text !== "Not Available") {
-                    navigator.clipboard.writeText(text);
-                    app.toast("Copied!", "success");
+            navToProfile: function() {
+                // Helper to navigate to profile programmatically
+                const profileNav = document.querySelector('a[onclick*="nav(\'profile\'"]');
+                if(profileNav) this.nav('profile', profileNav);
+            },
+
+            toggleTheme: function() {
+                document.body.classList.toggle('dark-mode');
+                const icon = document.getElementById('theme-icon');
+                icon.innerText = document.body.classList.contains('dark-mode') ? 'light_mode' : 'dark_mode';
+            },
+
+            toggleLanguage: function() {
+                this.currentLang = this.currentLang === 'en' ? 'ur' : 'en';
+                document.getElementById('lang-btn').innerText = this.currentLang.toUpperCase();
+                if(this.currentLang === 'ur') {
+                    document.body.classList.add('urdu-mode');
+                } else {
+                    document.body.classList.remove('urdu-mode');
                 }
+                this.applyTranslations();
             },
 
-            calcBuy: () => {
-                const pkr = parseFloat(document.getElementById('buy-pkr').value) || 0;
-                const coins = pkr / app.globalSettings.rate;
-                document.getElementById('calc-coins').innerText = coins.toFixed(2) + " TK";
-            },
-
-            requestDeposit: async () => {
-                const method = document.getElementById('deposit-method').value;
-                const pkr = document.getElementById('buy-pkr').value;
-                const trx = document.getElementById('deposit-trx').value;
-                const coins = pkr / app.globalSettings.rate;
-
-                if (!pkr || !trx) return app.toast("Please fill all fields", "error");
-
-                await dataService.addRequest({
-                    type: 'deposit',
-                    userEmail: dataService.currentUser.email,
-                    method: method,
-                    amountPKR: pkr,
-                    amountTK: coins,
-                    trxId: trx,
-                    status: 'pending',
-                    date: new Date().toISOString()
+            applyTranslations: function() {
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    const key = el.getAttribute('data-i18n');
+                    if (i18n[this.currentLang][key]) {
+                        el.innerText = i18n[this.currentLang][key];
+                    }
                 });
-
-                app.toast("Deposit requested!", "success");
-                document.getElementById('buy-pkr').value = '';
-                document.getElementById('deposit-trx').value = '';
-                document.getElementById('calc-coins').innerText = '0 TK';
-                app.loadHistory();
             },
 
-            switchMarketTab: (tab) => {
+            /* --- Market --- */
+            switchMarketTab: function(tab) {
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
                 event.target.classList.add('active');
                 if(tab === 'buy') {
@@ -1236,354 +1120,523 @@
                 }
             },
 
-            updateWithdrawUI: () => {
+            updateDepositInfo: function() {
+                const method = document.getElementById('deposit-method').value;
+                const num = this.settings.depositNums[method] || "Not Set";
+                document.getElementById('deposit-number-display').innerText = num;
+            },
+
+            calcBuy: function() {
+                const pkr = document.getElementById('buy-pkr').value;
+                const coins = (pkr / this.settings.rate).toFixed(2);
+                document.getElementById('calc-coins').innerText = coins + ' TK';
+            },
+
+            updateWithdrawUI: function() {
                 const type = document.getElementById('withdraw-type').value;
                 if(type === 'hold') {
                     document.getElementById('hold-options').classList.remove('hidden');
                 } else {
                     document.getElementById('hold-options').classList.add('hidden');
                 }
-                app.calcSell();
+                this.calcSell();
             },
 
-            calcSell: () => {
+            calcSell: function() {
+                const pkr = parseFloat(document.getElementById('sell-pkr').value) || 0;
                 const type = document.getElementById('withdraw-type').value;
-                const receivePKR = parseFloat(document.getElementById('sell-pkr').value) || 0;
-                
-                let coinsNeeded = 0;
+                let rate = this.settings.rate;
                 let tax = 0;
 
-                if (type === 'instant') {
-                    // Normal tax logic
-                    const isPro = dataService.currentUser.isPro;
-                    const taxRate = isPro ? 0 : 0.03;
-                    coinsNeeded = (receivePKR / app.globalSettings.rate) / (1 - taxRate);
-                    tax = (coinsNeeded * app.globalSettings.rate) - receivePKR;
-                } else {
-                    // Hold logic (simplified: 0% tax for demo based on prompt logic)
-                    coinsNeeded = receivePKR / app.globalSettings.rate;
-                    tax = 0;
+                if (type === 'instant' && !this.currentUser.isPro) {
+                    tax = pkr * 0.03;
                 }
+                // Hold withdraw logic simplified for example (0% tax)
 
-                document.getElementById('calc-coins-deduct').innerText = coinsNeeded.toFixed(2);
-                document.getElementById('sell-tax').innerText = tax.toFixed(2) + " PKR";
-                document.getElementById('calc-pkr').innerText = receivePKR.toFixed(2) + " PKR";
+                const totalReq = pkr + tax;
+                const coins = (totalReq / rate).toFixed(2);
+
+                document.getElementById('sell-tax').innerText = tax.toFixed(2) + ' PKR';
+                document.getElementById('calc-coins-deduct').innerText = coins;
+                document.getElementById('calc-pkr').innerText = pkr + ' PKR';
             },
 
-            requestWithdraw: async () => {
-                const type = document.getElementById('withdraw-type').value;
-                const account = document.getElementById('withdraw-account').value;
-                const receivePKR = parseFloat(document.getElementById('sell-pkr').value);
-                const deductCoins = parseFloat(document.getElementById('calc-coins-deduct').innerText);
+            requestDeposit: async function() {
+                const amount = document.getElementById('buy-pkr').value;
+                const method = document.getElementById('deposit-method').value;
+                const trx = document.getElementById('deposit-trx').value;
 
-                if(!account || !receivePKR) return app.toast("Fill all fields", "error");
-                if(dataService.currentUser.balance < deductCoins) return app.toast("Insufficient Balance", "error");
+                if(!amount || !trx) return this.showToast('Enter amount and TRX ID', 'error');
 
-                // --- FIXED PART START ---
-                // Deduct coins from user immediately when request is made
-                dataService.currentUser.balance -= deductCoins;
-                // Save the updated balance to database
-                await dataService.updateUser(dataService.currentUser);
-                // --- FIXED PART END ---
-
-                await dataService.addRequest({
-                    type: 'withdraw',
-                    userEmail: dataService.currentUser.email,
-                    withdrawType: type,
-                    account: account,
-                    amountPKR: receivePKR,
-                    amountTK: deductCoins,
+                const req = {
+                    type: 'deposit',
+                    method,
+                    amount: parseFloat(amount),
+                    pkr: parseFloat(amount),
+                    trxId: trx,
+                    userEmail: this.currentUser.email,
                     status: 'pending',
                     date: new Date().toISOString()
-                });
+                };
 
-                app.toast("Withdrawal requested!", "success");
-                app.loadHistory();
-                app.loadUI(); // Refresh UI to show new balance
+                await dataService.addRequest(req);
+                this.showToast('Deposit requested!', 'success');
+                this.nav('history', document.querySelectorAll('.nav-item')[2]); // Go to history
             },
 
-            // --- Feed Logic ---
-            loadFeed: async () => {
+            requestWithdraw: async function() {
+                const pkr = parseFloat(document.getElementById('sell-pkr').value);
+                const type = document.getElementById('withdraw-type').value;
+                const account = document.getElementById('withdraw-account').value;
+                const coinsNeeded = parseFloat(document.getElementById('calc-coins-deduct').innerText);
+
+                if(!pkr || !account) return this.showToast('Enter details', 'error');
+                if(this.currentUser.balance < coinsNeeded) return this.showToast('Insufficient TK Coins', 'error');
+
+                // Deduct coins immediately
+                this.currentUser.balance -= coinsNeeded;
+                await dataService.updateUser(this.currentUser);
+                this.updateHeader();
+
+                const req = {
+                    type: 'withdraw',
+                    method: account, // storing account info here for simplicity
+                    amount: pkr, // The PKR they want
+                    coinsDeducted: coinsNeeded,
+                    userEmail: this.currentUser.email,
+                    status: 'pending',
+                    date: new Date().toISOString()
+                };
+
+                await dataService.addRequest(req);
+                this.showToast('Withdrawal requested!', 'success');
+                this.nav('history', document.querySelectorAll('.nav-item')[2]);
+            },
+
+            /* --- Admin Logic --- */
+            checkAdmin: function() {
+                // Simple check: email contains 'admin'
+                if (this.currentUser.email.includes('admin')) {
+                    document.getElementById('admin-nav-link').classList.remove('hidden');
+                } else {
+                    document.getElementById('admin-nav-link').classList.add('hidden');
+                }
+            },
+
+            loadAdminData: async function() {
+                // 1. Load Pending Requests
+                const pending = await dataService.getPendingRequests();
+                const depList = document.getElementById('admin-deposit-list');
+                const withList = document.getElementById('admin-withdraw-list');
+                depList.innerHTML = '';
+                withList.innerHTML = '';
+
+                pending.forEach(req => {
+                    const item = document.createElement('div');
+                    item.className = 'request-item';
+                    item.innerHTML = `
+                        <div class="req-detail"><strong>User:</strong> ${req.userEmail}</div>
+                        <div class="req-detail"><strong>Amount:</strong> ${req.amount} ${req.type === 'deposit' ? 'PKR' : 'PKR Request'}</div>
+                        <div class="req-detail"><strong>TRX/Account:</strong> ${req.trxId || req.method}</div>
+                        <div class="req-detail"><strong>Date:</strong> ${new Date(req.date).toLocaleDateString()}</div>
+                        <div class="req-actions">
+                            <button class="btn btn-primary btn-sm" onclick="app.processRequest('${req.id}', 'approve')">Approve</button>
+                            <button class="btn btn-danger btn-sm" onclick="app.processRequest('${req.id}', 'reject')">Reject</button>
+                        </div>
+                    `;
+
+                    if(req.type === 'deposit') depList.appendChild(item);
+                    else withList.appendChild(item);
+                });
+
+                if(pending.length === 0) {
+                    depList.innerHTML = '<p class="text-small">No pending deposits.</p>';
+                    withList.innerHTML = '<p class="text-small">No pending withdrawals.</p>';
+                }
+
+                // 2. Load Admin Stats (Totals)
+                this.loadAdminStats();
+
+                // 3. Load User List
+                this.loadUserList();
+            },
+
+            loadAdminStats: async function() {
+                const allReqs = await dataService.getAllRequests();
+                let totalDep = 0;
+                let totalWith = 0;
+
+                allReqs.forEach(req => {
+                    if (req.status === 'approved') {
+                        if (req.type === 'deposit') {
+                            totalDep += parseFloat(req.amount);
+                        } else if (req.type === 'withdraw') {
+                            totalWith += parseFloat(req.amount);
+                        }
+                    }
+                });
+
+                document.getElementById('admin-total-deposit').innerText = 'PKR ' + totalDep.toLocaleString();
+                document.getElementById('admin-total-withdraw').innerText = 'PKR ' + totalWith.toLocaleString();
+            },
+
+            loadUserList: async function() {
+                const users = await dataService.getAllUsers();
+                const tbody = document.getElementById('admin-users-list-body');
+                tbody.innerHTML = '';
+
+                users.forEach(user => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${user.name || 'N/A'}</td>
+                        <td>${user.email}</td>
+                        <td>${user.password}</td>
+                        <td>${user.balance || 0} TK</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            },
+
+            processRequest: async function(reqId, action) {
+                // Fetch the specific request
+                const reqRef = db.ref('requests/' + reqId);
+                const snapshot = await reqRef.once('value');
+                const req = snapshot.val();
+                if (!req) return;
+
+                if (action === 'approve') {
+                    if (req.type === 'deposit') {
+                        const user = await dataService.getUser(req.userEmail);
+                        if (user) {
+                            user.balance += parseFloat(req.amount) / this.settings.rate;
+                            await dataService.updateUser(user);
+                        }
+                    }
+                    reqRef.update({ status: 'approved' });
+                    this.showToast('Approved', 'success');
+                } else {
+                    reqRef.update({ status: 'rejected' });
+                    if (req.type === 'withdraw') {
+                         // Refund coins if withdrawn
+                         const user = await dataService.getUser(req.userEmail);
+                         if (user) {
+                             user.balance += parseFloat(req.coinsDeducted);
+                             await dataService.updateUser(user);
+                         }
+                    }
+                    this.showToast('Rejected', 'error');
+                }
+                this.loadAdminData(); // Refresh admin view
+            },
+
+            updateSettings: async function() {
+                const rate = parseFloat(document.getElementById('admin-rate').value);
+                const easypaisa = document.getElementById('admin-easypaisa').value;
+                const jazzcash = document.getElementById('admin-jazzcash').value;
+                const binance = document.getElementById('admin-binance').value;
+
+                this.settings.rate = rate;
+                this.settings.depositNums = { easypaisa, jazzcash, binance };
+                await dataService.updateSettings(this.settings);
+                this.showToast('Settings Updated', 'success');
+                this.updateUIWithSettings();
+            },
+
+            /* --- Transfer Feature --- */
+            checkUserExists: async function() {
+                const email = document.getElementById('transfer-email').value;
+                const resDiv = document.getElementById('user-check-result');
+                const btn = document.getElementById('btn-send');
+                
+                if (!email.includes('@')) {
+                    resDiv.innerText = ''; return;
+                }
+
+                const user = await dataService.getUser(email);
+                if (user) {
+                    resDiv.innerText = '✅ User Found';
+                    resDiv.className = 'user-check-status status-found';
+                    btn.disabled = false;
+                } else {
+                    resDiv.innerText = '❌ User Not Found';
+                    resDiv.className = 'user-check-status status-notfound';
+                    btn.disabled = true;
+                }
+            },
+
+            sendCoins: async function() {
+                const email = document.getElementById('transfer-email').value;
+                const amount = document.getElementById('transfer-amount').value;
+
+                if(!amount || amount <= 0) return this.showToast('Invalid amount', 'error');
+                
+                const res = await dataService.sendCoins(this.currentUser, email, amount);
+                if(res.success) {
+                    this.showToast(res.message, 'success');
+                    await this.refreshUserData();
+                    document.getElementById('transfer-amount').value = '';
+                } else {
+                    this.showToast(res.message, 'error');
+                }
+            },
+
+            /* --- Community Feed --- */
+            loadPosts: async function() {
                 const posts = await dataService.getPosts();
                 const container = document.getElementById('posts-container');
                 container.innerHTML = '';
-                const isPro = dataService.currentUser.isPro;
-
-                // Limit logic for normal users
-                let limit = isPro ? 100 : 10;
-                let count = 0;
 
                 posts.forEach(post => {
-                    if (count >= limit) return;
-                    count++;
-                    
-                    const el = document.createElement('div');
-                    el.className = 'post-card';
-                    const isLiked = post.likedBy && post.likedBy.includes(dataService.currentUser.email);
-                    
-                    let commentsHtml = '';
-                    if(post.comments) {
-                        Object.values(post.comments).forEach(c => {
-                            commentsHtml += `<div class="comment-item"><span class="comment-user">${c.user}:</span> ${c.text}</div>`;
-                        });
-                    }
+                    const isLiked = post.likedBy && post.likedBy.includes(this.currentUser.email);
+                    const isOwner = post.userEmail === this.currentUser.email;
+                    const canDelete = isOwner || this.currentUser.isPro; // Admins/Pro can delete
 
-                    // --- COMMENT LOCK LOGIC START ---
-                    const isCurrentUserPro = dataService.currentUser.isPro;
-                    const commentInputHtml = isCurrentUserPro ? `
-                        <div class="comment-input-wrapper">
-                            <input type="text" id="input-${post.id}" class="comment-input" placeholder="Write a comment...">
-                            <button class="btn btn-primary btn-sm" onclick="app.submitComment('${post.id}')">Send</button>
-                        </div>
-                    ` : `<div style="text-align:center; color:var(--text-sec); font-size:0.8rem; padding:5px; border-top:1px solid var(--border); margin-top:10px;">🔒 Upgrade to PRO to comment</div>`;
-                    // --- COMMENT LOCK LOGIC END ---
-
-                    el.innerHTML = `
+                    const card = document.createElement('div');
+                    card.className = 'post-card';
+                    card.innerHTML = `
                         <div class="post-header">
-                            <div class="user-avatar">${post.userName.charAt(0)}</div>
+                            <div class="user-avatar">${post.userName.charAt(0).toUpperCase()}</div>
                             <div>
-                                <div class="user-name">${post.userName} ${post.isPro ? '<span class="material-icons-round badge-pro">verified</span>' : ''}</div>
-                                <span class="post-time">${new Date(post.date).toLocaleString()}</span>
+                                <div class="user-name">
+                                    ${post.userName} ${post.isPro ? '<span class="material-icons-round badge-pro">verified</span>' : ''}
+                                </div>
+                                <span class="post-time">${new Date(post.date).toLocaleDateString()}</span>
                             </div>
                         </div>
-                        <div class="post-content">${post.text}</div>
+                        <div class="post-content">${post.content}</div>
                         <div class="post-actions">
-                            <button class="action-btn ${isLiked ? 'liked' : ''}" onclick="app.toggleLike('${post.id}')">
+                            <button class="action-btn ${isLiked ? 'liked' : ''}" onclick="app.togglePostLike('${post.id}')">
                                 <span class="material-icons-round">${isLiked ? 'favorite' : 'favorite_border'}</span> ${post.likedBy ? post.likedBy.length : 0}
                             </button>
                             <button class="action-btn" onclick="app.toggleComments('${post.id}')">
-                                <span class="material-icons-round">comment</span> ${post.comments ? Object.keys(post.comments).length : 0}
+                                <span class="material-icons-round">chat_bubble_outline</span> Comment
                             </button>
+                            ${canDelete ? `<button class="action-btn" style="margin-left:auto; color:var(--danger)" onclick="app.deletePost('${post.id}')">Delete</button>` : ''}
                         </div>
-                        <div id="comments-${post.id}" class="comments-section">
-                            <div>${commentsHtml}</div>
-                            ${commentInputHtml}
+                        <div class="comments-section" id="comments-${post.id}">
+                            <div id="comments-list-${post.id}"></div>
+                            <div class="comment-input-wrapper">
+                                <input type="text" class="comment-input" id="comment-input-${post.id}" placeholder="Write a comment...">
+                                <button class="btn btn-primary btn-sm" onclick="app.postComment('${post.id}')">Send</button>
+                            </div>
                         </div>
-                        ${post.userEmail === dataService.currentUser.email ? `<button class="delete-btn" onclick="app.deletePost('${post.id}')"><span class="material-icons-round">delete</span></button>` : ''}
                     `;
-                    container.appendChild(el);
+                    container.appendChild(card);
+                    
+                    // Load comments if any
+                    if(post.comments && this.currentUser.isPro) {
+                        this.renderComments(post.id, post.comments);
+                    }
                 });
+            },
 
-                if (!isPro && posts.length > limit) {
-                    document.getElementById('feed-limit-msg').classList.remove('hidden');
-                } else {
-                    document.getElementById('feed-limit-msg').classList.add('hidden');
+            createPost: async function() {
+                if(!this.currentUser.isPro) return; // Double check
+                
+                const content = document.getElementById('post-content').value;
+                if(!content) return;
+
+                const postObj = {
+                    content,
+                    userName: this.currentUser.name,
+                    userEmail: this.currentUser.email,
+                    isPro: this.currentUser.isPro,
+                    likedBy: [],
+                    comments: [],
+                    date: new Date().toISOString()
+                };
+
+                await dataService.addPost(postObj);
+                this.showToast('Posted!', 'success');
+                document.getElementById('post-content').value = '';
+                this.loadPosts();
+            },
+
+            deletePost: async function(postId) {
+                if(confirm('Delete this post?')) {
+                    await dataService.deletePost(postId);
+                    this.loadPosts();
                 }
             },
 
-            createPost: async () => {
-                const text = document.getElementById('post-content').value.trim();
+            togglePostLike: async function(postId) {
+                await dataService.toggleLike(postId, this.currentUser.email);
+                this.loadPosts();
+            },
+
+            toggleComments: function(postId) {
+                const el = document.getElementById(`comments-${postId}`);
+                el.classList.toggle('show');
+            },
+
+            postComment: async function(postId) {
+                if(!this.currentUser.isPro) {
+                    this.showToast('Pro users only', 'error');
+                    return;
+                }
+                const text = document.getElementById(`comment-input-${postId}`).value;
                 if(!text) return;
 
-                await dataService.addPost({
-                    userEmail: dataService.currentUser.email,
-                    userName: dataService.currentUser.name,
-                    isPro: dataService.currentUser.isPro,
+                const commentObj = {
+                    user: this.currentUser.name,
                     text: text,
                     date: new Date().toISOString()
-                });
+                };
 
-                document.getElementById('post-content').value = '';
-                app.loadFeed();
+                await dataService.addComment(postId, commentObj);
+                document.getElementById(`comment-input-${postId}`).value = '';
+                this.loadPosts(); // Reload to show comment
             },
 
-            deletePost: async (id) => {
-                if(confirm('Delete this post?')) {
-                    await dataService.deletePost(id);
-                    app.loadFeed();
+            renderComments: function(postId, comments) {
+                const list = document.getElementById(`comments-list-${postId}`);
+                list.innerHTML = '';
+                comments.forEach(c => {
+                    const div = document.createElement('div');
+                    div.className = 'comment-item';
+                    div.innerHTML = `<span class="comment-user">${c.user}:</span> ${c.text}`;
+                    list.appendChild(div);
+                });
+            },
+
+            /* --- Profile & Others --- */
+            buyPro: async function() {
+                const cost = 500;
+                if (this.currentUser.balance >= cost) {
+                    this.currentUser.balance -= cost;
+                    this.currentUser.isPro = true;
+                    await dataService.updateUser(this.currentUser);
+                    this.showToast('Upgraded to PRO!', 'success');
+                    this.refreshUserData();
+                } else {
+                    this.showToast('Insufficient Balance', 'error');
                 }
             },
 
-            toggleLike: async (id) => {
-                await dataService.toggleLike(id, dataService.currentUser.email);
-                app.loadFeed();
+            copyReferralCode: function() {
+                const code = document.getElementById('my-referral-code').innerText;
+                navigator.clipboard.writeText(code);
+                this.showToast('Referral code copied!', 'success');
             },
 
-            toggleComments: (id) => {
-                document.getElementById(`comments-${id}`).classList.toggle('show');
+            copyDepositNumber: function() {
+                const num = document.getElementById('deposit-number-display').innerText;
+                navigator.clipboard.writeText(num);
+                this.showToast('Number copied!', 'success');
             },
 
-            submitComment: async (id) => {
-                // --- SECURITY CHECK: Prevent Non-Pros from commenting ---
-                if (!dataService.currentUser.isPro) {
-                    app.toast('Only PRO members can comment!', 'error');
+            /* --- Utility --- */
+            updateHeader: function() {
+                document.getElementById('user-balance').innerText = this.currentUser.balance.toFixed(2);
+                document.getElementById('user-pkr-val').innerText = (this.currentUser.balance * this.settings.rate).toFixed(0);
+                const status = document.getElementById('user-status-display');
+                status.innerText = this.currentUser.isPro ? 'PRO USER' : 'Normal';
+                status.style.background = this.currentUser.isPro ? 'var(--pro-gold)' : 'rgba(0,0,0,0.2)';
+                status.style.color = this.currentUser.isPro ? '#000' : '#fff';
+            },
+
+            updateProfileUI: function() {
+                document.getElementById('profile-name').innerText = this.currentUser.name;
+                document.getElementById('profile-avatar').innerText = this.currentUser.name.charAt(0).toUpperCase();
+                document.getElementById('profile-balance').innerText = this.currentUser.balance.toFixed(2);
+                document.getElementById('my-referral-code').innerText = this.currentUser.referralCode;
+                
+                const badgeContainer = document.getElementById('profile-badge-container');
+                if(this.currentUser.isPro) {
+                    badgeContainer.innerHTML = '<span class="pro-tag"><span class="material-icons-round" style="font-size:14px;">verified</span> PRO MEMBER</span>';
+                    document.getElementById('post-pro-only-msg').classList.add('hidden');
+                    document.getElementById('post-create-wrapper').classList.remove('hidden');
+                } else {
+                    badgeContainer.innerHTML = '';
+                    document.getElementById('post-pro-only-msg').classList.remove('hidden');
+                    document.getElementById('post-create-wrapper').classList.add('hidden');
+                }
+
+                // P&L Mock Calculation
+                const invested = 0; // Since we don't track specific investment cost in simple model, assume 0 or track deposits if needed
+                const current = this.currentUser.balance * this.settings.rate;
+                document.getElementById('pnl-invested').innerText = invested;
+                document.getElementById('pnl-current').innerText = current.toFixed(0);
+                document.getElementById('pnl-result').innerText = 'PKR ' + (current - invested).toFixed(0);
+                document.getElementById('pnl-result').className = 'pnl-row ' + ((current - invested) >= 0 ? 'pnl-positive' : 'pnl-negative');
+            },
+
+            loadHistory: async function() {
+                const history = await dataService.getUserHistory(this.currentUser.email);
+                const list = document.getElementById('history-list');
+                list.innerHTML = '';
+
+                if(history.length === 0) {
+                    list.innerHTML = '<p style="text-align:center; color:var(--text-sec); margin-top:20px;">No transactions yet.</p>';
                     return;
                 }
 
-                const input = document.getElementById(`input-${id}`);
-                const text = input.value.trim();
-                if(!text) return;
-                
-                await dataService.addComment(id, {
-                    user: dataService.currentUser.name,
-                    text: text
-                });
-                app.loadFeed();
-                // Re-open comment section after reload
-                setTimeout(() => document.getElementById(`comments-${id}`).classList.add('show'), 100);
-            },
-
-            // --- Admin Logic ---
-            loadAdminPanel: async () => {
-                document.getElementById('admin-rate').value = app.globalSettings.rate;
-                document.getElementById('admin-easypaisa').value = app.globalSettings.depositNums.easypaisa;
-                document.getElementById('admin-jazzcash').value = app.globalSettings.depositNums.jazzcash;
-                document.getElementById('admin-binance').value = app.globalSettings.depositNums.binance;
-
-                const reqs = await dataService.getPendingRequests();
-                
-                const depList = document.getElementById('admin-deposit-list');
-                depList.innerHTML = '';
-                const withList = document.getElementById('admin-withdraw-list');
-                withList.innerHTML = '';
-
-                reqs.forEach(req => {
+                history.forEach(h => {
                     const el = document.createElement('div');
-                    el.className = 'request-item';
+                    let typeClass = '';
+                    let title = '';
+                    let sub = '';
+                    
+                    if(h.type === 'deposit') {
+                        typeClass = 'deposit';
+                        title = 'Deposit Request';
+                        sub = `TRX: ${h.trxId}`;
+                    } else if (h.type === 'withdraw') {
+                        typeClass = 'withdraw';
+                        title = 'Withdrawal Request';
+                        sub = `To: ${h.method}`;
+                    } else if (h.type === 'sent') {
+                        typeClass = 'sent';
+                        title = 'Sent Coins';
+                        sub = `To: ${h.target}`;
+                    } else if (h.type === 'received') {
+                        typeClass = 'received';
+                        title = 'Received Coins';
+                        sub = `From: ${h.source}`;
+                    }
+
+                    // Determine status style
+                    let statusHtml = '';
+                    if(!h.isInternal) {
+                        const sClass = h.status === 'approved' ? 'status-approved' : (h.status === 'rejected' ? 'status-rejected' : 'status-pending');
+                        statusHtml = `<span class="status-badge ${sClass}">${h.status}</span>`;
+                    }
+
+                    el.className = `history-item ${typeClass}`;
                     el.innerHTML = `
-                        <div class="req-detail"><strong>User:</strong> ${req.userEmail}</div>
-                        <div class="req-detail"><strong>Amount:</strong> ${req.amountTK.toFixed(2)} TK (${req.amountPKR} PKR)</div>
-                        <div class="req-detail"><strong>Details:</strong> ${req.type === 'deposit' ? req.trxId : req.account}</div>
-                        <div class="req-actions">
-                            <button class="btn btn-primary btn-sm" style="background:var(--success);" onclick="app.handleReq('${req.id}', 'approved')">Approve</button>
-                            <button class="btn btn-danger btn-sm" onclick="app.handleReq('${req.id}', 'rejected')">Reject</button>
+                        <div class="hist-head">
+                            <span class="hist-amount">${h.type === 'withdraw' || h.type === 'sent' ? '-' : '+'}${h.amount} TK</span>
+                            <span class="hist-date">${new Date(h.date).toLocaleDateString()}</span>
                         </div>
+                        <div class="hist-detail">${title}</div>
+                        <div class="hist-detail">${sub}</div>
+                        ${statusHtml}
                     `;
-
-                    if(req.type === 'deposit') depList.appendChild(el);
-                    else withList.appendChild(el);
+                    list.appendChild(el);
                 });
             },
 
-            updateSettings: async () => {
-                const settings = {
-                    rate: parseFloat(document.getElementById('admin-rate').value),
-                    depositNums: {
-                        easypaisa: document.getElementById('admin-easypaisa').value,
-                        jazzcash: document.getElementById('admin-jazzcash').value,
-                        binance: document.getElementById('admin-binance').value
-                    }
-                };
-                await dataService.updateSettings(settings);
-                app.globalSettings = settings;
-                app.toast('Settings Updated', 'success');
-            },
-
-            handleReq: async (reqId, status) => {
-                await db.ref('requests/' + reqId).update({ status: status });
-                
-                // If approved, update user balance
-                if (status === 'approved') {
-                    const snapshot = await db.ref('requests/' + reqId).once('value');
-                    const req = snapshot.val();
-                    const user = await dataService.getUser(req.userEmail);
-                    
-                    if (req.type === 'deposit') {
-                        user.balance = parseFloat(user.balance) + parseFloat(req.amountTK);
-                    } else if (req.type === 'withdraw') {
-                        // Already deducted from UI view, but ensure DB consistency if needed
-                        // In a real app, we lock funds. Here we just assume valid.
-                    }
-                    
-                    await dataService.updateUser(user);
-                    // Add transaction history for approved deposit
-                    if(!user.transactions) user.transactions = [];
-                    user.transactions.push({
-                        type: 'deposit_approved',
-                        amount: req.amountTK,
-                        date: new Date().toISOString()
-                    });
-                    await dataService.updateUser(user);
-                }
-                
-                app.loadAdminPanel();
-            },
-
-            buyPro: async () => {
-                if (dataService.currentUser.balance < 500) return app.toast('Not enough balance', 'error');
-                if (confirm('Upgrade to PRO for 500 TK?')) {
-                    dataService.currentUser.balance -= 500;
-                    dataService.currentUser.isPro = true;
-                    await dataService.updateUser(dataService.currentUser);
-                    app.toast('Upgraded to PRO!', 'success');
-                    app.loadUI();
-                }
-            },
-
-            copyReferralCode: () => {
-                const code = document.getElementById('my-referral-code').innerText;
-                navigator.clipboard.writeText(code);
-                app.toast('Referral Code Copied!', 'success');
-            },
-
-            // --- Utils ---
-            nav: (section, el) => {
-                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-                document.getElementById(section + '-section').classList.add('active');
-                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-                el.classList.add('active');
-
-                if(section === 'feed') app.loadFeed();
-                if(section === 'history') app.loadHistory();
-                if(section === 'profile') app.loadUI();
-            },
-
-            navToProfile: () => {
-                const profileLink = document.querySelector('.nav-item[onclick*="profile"]');
-                if(profileLink) app.nav('profile', profileLink);
-            },
-
-            toggleTheme: () => {
-                document.body.classList.toggle('dark-mode');
-                const isDark = document.body.classList.contains('dark-mode');
-                localStorage.setItem('tk_theme', isDark ? 'dark' : 'light');
-                app.updateThemeIcon();
-            },
-
-            updateThemeIcon: () => {
-                const isDark = document.body.classList.contains('dark-mode');
-                document.getElementById('theme-icon').innerText = isDark ? 'light_mode' : 'dark_mode';
-            },
-
-            toggleLanguage: () => {
-                app.currentLang = app.currentLang === 'en' ? 'ur' : 'en';
-                document.getElementById('lang-btn').innerText = app.currentLang.toUpperCase();
-                
-                // RTL support
-                if (app.currentLang === 'ur') {
-                    document.body.classList.add('urdu-mode');
-                } else {
-                    document.body.classList.remove('urdu-mode');
-                }
-
-                // Simple Text Replacement
-                document.querySelectorAll('[data-i18n]').forEach(el => {
-                    const key = el.getAttribute('data-i18n');
-                    if (i18n[app.currentLang][key]) {
-                        el.innerText = i18n[app.currentLang][key];
-                    }
-                });
-            },
-
-            toast: (msg, type = 'success') => {
+            showToast: function(msg, type = 'success') {
                 const container = document.getElementById('toast-container');
-                const el = document.createElement('div');
-                el.className = `toast ${type}`;
-                el.innerHTML = `<span class="material-icons-round">${type === 'success' ? 'check_circle' : 'error'}</span> ${msg}`;
-                container.appendChild(el);
-                setTimeout(() => el.remove(), 3000);
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.innerHTML = `<span class="material-icons-round">${type === 'success' ? 'check_circle' : 'error'}</span> ${msg}`;
+                container.appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
             },
-
-            openModal: (id) => {
+            
+            openModal: function(id) {
                 document.getElementById(id).style.display = 'flex';
             },
-            closeModal: (id) => {
+            closeModal: function(id) {
                 document.getElementById(id).style.display = 'none';
             }
         };
 
-        // Initialize App
-        window.addEventListener('load', app.init);
+        // Start App
+        window.addEventListener('DOMContentLoaded', () => {
+            app.init();
+        });
     </script>
 </body>
 </html>
