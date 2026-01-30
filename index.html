@@ -83,6 +83,31 @@
         }
         @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
 
+        /* Full Screen Popup */
+        #receive-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
         /* Auth */
         #auth-screen {
             display: flex;
@@ -201,6 +226,10 @@
             cursor: pointer;
             transition: 0.2s;
             border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
         .menu-card:hover { border-color: var(--primary); transform: translateY(-3px); }
         .menu-icon { font-size: 1.5rem; margin-bottom: 10px; display: block; }
@@ -232,12 +261,34 @@
         .trade-buttons { display: flex; gap: 10px; margin-top: 10px; }
         .btn-long { background: var(--success); flex: 1; }
         .btn-short { background: var(--danger); flex: 1; }
+
+        /* Invited List Style */
+        .invited-item {
+            background: var(--bg-card);
+            padding: 10px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            border: 1px solid #333;
+        }
+        .invited-name { font-weight: bold; color: #fff; font-size: 0.9rem; }
+        .invited-date { font-size: 0.7rem; color: #777; }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
     <div id="toast-container"></div>
+
+    <!-- NEW: Full Screen Receive Popup -->
+    <div id="receive-popup" class="hidden">
+        <i class="fas fa-hand-holding-usd" style="font-size: 5rem; color: gold; margin-bottom: 20px; animation: bounce 1s infinite;"></i>
+        <h2 style="color: white;">Coins Received!</h2>
+        <p style="color: #ccc; margin-top: 10px;">You received <span id="popup-amount" class="text-green" style="font-weight: bold;">0</span> TK</p>
+        <button class="btn" style="margin-top: 30px; width: auto; padding: 10px 40px;" onclick="window.closePopup()">OK</button>
+    </div>
 
     <!-- Auth Screen -->
     <div id="auth-screen">
@@ -252,6 +303,11 @@
                     <label>Password</label>
                     <input type="password" id="auth-pass" required placeholder="password">
                 </div>
+                <div class="input-group hidden" id="ref-group">
+                    <label>Referral Code (Optional)</label>
+                    <input type="text" id="auth-ref" placeholder="Enter Referral Code">
+                </div>
+
                 <button type="submit" class="btn" id="auth-btn">Login</button>
             </form>
             <div class="auth-toggle" onclick="toggleAuthMode()">Don't have an account? Signup</div>
@@ -458,7 +514,15 @@
                     <input type="number" id="transfer-amount" placeholder="Amount">
                 </div>
 
-                <button class="btn" onclick="submitTransfer()">Send Now</button>
+                <!-- Send Button -->
+                <button id="btn-transfer-send" class="btn" onclick="submitTransfer()">Send Now</button>
+                
+                <!-- NEW: Cooldown Message -->
+                <div id="transfer-wait-msg" class="hidden" style="margin-top: 15px; text-align: center; background: #333; padding: 15px; border-radius: 8px; border: 1px solid var(--primary);">
+                    <p class="text-orange" style="font-weight: bold;">Wait <span id="timer-count">02:00</span> minutes</p>
+                    <small style="color:#aaa;">Next transfer available soon</small>
+                </div>
+
                 <button class="btn btn-outline" style="margin-top: 10px;" onclick="showSection('wallet')">Back</button>
             </section>
 
@@ -505,6 +569,33 @@
                     <div id="profile-status" style="margin-top: 5px; font-size: 0.9rem; color: var(--primary);">Normal User</div>
                 </div>
 
+                <div class="menu-card" onclick="downloadApp()" style="margin-bottom: 15px;">
+                    <i class="fab fa-android" style="color: #a4c639; font-size: 2rem; margin-bottom: 5px;"></i>
+                    <div style="font-weight: bold;">Download App</div>
+                    <small style="color:#888;">For better experience</small>
+                </div>
+
+                <div class="menu-card" onclick="copyReferralLink()" style="margin-bottom: 15px; text-align: left; flex-direction: row; justify-content: space-between; padding: 15px;">
+                    <div>
+                        <div style="font-weight: bold; font-size: 0.9rem; color: #fff;">Invite & Earn</div>
+                        <small style="color: var(--text-muted); display: block; margin-top: 2px;">Share your ID to get 3% bonus</small>
+                    </div>
+                    <div style="text-align: right; display: flex; align-items: center; gap: 10px;">
+                        <span id="ref-code-display" style="font-family: monospace; color: var(--primary); font-weight: bold;">---</span>
+                        <i class="fas fa-copy" style="color: #555;"></i>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <div style="display:flex; justify-content: space-between; margin-bottom: 10px;">
+                        <h3>Invited Members</h3>
+                        <span style="background:var(--primary); padding:2px 8px; border-radius:4px; font-weight:bold; font-size:0.8rem;">Total: <span id="total-invites-count">0</span></span>
+                    </div>
+                    <div id="invited-list" style="max-height: 200px; overflow-y: auto;">
+                        <div style="text-align:center; color:#777; font-size:0.8rem;">No invites yet.</div>
+                    </div>
+                </div>
+
                 <h3>Settings</h3>
                 <div class="menu-card" onclick="showAboutModal()" style="text-align: left; margin-bottom: 10px;">
                     <i class="fas fa-info-circle"></i> About App
@@ -538,7 +629,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
-        import { getDatabase, ref, set, push, onValue, update, get, child } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
+        import { getDatabase, ref, set, push, onValue, update, get, child, onChildAdded } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCBMk5ED0YNL9MqVThgMhoOuWvGwTgCJCg",
@@ -563,10 +654,12 @@
             jazzcash: '0321-7654321',
             tillid: '03XX-XXXXXXX (Raast)', 
             minWithdraw: 50,
-            withdrawFee: 0.05 // Default 5%
+            withdrawFee: 0.05
         };
         let chartPoints = [];
         let lastKnownBalance = 0; 
+        let isTransfersLoaded = false; 
+        let transferCooldownInterval = null; // Timer interval
 
         window.playSound = (type) => {
             const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -594,6 +687,10 @@
             }
         }
 
+        window.closePopup = () => {
+            document.getElementById('receive-popup').classList.add('hidden');
+        }
+
         window.showToast = (msg, type = 'success') => {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -608,7 +705,18 @@
 
         function getAdminEmail() { return "admin@app.com"; }
 
+        function checkUrlParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const refCode = urlParams.get('ref');
+            if (refCode) {
+                document.getElementById('auth-ref').value = refCode;
+                if (!isSignup) toggleAuthMode();
+            }
+        }
+
         function initApp() {
+            checkUrlParams();
+            
             onAuthStateChanged(auth, (user) => {
                 if (user) {
                     checkAndCreateUserInDB(user);
@@ -618,6 +726,126 @@
                     currentUserData = null;
                 }
             });
+        }
+
+        function startZigzagAnimation() {
+            setInterval(() => {
+                if(!marketData) return;
+                const lastPrice = chartPoints.length > 0 ? chartPoints[chartPoints.length - 1] : marketData.tkPrice;
+                const change = (Math.random() - 0.5) * 0.05; 
+                let newPrice = lastPrice + change;
+                if(newPrice < 0.1) newPrice = 0.1;
+                chartPoints.push(newPrice);
+                if (chartPoints.length > 20) chartPoints.shift();
+                drawChart();
+            }, 1000); 
+        }
+
+        function checkAndCreateUserInDB(firebaseUser) {
+            const userRef = ref(db, 'users/' + firebaseUser.uid);
+            get(userRef).then((snapshot) => {
+                if (snapshot.exists()) {
+                    currentUserData = snapshot.val();
+                    currentUserData.uid = firebaseUser.uid;
+                    loginSuccess(currentUserData);
+                } else {
+                    const passwordInput = document.getElementById('auth-pass').value;
+                    const refCode = document.getElementById('auth-ref').value.trim();
+                    const isAdmin = firebaseUser.email === getAdminEmail();
+                    const newUser = {
+                        name: firebaseUser.email.split('@')[0],
+                        email: firebaseUser.email,
+                        password: passwordInput,
+                        role: isAdmin ? "admin" : "user",
+                        isBanned: false,
+                        isPremium: isAdmin ? true : false,
+                        balanceTK: isAdmin ? 10000 : 0,
+                        createdAt: new Date().toISOString()
+                    };
+
+                    if (refCode) {
+                        newUser.referredBy = refCode;
+                        const referralPath = ref(db, `referrals/${refCode}/${firebaseUser.uid}`);
+                        set(referralPath, {
+                            name: newUser.name,
+                            joinedAt: new Date().toLocaleString()
+                        });
+                    }
+
+                    set(userRef, newUser).then(() => {
+                        currentUserData = newUser;
+                        currentUserData.uid = firebaseUser.uid;
+                        loginSuccess(currentUserData);
+                    });
+                }
+            });
+        }
+
+        let isSignup = false;
+        window.toggleAuthMode = () => {
+            isSignup = !isSignup;
+            const refGroup = document.getElementById('ref-group');
+            document.querySelector('.auth-box h2').innerText = isSignup ? "Create Account" : "TK Coin Login";
+            document.getElementById('auth-btn').innerText = isSignup ? "Signup" : "Login";
+            document.querySelector('.auth-toggle').innerText = isSignup ? "Already have an account? Login" : "Don't have an account? Signup";
+            
+            if(isSignup) refGroup.classList.remove('hidden');
+            else refGroup.classList.add('hidden');
+        };
+
+        document.getElementById('auth-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('auth-email').value;
+            const pass = document.getElementById('auth-pass').value;
+            const btn = document.getElementById('auth-btn');
+            btn.innerText = "Processing...";
+            btn.disabled = true;
+            try {
+                if (isSignup) await createUserWithEmailAndPassword(auth, email, pass);
+                else await signInWithEmailAndPassword(auth, email, pass);
+            } catch (error) {
+                showToast(error.message, "error");
+                btn.innerText = isSignup ? "Signup" : "Login";
+                btn.disabled = false;
+            }
+        });
+
+        window.logout = () => {
+            signOut(auth).then(() => {
+                lastKnownBalance = 0;
+                showToast("Logged out");
+                window.location.reload();
+            });
+        };
+
+        function loginSuccess(user) {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('app-container').classList.remove('hidden');
+            
+            document.getElementById('auth-btn').innerText = isSignup ? "Signup" : "Login";
+            document.getElementById('auth-btn').disabled = false;
+
+            lastKnownBalance = user.balanceTK || 0;
+
+            onValue(ref(db, 'users/' + user.uid), (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    const newBal = data.balanceTK;
+                    if (newBal > lastKnownBalance && lastKnownBalance > 0) {
+                        showToast("Coins Received!", "success");
+                        playSound('success');
+                    }
+                    currentUserData = data;
+                    currentUserData.uid = user.uid;
+                    lastKnownBalance = newBal;
+                    updateUI();
+                    
+                    // Check cooldown whenever user data updates
+                    if(document.getElementById('view-transfer').classList.contains('hidden') === false) {
+                        checkTransferCooldown();
+                    }
+                }
+            });
 
             onValue(ref(db, 'market'), (snapshot) => {
                 const data = snapshot.val();
@@ -625,7 +853,7 @@
                     marketData = data;
                     updateMarketUI();
                     if (chartPoints.length === 0) for(let i=0; i<20; i++) chartPoints.push(marketData.tkPrice);
-                    if (currentUserData) updateUI();
+                    updateUI();
                 }
             });
 
@@ -665,111 +893,128 @@
                 }
             });
 
+            loadReferralStats(user.uid);
+            monitorIncomingTransfers(user.uid); 
             startZigzagAnimation();
-        }
-
-        function startZigzagAnimation() {
-            setInterval(() => {
-                if(!marketData) return;
-                const lastPrice = chartPoints.length > 0 ? chartPoints[chartPoints.length - 1] : marketData.tkPrice;
-                const change = (Math.random() - 0.5) * 0.05; 
-                let newPrice = lastPrice + change;
-                if(newPrice < 0.1) newPrice = 0.1;
-                chartPoints.push(newPrice);
-                if (chartPoints.length > 20) chartPoints.shift();
-                drawChart();
-            }, 1000); 
-        }
-
-        function checkAndCreateUserInDB(firebaseUser) {
-            const userRef = ref(db, 'users/' + firebaseUser.uid);
-            get(userRef).then((snapshot) => {
-                if (snapshot.exists()) {
-                    currentUserData = snapshot.val();
-                    currentUserData.uid = firebaseUser.uid;
-                    loginSuccess(currentUserData);
-                } else {
-                    const passwordInput = document.getElementById('auth-pass').value;
-                    const isAdmin = firebaseUser.email === getAdminEmail();
-                    const newUser = {
-                        name: firebaseUser.email.split('@')[0],
-                        email: firebaseUser.email,
-                        password: passwordInput,
-                        role: isAdmin ? "admin" : "user",
-                        isBanned: false,
-                        isPremium: isAdmin ? true : false,
-                        balanceTK: isAdmin ? 10000 : 0,
-                        createdAt: new Date().toISOString()
-                    };
-                    set(userRef, newUser).then(() => {
-                        currentUserData = newUser;
-                        currentUserData.uid = firebaseUser.uid;
-                        loginSuccess(currentUserData);
-                    });
-                }
-            });
-        }
-
-        let isSignup = false;
-        window.toggleAuthMode = () => {
-            isSignup = !isSignup;
-            document.querySelector('.auth-box h2').innerText = isSignup ? "Create Account" : "TK Coin Login";
-            document.getElementById('auth-btn').innerText = isSignup ? "Signup" : "Login";
-            document.querySelector('.auth-toggle').innerText = isSignup ? "Already have an account? Login" : "Don't have an account? Signup";
-        };
-
-        document.getElementById('auth-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('auth-email').value;
-            const pass = document.getElementById('auth-pass').value;
-            const btn = document.getElementById('auth-btn');
-            btn.innerText = "Processing...";
-            btn.disabled = true;
-            try {
-                if (isSignup) await createUserWithEmailAndPassword(auth, email, pass);
-                else await signInWithEmailAndPassword(auth, email, pass);
-            } catch (error) {
-                showToast(error.message, "error");
-            } finally {
-                btn.innerText = isSignup ? "Signup" : "Login";
-                btn.disabled = false;
-            }
-        });
-
-        window.logout = () => {
-            signOut(auth).then(() => {
-                lastKnownBalance = 0;
-                showToast("Logged out");
-            });
-        };
-
-        function loginSuccess(user) {
-            document.getElementById('auth-screen').classList.add('hidden');
-            document.getElementById('app-container').classList.remove('hidden');
-            lastKnownBalance = user.balanceTK || 0;
-
-            onValue(ref(db, 'users/' + user.uid), (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    const newBal = data.balanceTK;
-                    if (newBal > lastKnownBalance && lastKnownBalance > 0) {
-                        showToast("Coins Received!", "success");
-                        playSound('success');
-                    }
-                    currentUserData = data;
-                    currentUserData.uid = user.uid;
-                    lastKnownBalance = newBal;
-                    updateUI();
-                }
-            });
 
             if (user.role === 'admin') {
-                showToast("Admin detected. Redirecting to Admin Panel...", "info");
+                showToast("Admin detected...", "info");
                 setTimeout(() => window.location.href = 'admin.html', 1500);
                 return;
             } else {
                 showSection('market');
             }
+        }
+
+        function monitorIncomingTransfers(myUid) {
+            const transfersRef = ref(db, 'transfers');
+            
+            get(transfersRef).then(() => {
+                isTransfersLoaded = true;
+            });
+
+            onChildAdded(transfersRef, (snapshot) => {
+                if (!isTransfersLoaded) return;
+                const data = snapshot.val();
+                if (data.to === myUid) {
+                    showReceivePopup(data.amount);
+                }
+            });
+        }
+
+        function showReceivePopup(amount) {
+            const popup = document.getElementById('receive-popup');
+            document.getElementById('popup-amount').innerText = amount.toFixed(2);
+            popup.classList.remove('hidden');
+            playSound('success');
+        }
+
+        // NEW: Cooldown Timer Logic
+        function startTransferTimer(duration) {
+            let timer = duration;
+            const btn = document.getElementById('btn-transfer-send');
+            const msg = document.getElementById('transfer-wait-msg');
+            const timeDisplay = document.getElementById('timer-count');
+
+            btn.classList.add('hidden');
+            msg.classList.remove('hidden');
+
+            if (transferCooldownInterval) clearInterval(transferCooldownInterval);
+
+            transferCooldownInterval = setInterval(() => {
+                let minutes = parseInt(timer / 60, 10);
+                let seconds = parseInt(timer % 60, 10);
+
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                timeDisplay.innerText = minutes + ":" + seconds;
+
+                if (--timer < 0) {
+                    clearInterval(transferCooldownInterval);
+                    btn.classList.remove('hidden');
+                    msg.classList.add('hidden');
+                    document.getElementById('transfer-email').value = '';
+                    document.getElementById('transfer-amount').value = '';
+                }
+            }, 1000);
+        }
+
+        function checkTransferCooldown() {
+            if (!currentUserData) return;
+            const btn = document.getElementById('btn-transfer-send');
+            const msg = document.getElementById('transfer-wait-msg');
+
+            // Check if user has a timestamp in DB
+            if (currentUserData.lastTransferAt) {
+                const now = Date.now();
+                const last = currentUserData.lastTransferAt;
+                const diff = now - last;
+                const twoMinutes = 120000; // 2 mins in ms
+
+                if (diff < twoMinutes) {
+                    // Still in cooldown
+                    startTransferTimer(twoMinutes - diff);
+                } else {
+                    // Cooldown over
+                    btn.classList.remove('hidden');
+                    msg.classList.add('hidden');
+                    if(transferCooldownInterval) clearInterval(transferCooldownInterval);
+                }
+            } else {
+                // No transfer history yet
+                btn.classList.remove('hidden');
+                msg.classList.add('hidden');
+            }
+        }
+
+        function loadReferralStats(uid) {
+            const listContainer = document.getElementById('invited-list');
+            const countDisplay = document.getElementById('total-invites-count');
+            
+            onValue(ref(db, `referrals/${uid}`), (snapshot) => {
+                listContainer.innerHTML = "";
+                const data = snapshot.val();
+                
+                if (!data || Object.keys(data).length === 0) {
+                    listContainer.innerHTML = `<div style="text-align:center; color:#777; font-size:0.8rem;">No invites yet.</div>`;
+                    countDisplay.innerText = "0";
+                    return;
+                }
+
+                const invites = Object.values(data);
+                countDisplay.innerText = invites.length;
+
+                invites.forEach(member => {
+                    const div = document.createElement('div');
+                    div.className = 'invited-item';
+                    div.innerHTML = `
+                        <span class="invited-name"><i class="fas fa-user" style="margin-right:5px; font-size:0.8rem; color:#555;"></i> ${member.name}</span>
+                        <span class="invited-date">${member.joinedAt}</span>
+                    `;
+                    listContainer.appendChild(div);
+                });
+            });
         }
 
         window.showSection = (sectionId) => {
@@ -780,6 +1025,11 @@
             if (navIndex >= 0) document.querySelectorAll('.nav-item')[navIndex].classList.add('active');
             if (sectionId === 'wallet') loadUserHistory(); 
             if (sectionId === 'chat') loadUserChat();
+            
+            // Check cooldown when entering transfer section
+            if(sectionId === 'transfer') {
+                checkTransferCooldown();
+            }
         };
 
         function updateUI() {
@@ -798,6 +1048,7 @@
             document.getElementById('futures-tk').innerText = currentUserData.balanceTK.toFixed(2);
             const pkrValue = currentUserData.balanceTK * marketData.tkPrice * marketData.usdtRate;
             document.getElementById('wallet-pkr').innerText = pkrValue.toFixed(2);
+            
             if (currentUserData.isPremium) {
                 document.getElementById('profile-status').innerHTML = `<span class="text-blue"><i class="fas fa-check-circle blue-tick"></i> Premium User</span>`;
                 document.getElementById('header-premium-badge').classList.remove('hidden');
@@ -808,6 +1059,7 @@
             const fee = currentUserData.isPremium ? 0 : (appSettings.withdrawFee * 100);
             document.getElementById('fee-display').innerText = `Fee: ${fee}%`;
             document.getElementById('withdraw-bal-display').innerText = currentUserData.balanceTK.toFixed(2) + " TK";
+            document.getElementById('ref-code-display').innerText = currentUserData.uid;
         }
 
         function updateMarketUI() {
@@ -837,6 +1089,22 @@
             });
             ctx.stroke();
         }
+
+        window.downloadApp = () => {
+            window.location.href = 'tkcoin.apk';
+        };
+
+        window.copyReferralLink = () => {
+            const uid = currentUserData.uid;
+            const baseUrl = window.location.href.split('?')[0];
+            const link = baseUrl + "?ref=" + uid;
+            
+            navigator.clipboard.writeText(link).then(() => {
+                showToast("Referral Link Copied!", "success");
+            }).catch(() => {
+                showToast("Failed to copy", "error");
+            });
+        };
 
         window.updateDepositDetails = () => {
             const method = document.getElementById('deposit-method').value;
@@ -904,6 +1172,23 @@
             };
             push(ref(db, 'deposits'), depositData).then(() => {
                 showToast("Request Submitted!");
+                
+                if (currentUserData.referredBy) {
+                    const referrerUid = currentUserData.referredBy;
+                    const bonus = receiveTk * 0.03; 
+
+                    get(ref(db, 'users/' + referrerUid)).then((snapshot) => {
+                        if (snapshot.exists()) {
+                            const referrerData = snapshot.val();
+                            const newBalance = (referrerData.balanceTK || 0) + bonus;
+                            
+                            update(ref(db, 'users/' + referrerUid), {
+                                balanceTK: newBalance
+                            });
+                        }
+                    });
+                }
+
                 document.getElementById('deposit-amount').value = '';
                 document.getElementById('deposit-ref').value = '';
                 showSection('wallet');
@@ -917,7 +1202,6 @@
             document.getElementById('withdraw-calc-usdt').innerText = pkrVal.toFixed(2);
         }
 
-        // UPDATED WITHDRAW LOGIC: FIXED KEY ASSIGNMENT
         window.submitWithdraw = () => {
             const amount = parseFloat(document.getElementById('withdraw-amount').value);
             const method = document.getElementById('withdraw-method').value;
@@ -935,7 +1219,6 @@
             const usdtVal = amount * marketData.tkPrice;
             const pkrVal = usdtVal * marketData.usdtRate;
 
-            // 1. Get a new unique key for the withdrawal
             const newWithdrawKey = push(ref(db, 'withdrawals')).key;
 
             const withdrawData = {
@@ -946,22 +1229,17 @@
                 amount: amount, 
                 pkrAmount: pkrVal, 
                 fee: fee,
-                total: total, // Store total to refund if needed
+                total: total, 
                 date: new Date().toLocaleString(),
                 status: 'pending'
             };
 
-            // 2. Atomic update: Deduct Balance AND Create Request
             const updates = {};
             updates['users/' + currentUserData.uid + '/balanceTK'] = currentUserData.balanceTK - total;
             updates['withdrawals/' + newWithdrawKey] = withdrawData;
 
             update(ref(db), updates).then(() => {
                 showToast("Withdrawal Requested. Balance Deducted.");
-                // Optimistic UI Update
-                currentUserData.balanceTK = currentUserData.balanceTK - total;
-                updateUI(); 
-                
                 document.getElementById('withdraw-amount').value = '';
                 document.getElementById('withdraw-account').value = '';
                 showSection('wallet');
@@ -971,6 +1249,7 @@
             });
         };
 
+        // UPDATED: Submit Transfer with Cooldown
         window.submitTransfer = () => {
             const email = document.getElementById('transfer-email').value.trim();
             const amount = parseFloat(document.getElementById('transfer-amount').value);
@@ -978,7 +1257,9 @@
             if (!email) return showToast("Enter email", "error");
             if (email === currentUserData.email) return showToast("Cannot send to yourself", "error");
             if (!amount || amount <= 0) return showToast("Invalid amount", "error");
-            if (amount > currentUserData.balanceTK) return showToast("Insufficient balance", "error");
+            
+            const currentBal = parseFloat(currentUserData.balanceTK || 0);
+            if (amount > currentBal) return showToast("Insufficient balance", "error");
 
             showToast("Checking user...", "info");
 
@@ -994,15 +1275,41 @@
 
                 if (receiverUid) {
                     showToast("User Found! Transferring...", "success");
+                    
                     const updates = {};
-                    updates['users/' + currentUserData.uid + '/balanceTK'] = currentUserData.balanceTK - amount;
-                    const receiverBal = snapshot.val()[receiverUid].balanceTK || 0;
+                    // Sender Balance
+                    updates['users/' + currentUserData.uid + '/balanceTK'] = currentBal - amount;
+                    // Receiver Balance
+                    const receiverData = snapshot.val()[receiverUid];
+                    const receiverBal = parseFloat(receiverData.balanceTK || 0);
                     updates['users/' + receiverUid + '/balanceTK'] = receiverBal + amount;
+
+                    // History
+                    const transferRef = push(ref(db, 'transfers'));
+                    const transferData = {
+                        from: currentUserData.uid,
+                        fromName: currentUserData.name,
+                        to: receiverUid,
+                        toName: receiverData.name,
+                        amount: amount,
+                        date: new Date().toLocaleString(),
+                        timestamp: Date.now()
+                    };
+                    updates['transfers/' + transferRef.key] = transferData;
+
+                    // NEW: Add Cooldown Timestamp
+                    updates['users/' + currentUserData.uid + '/lastTransferAt'] = Date.now();
+
                     update(ref(db), updates).then(() => {
                         showToast("Transfer Successful!");
+                        
+                        // Start UI Timer Immediately
+                        startTransferTimer(120000); // 2 minutes
+                        
+                        // Clear Inputs
                         document.getElementById('transfer-amount').value = '';
                         document.getElementById('transfer-email').value = '';
-                        showSection('wallet');
+                        // Don't switch sections to let user see the timer
                     });
                 } else {
                     showToast("User Not Found", "error");
@@ -1063,92 +1370,100 @@
             input.value = "";
         }
 
-        // UPDATED: FULL HISTORY FUNCTION
         function loadUserHistory() {
             const list = document.getElementById('transaction-list');
             list.innerHTML = '<div style="text-align:center; color:#777;">Loading...</div>';
-            
-            // Array to hold both deposit and withdrawal records
             let allTx = [];
 
-            // Helper to render the final list
             const renderHistory = () => {
                 list.innerHTML = "";
-                
                 if(allTx.length === 0) {
                     list.innerHTML = "<div style='text-align:center; color:#777; margin-top:10px;'>No transactions yet.</div>";
                     return;
                 }
-
-                // Sort by date (Newest first)
                 allTx.sort((a, b) => new Date(b.date) - new Date(a.date));
 
                 allTx.forEach(item => {
-                    let statusColor = 'var(--primary)'; // pending (orange)
-                    if(item.status === 'approved') statusColor = 'var(--success)';
-                    if(item.status === 'rejected') statusColor = 'var(--danger)';
+                    let statusColor = 'var(--primary)';
+                    let title = item.type ? item.type.toUpperCase() : 'TRANSFER';
+                    let subtitle = item.method || '';
+                    let amountColor = '#fff';
+
+                    if(item.type === 'Deposit' || item.type === 'Withdraw') {
+                        if(item.status === 'approved') statusColor = 'var(--success)';
+                        if(item.status === 'rejected') statusColor = 'var(--danger)';
+                    } else if (item.type === 'Transfer') {
+                         title = 'TRANSFER';
+                         subtitle = item.direction === 'Sent' ? `Sent to: ${item.peerName}` : `Received from: ${item.peerName}`;
+                         amountColor = item.direction === 'Sent' ? 'var(--danger)' : 'var(--success)';
+                    }
 
                     list.innerHTML += `
-                        <div style="background: var(--bg-card); padding: 12px; border-radius: 8px; border: 1px solid #333; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                            <div>
-                                <div style="font-weight: bold; color: ${statusColor}; margin-bottom: 4px;">${item.type}</div>
-                                <div style="font-size: 0.8rem; color: #777;">${item.date}</div>
+                        <div style="background: var(--bg-card); padding: 12px; border-radius: 8px; border: 1px solid #333;">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                                <span style="font-weight:bold; color:#fff;">${title}</span>
+                                <span style="font-size:0.8rem; color:#aaa;">${item.date}</span>
                             </div>
-                            <div style="text-align: right;">
-                                <div style="font-weight: bold;">${item.amount.toFixed(2)} TK</div>
-                                <div style="font-size: 0.8rem; color: ${statusColor}; text-transform: capitalize;">${item.status}</div>
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <div>
+                                    <div style="color:${amountColor}; font-weight:bold;">${item.amount} TK</div>
+                                    <div style="font-size:0.8rem; color:#777;">${subtitle}</div>
+                                </div>
+                                ${item.status ? `<div class="status-badge" style="background:${statusColor}; color:${item.status==='pending'?'black':'white'}">${item.status}</div>` : ''}
                             </div>
                         </div>
                     `;
                 });
             };
 
-            // 1. Fetch Deposits
-            get(ref(db, 'deposits')).then(snap => {
-                if(snap.exists()) {
-                    const data = snap.val();
-                    Object.keys(data).forEach(key => {
-                        const item = data[key];
-                        // Filter only current user's deposits
-                        if(item.userId === currentUserData.uid) {
-                            allTx.push({
-                                type: 'Deposit',
-                                amount: item.amount,
-                                status: item.status,
-                                date: item.date
-                            });
+            onValue(ref(db, 'deposits'), (snapshot) => {
+                const data = snapshot.val();
+                if(data) {
+                    Object.values(data).forEach(d => {
+                        if(d.userId === currentUserData.uid) {
+                            d.type = 'Deposit';
+                            allTx.push(d);
                         }
                     });
                 }
-            }).then(() => {
-                // 2. Fetch Withdrawals
-                return get(ref(db, 'withdrawals'));
-            }).then(snap => {
-                if(snap.exists()) {
-                    const data = snap.val();
-                    Object.keys(data).forEach(key => {
-                        const item = data[key];
-                        // Filter only current user's withdrawals
-                        if(item.userId === currentUserData.uid) {
-                            allTx.push({
-                                type: 'Withdraw',
-                                amount: item.total, // Show total (amount + fee)
-                                status: item.status,
-                                date: item.date
-                            });
+                renderHistory();
+            });
+
+            onValue(ref(db, 'withdrawals'), (snapshot) => {
+                const data = snapshot.val();
+                if(data) {
+                    Object.values(data).forEach(w => {
+                        if(w.userId === currentUserData.uid) {
+                            w.type = 'Withdraw';
+                            w.amount = w.total; 
+                            allTx.push(w);
                         }
                     });
                 }
-            }).then(() => {
-                // 3. Render final list
+                renderHistory();
+            });
+
+            onValue(ref(db, 'transfers'), (snapshot) => {
+                const data = snapshot.val();
+                if(data) {
+                    Object.values(data).forEach(t => {
+                        if(t.from === currentUserData.uid) {
+                            t.type = 'Transfer';
+                            t.direction = 'Sent';
+                            t.peerName = t.toName || 'Unknown';
+                            allTx.push(t);
+                        } else if (t.to === currentUserData.uid) {
+                            t.type = 'Transfer';
+                            t.direction = 'Received';
+                            t.peerName = t.fromName || 'Unknown';
+                            allTx.push(t);
+                        }
+                    });
+                }
                 renderHistory();
             });
         }
         
-        window.showAboutModal = () => {
-             showToast("TK Coin is a secure and fast digital cryptocurrency built for easy trading, payments, and investment. It offers low fees, quick transactions, and a user-friendly system for people around the world. TK Coin’s goal is to make digital finance simple, safe, and accessible for everyone.");
-        }
-
         initApp();
     </script>
 </body>
