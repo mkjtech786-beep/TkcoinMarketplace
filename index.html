@@ -275,6 +275,50 @@
         }
         .invited-name { font-weight: bold; color: #fff; font-size: 0.9rem; }
         .invited-date { font-size: 0.7rem; color: #777; }
+
+        /* NEW: Buyer/Seller Percentage Indicator */
+        .market-pressure-card {
+            background: var(--bg-card);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            border: 1px solid #333;
+        }
+        .pressure-bar-container {
+            display: flex;
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 10px 0;
+            position: relative;
+        }
+        .pressure-buy {
+            background: linear-gradient(90deg, #00c853, #00ff00);
+            height: 100%;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        .pressure-sell {
+            background: linear-gradient(90deg, #ff3d00, #ff6600);
+            height: 100%;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            padding-left: 10px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        .pressure-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -343,7 +387,21 @@
                 <div class="balance-card">
                     <div class="balance-title">Current TK Price</div>
                     <div class="balance-amount"><span id="market-price">0.00</span> PKR</div>
-                    <small style="opacity: 0.8;">Total Hold TK: 1M+ Coins</small>
+                    <small style="opacity: 0.8;">Total Hold TK: 20M+ Coins</small>
+                </div>
+
+                <!-- NEW: Buyer/Seller Pressure Indicator -->
+                <div class="market-pressure-card">
+                    <h3 style="margin-bottom: 10px; color: var(--primary);">Market Pressure</h3>
+                    <div class="pressure-bar-container" id="pressure-bar">
+                        <div class="pressure-buy" id="buy-percentage">50%</div>
+                        <div class="pressure-sell" id="sell-percentage">50%</div>
+                    </div>
+                    <div class="pressure-labels">
+                        <span><i class="fas fa-arrow-up" style="color: #00c853;"></i> Buyers</span>
+                        <span id="last-updated">Updated now</span>
+                        <span><i class="fas fa-arrow-down" style="color: #ff3d00;"></i> Sellers</span>
+                    </div>
                 </div>
 
                 <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -517,7 +575,7 @@
                 <!-- Send Button -->
                 <button id="btn-transfer-send" class="btn" onclick="submitTransfer()">Send Now</button>
                 
-                <!-- NEW: Cooldown Message -->
+                <!-- Cooldown Message -->
                 <div id="transfer-wait-msg" class="hidden" style="margin-top: 15px; text-align: center; background: #333; padding: 15px; border-radius: 8px; border: 1px solid var(--primary);">
                     <p class="text-orange" style="font-weight: bold;">Wait <span id="timer-count">02:00</span> minutes</p>
                     <small style="color:#aaa;">Next transfer available soon</small>
@@ -565,7 +623,7 @@
                 <div style="text-align: center; margin-bottom: 20px;">
                     <div id="profile-avatar" class="avatar" style="width: 100px; height: 100px; margin-bottom: 10px; font-size: 2.5rem; background: var(--primary);">U</div>
                     <h2 id="profile-name">User Name</h2>
-                    <p id="profile-email" style="color: #aaa;">user@email.com</p>
+                    <p id="profile-email" style="color: #aaa;">tkcoin@email.com</p>
                     <div id="profile-status" style="margin-top: 5px; font-size: 0.9rem; color: var(--primary);">Normal User</div>
                 </div>
 
@@ -659,7 +717,11 @@
         let chartPoints = [];
         let lastKnownBalance = 0; 
         let isTransfersLoaded = false; 
-        let transferCooldownInterval = null; // Timer interval
+        let transferCooldownInterval = null;
+
+        // NEW: Buyer/Seller Pressure Variables
+        let pressureData = { buy: 50, sell: 50 };
+        let pressureInterval = null;
 
         window.playSound = (type) => {
             const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -739,6 +801,27 @@
                 if (chartPoints.length > 20) chartPoints.shift();
                 drawChart();
             }, 1000); 
+        }
+
+        // NEW: Update Buyer/Seller Pressure
+        function updateMarketPressure() {
+            // Generate realistic random percentages (30-70% range)
+            const buyPercent = Math.floor(Math.random() * 40) + 30; // 30-70%
+            const sellPercent = 100 - buyPercent;
+            
+            pressureData = { buy: buyPercent, sell: sellPercent };
+            
+            // Update UI
+            document.getElementById('buy-percentage').style.width = buyPercent + '%';
+            document.getElementById('buy-percentage').innerText = buyPercent + '%';
+            document.getElementById('sell-percentage').style.width = sellPercent + '%';
+            document.getElementById('sell-percentage').innerText = sellPercent + '%';
+            document.getElementById('last-updated').innerText = 'Updated now';
+            
+            // Update timestamp
+            setTimeout(() => {
+                document.getElementById('last-updated').innerText = 'Updated 1 min ago';
+            }, 60000);
         }
 
         function checkAndCreateUserInDB(firebaseUser) {
@@ -827,7 +910,7 @@
 
             lastKnownBalance = user.balanceTK || 0;
 
-            // NEW: Track user activity on login
+            // Track activity
             trackUserActivity(user.uid);
 
             onValue(ref(db, 'users/' + user.uid), (snapshot) => {
@@ -843,7 +926,6 @@
                     lastKnownBalance = newBal;
                     updateUI();
                     
-                    // Check cooldown whenever user data updates
                     if(document.getElementById('view-transfer').classList.contains('hidden') === false) {
                         checkTransferCooldown();
                     }
@@ -900,6 +982,10 @@
             monitorIncomingTransfers(user.uid); 
             startZigzagAnimation();
 
+            // NEW: Start pressure updater
+            updateMarketPressure(); // Initial update
+            pressureInterval = setInterval(updateMarketPressure, 600000); // Every 10 minutes
+
             if (user.role === 'admin') {
                 showToast("Admin detected...", "info");
                 setTimeout(() => window.location.href = 'admin.html', 1500);
@@ -932,7 +1018,6 @@
             playSound('success');
         }
 
-        // NEW: Cooldown Timer Logic
         function startTransferTimer(duration) {
             let timer = duration;
             const btn = document.getElementById('btn-transfer-send');
@@ -968,24 +1053,20 @@
             const btn = document.getElementById('btn-transfer-send');
             const msg = document.getElementById('transfer-wait-msg');
 
-            // Check if user has a timestamp in DB
             if (currentUserData.lastTransferAt) {
                 const now = Date.now();
                 const last = currentUserData.lastTransferAt;
                 const diff = now - last;
-                const twoMinutes = 120000; // 2 mins in ms
+                const twoMinutes = 120000;
 
                 if (diff < twoMinutes) {
-                    // Still in cooldown
                     startTransferTimer(twoMinutes - diff);
                 } else {
-                    // Cooldown over
                     btn.classList.remove('hidden');
                     msg.classList.add('hidden');
                     if(transferCooldownInterval) clearInterval(transferCooldownInterval);
                 }
             } else {
-                // No transfer history yet
                 btn.classList.remove('hidden');
                 msg.classList.add('hidden');
             }
@@ -1029,7 +1110,6 @@
             if (sectionId === 'wallet') loadUserHistory(); 
             if (sectionId === 'chat') loadUserChat();
             
-            // Check cooldown when entering transfer section
             if(sectionId === 'transfer') {
                 checkTransferCooldown();
             }
@@ -1252,7 +1332,6 @@
             });
         };
 
-        // UPDATED: Submit Transfer with Cooldown
         window.submitTransfer = () => {
             const email = document.getElementById('transfer-email').value.trim();
             const amount = parseFloat(document.getElementById('transfer-amount').value);
@@ -1280,14 +1359,11 @@
                     showToast("User Found! Transferring...", "success");
                     
                     const updates = {};
-                    // Sender Balance
                     updates['users/' + currentUserData.uid + '/balanceTK'] = currentBal - amount;
-                    // Receiver Balance
                     const receiverData = snapshot.val()[receiverUid];
                     const receiverBal = parseFloat(receiverData.balanceTK || 0);
                     updates['users/' + receiverUid + '/balanceTK'] = receiverBal + amount;
 
-                    // History
                     const transferRef = push(ref(db, 'transfers'));
                     const transferData = {
                         from: currentUserData.uid,
@@ -1299,20 +1375,13 @@
                         timestamp: Date.now()
                     };
                     updates['transfers/' + transferRef.key] = transferData;
-
-                    // NEW: Add Cooldown Timestamp
                     updates['users/' + currentUserData.uid + '/lastTransferAt'] = Date.now();
 
                     update(ref(db), updates).then(() => {
                         showToast("Transfer Successful!");
-                        
-                        // Start UI Timer Immediately
-                        startTransferTimer(120000); // 2 minutes
-                        
-                        // Clear Inputs
+                        startTransferTimer(120000);
                         document.getElementById('transfer-amount').value = '';
                         document.getElementById('transfer-email').value = '';
-                        // Don't switch sections to let user see the timer
                     });
                 } else {
                     showToast("User Not Found", "error");
@@ -1469,7 +1538,7 @@
         
         initApp();
 
-        // NEW: Track user activity on interactions
+        // Activity tracking
         document.addEventListener('click', () => {
             if(currentUserData && currentUserData.uid) {
                 trackUserActivity(currentUserData.uid);
@@ -1481,7 +1550,6 @@
             }
         });
 
-        // NEW: Activity tracking function
         function trackUserActivity(uid) {
             update(ref(db, 'users/' + uid), {
                 lastActive: Date.now(),
