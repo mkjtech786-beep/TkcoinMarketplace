@@ -169,6 +169,7 @@
             z-index: 100;
         }
         .nav-item {
+            position: relative;
             color: var(--text-muted);
             text-decoration: none;
             font-size: 0.8rem;
@@ -179,6 +180,24 @@
         }
         .nav-item.active { color: var(--primary); }
         .nav-item i { font-size: 1.2rem; margin-bottom: 2px; }
+
+        /* NEW: Unread Badge Style */
+        .nav-badge {
+            position: absolute;
+            top: 5px;
+            right: 15px;
+            background-color: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            z-index: 10;
+        }
 
         .section { padding: 15px; max-width: 600px; margin: 0 auto; }
         
@@ -671,9 +690,10 @@
                 <i class="fas fa-wallet"></i>
                 <span>Wallet</span>
             </a>
-            <a class="nav-item" onclick="showSection('chat')">
+            <a class="nav-item" onclick="showSection('chat')" id="chat-nav-item">
                 <i class="fas fa-comment-dots"></i>
                 <span> live Chat</span>
+                <span id="chat-badge" class="nav-badge hidden">0</span>
             </a>
             <a class="nav-item" onclick="showSection('profile')">
                 <i class="fas fa-user"></i>
@@ -722,6 +742,16 @@
         // NEW: Buyer/Seller Pressure Variables
         let pressureData = { buy: 50, sell: 50 };
         let pressureInterval = null;
+
+        // FIXED: Track last read timestamp to prevent badge from reappearing
+        let lastReadTimestamp = 0;
+
+        // ======== AUTO/MANUAL RATE SYSTEM VARIABLES ========
+        let marketMode = 'manual';
+        let autoFluctuationRange = 100;
+        let autoUpdateInterval = 30;
+        let currentFluctuatedPrice = null;
+        let autoRateTimer = null;
 
         window.playSound = (type) => {
             const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -790,9 +820,10 @@
             });
         }
 
+        // ======== RESTORED: Independent Zigzag Animation ========
         function startZigzagAnimation() {
             setInterval(() => {
-                if(!marketData) return;
+                if(!marketData) return; // Removed marketMode check - always run
                 const lastPrice = chartPoints.length > 0 ? chartPoints[chartPoints.length - 1] : marketData.tkPrice;
                 const change = (Math.random() - 0.5) * 0.05; 
                 let newPrice = lastPrice + change;
@@ -824,6 +855,36 @@
             }, 60000);
         }
 
+        // ======== AUTO PRICE FLUCTUATION FUNCTION (Chart Removed) ========
+        function startAutoPriceFluctuation() {
+            // Base PKR price calculate karein
+            const basePKR = marketData.tkPrice * marketData.usdtRate;
+            
+            // Initial fluctuated price set karein
+            currentFluctuatedPrice = basePKR + (Math.random() * autoFluctuationRange);
+            
+            // Display update karein
+            updateMarketUI();
+            
+            // Interval set karein
+            autoRateTimer = setInterval(() => {
+                if (marketMode !== 'auto') {
+                    clearInterval(autoRateTimer);
+                    autoRateTimer = null;
+                    return;
+                }
+                
+                const basePKR = marketData.tkPrice * marketData.usdtRate;
+                // Current se range tak random price
+                currentFluctuatedPrice = basePKR + (Math.random() * autoFluctuationRange);
+                
+                // UI update
+                updateMarketUI();
+                
+                // Chart update removed - let zigzag handle independently
+            }, autoUpdateInterval * 1000);
+        }
+
         function checkAndCreateUserInDB(firebaseUser) {
             const userRef = ref(db, 'users/' + firebaseUser.uid);
             get(userRef).then((snapshot) => {
@@ -843,7 +904,8 @@
                         isBanned: false,
                         isPremium: isAdmin ? true : false,
                         balanceTK: isAdmin ? 10000 : 0,
-                        createdAt: new Date().toISOString()
+                        createdAt: new Date().toISOString(),
+                        lastReadTimestamp: 0 // FIXED: Initialize last read timestamp
                     };
 
                     if (refCode) {
@@ -910,6 +972,9 @@
 
             lastKnownBalance = user.balanceTK || 0;
 
+            // FIXED: Load last read timestamp
+            lastReadTimestamp = user.lastReadTimestamp || 0;
+
             // Track activity
             trackUserActivity(user.uid);
 
@@ -932,12 +997,38 @@
                 }
             });
 
+            // ======== MODIFIED MARKET LISTENER WITH AUTO/MANUAL MODE ========
             onValue(ref(db, 'market'), (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
                     marketData = data;
+                    marketMode = data.mode || 'manual';
+                    autoFluctuationRange = data.autoRange || 100;
+                    autoUpdateInterval = data.autoInterval || 30;
+                    
+                    // Clear existing timer
+                    if (autoRateTimer) {
+                        clearInterval(autoRateTimer);
+                        autoRateTimer = null;
+                    }
+                    
+                    if (marketMode === 'auto') {
+                        // Start auto fluctuation
+                        startAutoPriceFluctuation();
+                    } else {
+                        // Manual mode - fixed price
+                        currentFluctuatedPrice = null;
+                    }
+                    
+                    // ======== MODE DISPLAY REMOVED FROM USER INTERFACE ========
+                    // Yeh line DELETE karein:
+                    // document.getElementById('market-mode-display').innerText = `Mode: ${marketMode.charAt(0).toUpperCase() + marketMode.slice(1)}`;
+                    
                     updateMarketUI();
-                    if (chartPoints.length === 0) for(let i=0; i<20; i++) chartPoints.push(marketData.tkPrice);
+                    
+                    if (chartPoints.length === 0) {
+                        for(let i=0; i<20; i++) chartPoints.push(marketData.tkPrice);
+                    }
                     updateUI();
                 }
             });
@@ -982,9 +1073,12 @@
             monitorIncomingTransfers(user.uid); 
             startZigzagAnimation();
 
-            // NEW: Start pressure updater
+            // Start pressure updater
             updateMarketPressure(); // Initial update
             pressureInterval = setInterval(updateMarketPressure, 600000); // Every 10 minutes
+
+            // FIXED: Monitor unread chat messages using lastReadTimestamp
+            monitorUnreadChat(user.uid);
 
             if (user.role === 'admin') {
                 showToast("Admin detected...", "info");
@@ -1108,7 +1202,10 @@
             const navIndex = ['market', 'wallet', 'chat', 'profile'].indexOf(sectionId);
             if (navIndex >= 0) document.querySelectorAll('.nav-item')[navIndex].classList.add('active');
             if (sectionId === 'wallet') loadUserHistory(); 
-            if (sectionId === 'chat') loadUserChat();
+            if (sectionId === 'chat') {
+                loadUserChat();
+                resetUnreadChatCount();
+            }
             
             if(sectionId === 'transfer') {
                 checkTransferCooldown();
@@ -1145,8 +1242,17 @@
             document.getElementById('ref-code-display').innerText = currentUserData.uid;
         }
 
+        // ======== MODIFIED UPDATE MARKET UI FUNCTION ========
         function updateMarketUI() {
-            const priceInPKR = marketData.tkPrice * marketData.usdtRate;
+            let priceInPKR;
+            
+            if (marketMode === 'auto' && currentFluctuatedPrice !== null) {
+                priceInPKR = currentFluctuatedPrice;
+            } else {
+                // Manual mode - base calculation
+                priceInPKR = marketData.tkPrice * marketData.usdtRate;
+            }
+            
             document.getElementById('market-price').innerText = priceInPKR.toFixed(2);
         }
 
@@ -1426,6 +1532,57 @@
                     container.appendChild(div);
                 });
                 container.scrollTop = container.scrollHeight;
+            });
+        }
+
+        // FIXED: Monitor unread chat messages using lastReadTimestamp
+        function monitorUnreadChat(uid) {
+            const unreadRef = ref(db, `users/${uid}/unreadChatCount`);
+            onValue(unreadRef, (snapshot) => {
+                const count = snapshot.val() || 0;
+                const badge = document.getElementById('chat-badge');
+                if (count > 0) {
+                    badge.innerText = count > 9 ? '9+' : count;
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+            });
+
+            // Monitor new messages to increment count only if newer than lastRead
+            const chatRef = ref(db, 'chats/' + uid);
+            onChildAdded(chatRef, (snapshot) => {
+                const msg = snapshot.val();
+                if (msg.sender !== uid && msg.timestamp > lastReadTimestamp) {
+                    // New message from admin that hasn't been read
+                    const userRef = ref(db, `users/${uid}`);
+                    get(userRef).then((userSnapshot) => {
+                        if (userSnapshot.exists()) {
+                            const userData = userSnapshot.val();
+                            const currentCount = userData.unreadChatCount || 0;
+                            update(userRef, {
+                                unreadChatCount: currentCount + 1
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        // FIXED: Reset unread count and update lastReadTimestamp
+        function resetUnreadChatCount() {
+            if (!currentUserData) return;
+            const uid = currentUserData.uid;
+            const now = Date.now();
+            const userRef = ref(db, `users/${uid}`);
+            
+            // Update both unread count and lastReadTimestamp
+            update(userRef, {
+                unreadChatCount: 0,
+                lastReadTimestamp: now
+            }).then(() => {
+                // Update local variable
+                lastReadTimestamp = now;
             });
         }
 
