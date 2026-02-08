@@ -1,2077 +1,2090 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>TK Coin - Hold & Earn</title>
-   <style>
-       :root {
-           --primary: #ff6600;
-           --primary-dark: #cc5200;
-           --bg-dark: #121212;
-           --bg-card: #1e1e1e;
-           --text-light: #e0e0e0;
-           --text-muted: #a0a0a0;
-           --success: #00c853;
-           --danger: #ff3d00;
-           --blue: #2979ff;
-           --warning: #ffc107;
-       }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TK Coin - Hold & Earn</title>
+    <style>
+        :root {
+            --primary: #ff6600;
+            --primary-dark: #cc5200;
+            --bg-dark: #121212;
+            --bg-card: #1e1e1e;
+            --text-light: #e0e0e0;
+            --text-muted: #a0a0a0;
+            --success: #00c853;
+            --danger: #ff3d00;
+            --blue: #2979ff;
+            --warning: #ffc107;
+        }
 
-       * {
-           box-sizing: border-box;
-           margin: 0;
-           padding: 0;
-           font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-       }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-       body {
-           background-color: var(--bg-dark);
-           color: var(--text-light);
-           overflow-x: hidden;
-           padding-bottom: 70px;
-       }
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            overflow-x: hidden;
+            padding-bottom: 70px;
+        }
 
-       .hidden { display: none !important; }
-       .text-orange { color: var(--primary); }
-       .text-blue { color: var(--blue); }
-       .text-green { color: var(--success); }
-       .text-red { color: var(--danger); }
-       .text-warning { color: var(--warning); }
-       
-       .btn {
-           background: var(--primary);
-           color: white;
-           border: none;
-           padding: 10px 20px;
-           border-radius: 8px;
-           cursor: pointer;
-           font-weight: bold;
-           width: 100%;
-           transition: 0.2s;
-       }
-       .btn:hover { background: var(--primary-dark); }
-       .btn:disabled { background: #555; cursor: not-allowed; }
-       .btn-outline { background: transparent; border:1px solid var(--primary); color: var(--primary); }
-       .btn-sm { padding: 5px 10px; font-size: 0.8rem; width: auto; }
-       
-       .input-group { margin-bottom: 15px; }
-       .input-group label { display: block; margin-bottom: 5px; color: var(--text-muted); font-size: 0.9rem; }
-       .input-group input, .input-group select {
-           width: 100%;
-           padding: 12px;
-           background: #2a2a2a;
-           border: 1px solid #333;
-           color: white;
-           border-radius: 6px;
-           outline: none;
-       }
-       .input-group input:focus { border-color: var(--primary); }
+        .hidden { display: none !important; }
+        .text-orange { color: var(--primary); }
+        .text-blue { color: var(--blue); }
+        .text-green { color: var(--success); }
+        .text-red { color: var(--danger); }
+        .text-warning { color: var(--warning); }
+        
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            transition: 0.2s;
+        }
+        .btn:hover { background: var(--primary-dark); }
+        .btn:disabled { background: #555; cursor: not-allowed; }
+        .btn-outline { background: transparent; border:1px solid var(--primary); color: var(--primary); }
+        .btn-sm { padding: 5px 10px; font-size: 0.8rem; width: auto; }
+        
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; margin-bottom: 5px; color: var(--text-muted); font-size: 0.9rem; }
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px;
+            background: #2a2a2a;
+            border: 1px solid #333;
+            color: white;
+            border-radius: 6px;
+            outline: none;
+        }
+        .input-group input:focus { border-color: var(--primary); }
 
-       /* Toast */
-       #toast-container {
-           position: fixed;
-           top: 20px;
-           right: 20px;
-           z-index: 9999;
-       }
-       .toast {
-           background: var(--bg-card);
-           border-left: 4px solid var(--primary);
-           color: white;
-           padding: 15px 20px;
-           margin-bottom: 10px;
-           border-radius: 4px;
-           box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-           animation: slideIn 0.3s ease;
-       }
-       @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        /* Toast */
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+        .toast {
+            background: var(--bg-card);
+            border-left: 4px solid var(--primary);
+            color: white;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
 
-       /* Full Screen Popup */
-       #receive-popup {
-           position: fixed;
-           top: 0;
-           left: 0;
-           width: 100%;
-           height: 100%;
-           background: rgba(0, 0, 0, 0.95);
-           z-index: 99999;
-           display: flex;
-           flex-direction: column;
-           align-items: center;
-           justify-content: center;
-           backdrop-filter: blur(5px);
-           animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-       }
-       @keyframes popIn {
-           0% { transform: scale(0); opacity: 0; }
-           100% { transform: scale(1); opacity: 1; }
-       }
-       @keyframes bounce {
-           0%, 100% { transform: translateY(0); }
-           50% { transform: translateY(-10px); }
-       }
+        /* Full Screen Popup */
+        #receive-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
 
-       /* Auth */
-       #auth-screen {
-           display: flex;
-           justify-content: center;
-           align-items: center;
-           height: 100vh;
-           background: linear-gradient(135deg, #121212, #2a1b0d);
-       }
-       .auth-box {
-           background: var(--bg-card);
-           padding: 30px;
-           border-radius: 12px;
-           width: 90%;
-           max-width: 400px;
-           border-top: 3px solid var(--primary);
-       }
-       .auth-toggle { text-align: center; margin-top: 15px; font-size: 0.9rem; cursor: pointer; color: var(--primary); }
+        /* Auth */
+        #auth-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #121212, #2a1b0d);
+        }
+        .auth-box {
+            background: var(--bg-card);
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            border-top: 3px solid var(--primary);
+        }
+        .auth-toggle { text-align: center; margin-top: 15px; font-size: 0.9rem; cursor: pointer; color: var(--primary); }
 
-       /* Layout */
-       header {
-           background: var(--bg-card);
-           padding: 15px;
-           display: flex;
-           justify-content: space-between;
-           align-items: center;
-           border-bottom: 1px solid #333;
-           position: sticky;
-           top: 0;
-           z-index: 100;
-       }
-       .logo { font-size: 1.2rem; font-weight: bold; color: var(--primary); display: flex; align-items: center; gap: 5px; }
-       .user-info { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; cursor: pointer; }
-       
-       /* Avatar */
-       .avatar {
-           width: 35px;
-           height: 35px;
-           border-radius: 50%;
-           background: #333;
-           display: flex;
-           align-items: center;
-           justify-content: center;
-           color: white;
-           font-weight: bold;
-           font-size: 1.2rem;
-           text-transform: uppercase;
-       }
+        /* Layout */
+        header {
+            background: var(--bg-card);
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .logo { font-size: 1.2rem; font-weight: bold; color: var(--primary); display: flex; align-items: center; gap: 5px; }
+        .user-info { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; cursor: pointer; }
+        
+        /* Avatar */
+        .avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+        }
 
-       /* Navigation */
-       .bottom-nav {
-           position: fixed;
-           bottom: 0;
-           width: 100%;
-           background: var(--bg-card);
-           display: flex;
-           justify-content: space-around;
-           padding: 10px 0;
-           border-top: 1px solid #333;
-           z-index: 100;
-       }
-       .nav-item {
-           position: relative;
-           color: var(--text-muted);
-           text-decoration: none;
-           font-size: 0.8rem;
-           display: flex;
-           flex-direction: column;
-           align-items: center;
-           cursor: pointer;
-       }
-       .nav-item.active { color: var(--primary); }
-       .nav-item i { font-size: 1.2rem; margin-bottom: 2px; }
+        /* Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: var(--bg-card);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            border-top: 1px solid #333;
+            z-index: 100;
+        }
+        .nav-item {
+            position: relative;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.8rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+        }
+        .nav-item.active { color: var(--primary); }
+        .nav-item i { font-size: 1.2rem; margin-bottom: 2px; }
 
-       .nav-badge {
-           position: absolute;
-           top: 5px;
-           right: 15px;
-           background-color: var(--danger);
-           color: white;
-           border-radius: 50%;
-           width: 18px;
-           height: 18px;
-           font-size: 0.7rem;
-           display: flex;
-           align-items: center;
-           justify-content: center;
-           font-weight: bold;
-           z-index: 10;
-       }
+        .nav-badge {
+            position: absolute;
+            top: 5px;
+            right: 15px;
+            background-color: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            z-index: 10;
+        }
 
-       .section { padding: 15px; max-width: 600px; margin: 0 auto; }
-       
-       /* Chart */
-       .chart-container {
-           background: var(--bg-card);
-           padding: 15px;
-           border-radius: 10px;
-           margin-top: 15px;
-           position: relative;
-           height: 200px;
-           border: 1px solid #333;
-       }
-       #marketCanvas { width: 100%; height: 100%; }
-       .ticker-wrap {
-           width: 100%;
-           background: #000;
-           overflow: hidden;
-           padding: 8px 0;
-           white-space: nowrap;
-           border-bottom: 1px solid var(--primary);
-       }
-       .ticker { display: inline-block; animation: ticker 20s linear infinite; }
-       .ticker-item { display: inline-block; padding: 0 20px; font-size: 0.9rem; }
-       @keyframes ticker { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+        .section { padding: 15px; max-width: 600px; margin: 0 auto; }
+        
+        /* Chart */
+        .chart-container {
+            background: var(--bg-card);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            position: relative;
+            height: 200px;
+            border: 1px solid #333;
+        }
+        #marketCanvas { width: 100%; height: 100%; }
+        .ticker-wrap {
+            width: 100%;
+            background: #000;
+            overflow: hidden;
+            padding: 8px 0;
+            white-space: nowrap;
+            border-bottom: 1px solid var(--primary);
+        }
+        .ticker { display: inline-block; animation: ticker 20s linear infinite; }
+        .ticker-item { display: inline-block; padding: 0 20px; font-size: 0.9rem; }
+        @keyframes ticker { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
 
-       /* Cards */
-       .balance-card {
-           background: linear-gradient(135deg, var(--primary), #ff9100);
-           color: #fff;
-           padding: 20px;
-           border-radius: 15px;
-           margin-bottom: 20px;
-           box-shadow: 0 4px 10px rgba(255, 102, 0, 0.3);
-       }
-       .balance-title { font-size: 0.9rem; opacity: 0.9; }
-       .balance-amount { font-size: 2rem; font-weight: bold; margin: 5px 0; }
-       
-       .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-       .menu-card {
-           background: var(--bg-card);
-           padding: 20px;
-           border-radius: 12px;
-           text-align: center;
-           cursor: pointer;
-           transition: 0.2s;
-           border: 1px solid #333;
-           display: flex;
-           flex-direction: column;
-           align-items: center;
-           justify-content: center;
-       }
-       .menu-card:hover { border-color: var(--primary); transform: translateY(-3px); }
-       .menu-icon { font-size: 1.5rem; margin-bottom: 10px; display: block; }
+        /* Cards */
+        .balance-card {
+            background: linear-gradient(135deg, var(--primary), #ff9100);
+            color: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(255, 102, 0, 0.3);
+        }
+        .balance-title { font-size: 0.9rem; opacity: 0.9; }
+        .balance-amount { font-size: 2rem; font-weight: bold; margin: 5px 0; }
+        
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .menu-card {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .menu-card:hover { border-color: var(--primary); transform: translateY(-3px); }
+        .menu-icon { font-size: 1.5rem; margin-bottom: 10px; display: block; }
 
-       /* Chat */
-       .chat-box {
-           background: var(--bg-card);
-           height: 60vh;
-           border-radius: 10px;
-           display: flex;
-           flex-direction: column;
-           border: 1px solid #333;
-       }
-       .chat-messages { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
-       .message { max-width: 80%; padding: 8px 12px; border-radius: 10px; font-size: 0.9rem; word-wrap: break-word;}
-       .msg-admin { align-self: flex-start; background: #333; color: white; }
-       .msg-user { align-self: flex-end; background: var(--primary); color: white; }
-       .chat-input-area { padding: 10px; display: flex; gap: 10px; border-top: 1px solid #333; }
+        /* Chat */
+        .chat-box {
+            background: var(--bg-card);
+            height: 60vh;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #333;
+        }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
+        .message { max-width: 80%; padding: 8px 12px; border-radius: 10px; font-size: 0.9rem; word-wrap: break-word;}
+        .msg-admin { align-self: flex-start; background: #333; color: white; }
+        .msg-user { align-self: flex-end; background: var(--primary); color: white; }
+        .chat-input-area { padding: 10px; display: flex; gap: 10px; border-top: 1px solid #333; }
 
-       /* Premium Badge */
-       .badge-premium { color: var(--blue); margin-left: 5px; }
-       .blue-tick { color: #1da1f2; margin-left: 2px; }
-       .status-badge { padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; }
-       .status-pending { background: #ff9800; color: black; }
-       .status-approved { background: #00c853; color: white; }
-       .status-rejected { background: #ff3d00; color: white; }
+        /* Premium Badge */
+        .badge-premium { color: var(--blue); margin-left: 5px; }
+        .blue-tick { color: #1da1f2; margin-left: 2px; }
+        .status-badge { padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; }
+        .status-pending { background: #ff9800; color: black; }
+        .status-approved { background: #00c853; color: white; }
+        .status-rejected { background: #ff3d00; color: white; }
 
-       /* Futures Styles */
-       .trade-buttons { display: flex; gap: 10px; margin-top: 10px; }
-       .btn-long { background: var(--success); flex: 1; }
-       .btn-short { background: var(--danger); flex: 1; }
+        /* Futures Styles */
+        .trade-buttons { display: flex; gap: 10px; margin-top: 10px; }
+        .btn-long { background: var(--success); flex: 1; }
+        .btn-short { background: var(--danger); flex: 1; }
 
-       /* Invited List Style */
-       .invited-item {
-           background: var(--bg-card);
-           padding: 10px;
-           border-radius: 6px;
-           display: flex;
-           justify-content: space-between;
-           align-items: center;
-           margin-bottom: 8px;
-           border: 1px solid #333;
-       }
-       .invited-name { font-weight: bold; color: #fff; font-size: 0.9rem; }
-       .invited-date { font-size: 0.7rem; color: #777; }
+        /* Invited List Style */
+        .invited-item {
+            background: var(--bg-card);
+            padding: 10px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            border: 1px solid #333;
+        }
+        .invited-name { font-weight: bold; color: #fff; font-size: 0.9rem; }
+        .invited-date { font-size: 0.7rem; color: #777; }
 
-       /* Market Pressure Indicator */
-       .market-pressure-card {
-           background: var(--bg-card);
-           padding: 15px;
-           border-radius: 10px;
-           margin-top: 15px;
-           border: 1px solid #333;
-       }
-       .pressure-bar-container {
-           display: flex;
-           height: 30px;
-           border-radius: 15px;
-           overflow: hidden;
-           margin: 10px 0;
-           position: relative;
-       }
-       .pressure-buy {
-           background: linear-gradient(90deg, #00c853, #00ff00);
-           height: 100%;
-           transition: width 0.5s ease;
-           display: flex;
-           align-items: center;
-           justify-content: flex-end;
-           padding-right: 10px;
-           font-weight: bold;
-           font-size: 0.9rem;
-       }
-       .pressure-sell {
-           background: linear-gradient(90deg, #ff3d00, #ff6600);
-           height: 100%;
-           transition: width 0.5s ease;
-           display: flex;
-           align-items: center;
-           padding-left: 10px;
-           font-weight: bold;
-           font-size: 0.9rem;
-       }
-       .pressure-labels {
-           display: flex;
-           justify-content: space-between;
-           font-size: 0.8rem;
-           color: var(--text-muted);
-       }
+        /* Market Pressure Indicator */
+        .market-pressure-card {
+            background: var(--bg-card);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            border: 1px solid #333;
+        }
+        .pressure-bar-container {
+            display: flex;
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 10px 0;
+            position: relative;
+        }
+        .pressure-buy {
+            background: linear-gradient(90deg, #00c853, #00ff00);
+            height: 100%;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        .pressure-sell {
+            background: linear-gradient(90deg, #ff3d00, #ff6600);
+            height: 100%;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            padding-left: 10px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        .pressure-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
 
-       /* NEW: Investment/Portfolio Styles */
-       .portfolio-summary {
-           background: linear-gradient(135deg, #1e3c72, #2a5298);
-           color: white;
-           padding: 20px;
-           border-radius: 15px;
-           margin-bottom: 20px;
-           box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-       }
-       
-       .portfolio-grid {
-           display: grid;
-           grid-template-columns: 1fr 1fr;
-           gap: 15px;
-           margin-top: 15px;
-       }
-       
-       .portfolio-item {
-           background: rgba(255,255,255,0.1);
-           padding: 10px;
-           border-radius: 8px;
-           text-align: center;
-       }
-       
-       .portfolio-label {
-           font-size: 0.8rem;
-           opacity: 0.8;
-           margin-bottom: 5px;
-       }
-       
-       .portfolio-value {
-           font-size: 1.2rem;
-           font-weight: bold;
-       }
-       
-       .profit { color: #00ff88; }
-       .loss { color: #ff4757; }
+        /* Investment/Portfolio Styles */
+        .portfolio-summary {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .portfolio-item {
+            background: rgba(255,255,255,0.1);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .portfolio-label {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+        
+        .portfolio-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .profit { color: #00ff88; }
+        .loss { color: #ff4757; }
 
-       .investment-card {
-           background: var(--bg-card);
-           padding: 15px;
-           border-radius: 10px;
-           margin-bottom: 10px;
-           border: 1px solid #333;
-           position: relative;
-           overflow: hidden;
-       }
-       
-       .investment-card::before {
-           content: '';
-           position: absolute;
-           left: 0;
-           top: 0;
-           bottom: 0;
-           width: 4px;
-           background: var(--primary);
-       }
-       
-       .investment-card.profit::before { background: var(--success); }
-       .investment-card.loss::before { background: var(--danger); }
-       
-       .investment-header {
-           display: flex;
-           justify-content: space-between;
-           align-items: center;
-           margin-bottom: 10px;
-       }
-       
-       .investment-amount {
-           font-size: 1.3rem;
-           font-weight: bold;
-           color: var(--primary);
-       }
-       
-       .investment-details {
-           display: grid;
-           grid-template-columns: 1fr 1fr;
-           gap: 10px;
-           font-size: 0.85rem;
-           color: var(--text-muted);
-           margin-bottom: 10px;
-       }
-       
-       .investment-detail-item {
-           display: flex;
-           flex-direction: column;
-       }
-       
-       .investment-detail-label {
-           font-size: 0.75rem;
-           margin-bottom: 2px;
-       }
-       
-       .investment-detail-value {
-           color: white;
-           font-weight: 500;
-       }
-       
-       .pl-display {
-           display: flex;
-           justify-content: space-between;
-           align-items: center;
-           padding-top: 10px;
-           border-top: 1px solid #333;
-       }
-       
-       .pl-amount {
-           font-size: 1.1rem;
-           font-weight: bold;
-       }
-       
-       .pl-percentage {
-           font-size: 0.9rem;
-           padding: 4px 8px;
-           border-radius: 4px;
-           background: rgba(0,0,0,0.3);
-       }
+        .investment-card {
+            background: var(--bg-card);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #333;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .investment-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--primary);
+        }
+        
+        .investment-card.profit::before { background: var(--success); }
+        .investment-card.loss::before { background: var(--danger); }
+        
+        .investment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .investment-amount {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .investment-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+        
+        .investment-detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .investment-detail-label {
+            font-size: 0.75rem;
+            margin-bottom: 2px;
+        }
+        
+        .investment-detail-value {
+            color: white;
+            font-weight: 500;
+        }
+        
+        .pl-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 10px;
+            border-top: 1px solid #333;
+        }
+        
+        .pl-amount {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+        
+        .pl-percentage {
+            font-size: 0.9rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: rgba(0,0,0,0.3);
+        }
 
-       .deposit-info-box {
-           background: rgba(255,102,0,0.1);
-           border: 1px solid var(--primary);
-           padding: 15px;
-           border-radius: 8px;
-           margin-bottom: 15px;
-       }
-       
-       .deposit-info-row {
-           display: flex;
-           justify-content: space-between;
-           margin-bottom: 8px;
-           font-size: 0.9rem;
-       }
-       
-       .deposit-info-row:last-child { margin-bottom: 0; }
-       
-       .rate-badge {
-           display: inline-block;
-           background: var(--primary);
-           color: white;
-           padding: 2px 8px;
-           border-radius: 4px;
-           font-size: 0.75rem;
-           margin-left: 5px;
-       }
-   </style>
-   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+        .deposit-info-box {
+            background: rgba(255,102,0,0.1);
+            border: 1px solid var(--primary);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .deposit-info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .deposit-info-row:last-child { margin-bottom: 0; }
+        
+        .rate-badge {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            margin-left: 5px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
-   <div id="toast-container"></div>
-
-   <!-- Full Screen Receive Popup -->
-   <div id="receive-popup" class="hidden">
-       <i class="fas fa-hand-holding-usd" style="font-size: 5rem; color: gold; margin-bottom: 20px; animation: bounce 1s infinite;"></i>
-       <h2 style="color: white;">Coins Received!</h2>
-       <p style="color: #ccc; margin-top: 10px;">You received <span id="popup-amount" class="text-green" style="font-weight: bold;">0</span> TK</p>
-       <button class="btn" style="margin-top: 30px; width: auto; padding: 10px 40px;" onclick="window.closePopup()">OK</button>
-   </div>
-
-   <!-- Auth Screen -->
-   <div id="auth-screen">
-       <div class="auth-box">
-           <h2 class="text-orange" style="text-align: center; margin-bottom: 20px;">TK Coin Login</h2>
-           <form id="auth-form">
-               <div class="input-group">
-                   <label>Email</label>
-                   <input type="email" id="auth-email" required placeholder="user@example.com">
-               </div>
-               <div class="input-group">
-                   <label>Password</label>
-                   <input type="password" id="auth-pass" required placeholder="password">
-               </div>
-               <div class="input-group hidden" id="ref-group">
-                   <label>Referral Code (Optional)</label>
-                   <input type="text" id="auth-ref" placeholder="Enter Referral Code">
-               </div>
-
-               <button type="submit" class="btn" id="auth-btn">Login</button>
-           </form>
-           <div class="auth-toggle" onclick="toggleAuthMode()">Don't have an account? Signup</div>
-           <div style="margin-top: 15px; font-size: 0.8rem; color: #666; text-align: center;">
-               For your security, make sure your login details are correct. Never share your password with anyone..
-           </div>
-       </div>
-   </div>
-
-   <!-- Main App Container -->
-   <div id="app-container" class="hidden">
-       <div class="ticker-wrap">
-           <div class="ticker" id="news-ticker"></div>
-       </div>
-
-       <header>
-           <div class="logo">
-               <i class="fas fa-coins"></i> TK Coin
-               <span id="header-premium-badge" class="hidden blue-tick"><i class="fas fa-check-circle"></i></span>
-           </div>
-           <div class="user-info" onclick="showSection('profile')">
-               <div style="text-align: right;">
-                   <div id="header-name">User</div>
-                   <div id="header-balance" style="color: var(--primary);">0 TK</div>
-               </div>
-               <div id="header-avatar" class="avatar">U</div>
-           </div>
-       </header>
-
-       <main id="user-views">
-           <!-- Market -->
-           <section id="view-market" class="section">
-               <div class="balance-card">
-                   <div class="balance-title">Current TK Price</div>
-                   <div class="balance-amount"><span id="market-price">0.00</span> PKR</div>
-                   <small style="opacity: 0.8;">Total Hold TK: 20M+ Coins</small>
-               </div>
-
-               <!-- Market Pressure Indicator -->
-               <div class="market-pressure-card">
-                   <h3 style="margin-bottom: 10px; color: var(--primary);">Market Pressure</h3>
-                   <div class="pressure-bar-container" id="pressure-bar">
-                       <div class="pressure-buy" id="buy-percentage">50%</div>
-                       <div class="pressure-sell" id="sell-percentage">50%</div>
-                   </div>
-                   <div class="pressure-labels">
-                       <span><i class="fas fa-arrow-up" style="color: #00c853;"></i> Buyers</span>
-                       <span id="last-updated">Updated now</span>
-                       <span><i class="fas fa-arrow-down" style="color: #ff3d00;"></i> Sellers</span>
-                   </div>
-               </div>
-
-               <div style="display: flex; justify-content: space-between; align-items: center;">
-                   <h3>Live Market</h3>
-                   <span style="font-size: 0.8rem; color: var(--success);">● Live</span>
-               </div>
-               
-               <div class="chart-container">
-                   <canvas id="marketCanvas"></canvas>
-               </div>
-
-               <div style="margin-top: 20px;">
-                   <h3>News Feed</h3>
-                   <div id="news-feed" style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;"></div>
-               </div>
-           </section>
-
-           <!-- NEW: Portfolio/Investment View -->
-           <section id="view-portfolio" class="section hidden">
-               <h2 class="text-orange" style="margin-bottom: 15px;"><i class="fas fa-chart-pie"></i> My Portfolio</h2>
-               
-               <!-- Portfolio Summary -->
-               <div class="portfolio-summary">
-                   <div class="balance-title" style="opacity: 0.9;">Total Investment Value</div>
-                   <div class="balance-amount" style="font-size: 1.8rem;"><span id="portfolio-total-value">0</span> PKR</div>
-                   
-                   <div class="portfolio-grid">
-                       <div class="portfolio-item">
-                           <div class="portfolio-label">Total Invested</div>
-                           <div class="portfolio-value" id="portfolio-total-invested">0 PKR</div>
-                       </div>
-                       <div class="portfolio-item">
-                           <div class="portfolio-label">Net P/L</div>
-                           <div class="portfolio-value" id="portfolio-net-pl">0 PKR</div>
-                       </div>
-                   </div>
-               </div>
-
-               <!-- Current Price Info -->
-               <div class="deposit-info-box">
-                   <div class="deposit-info-row">
-                       <span>Current TK Price:</span>
-                       <span style="font-weight: bold; color: var(--primary);"><span id="portfolio-current-price">0</span> PKR</span>
-                   </div>
-                   <div class="deposit-info-row">
-                       <span>Today's Change:</span>
-                       <span id="portfolio-price-change" style="font-weight: bold;">0%</span>
-                   </div>
-               </div>
-
-               <h3 style="margin-bottom: 15px;">My Investments</h3>
-               <div id="investments-list" style="display: flex; flex-direction: column; gap: 10px;">
-                   <div style="text-align:center; color:#777; padding: 20px;">
-                       <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
-                       No investments yet. Make a deposit to start!
-                   </div>
-               </div>
-           </section>
-
-           <!-- Wallet -->
-           <section id="view-wallet" class="section hidden">
-               <div class="balance-card">
-                   <div class="balance-title">Total Balance</div>
-                   <div class="balance-amount"><span id="wallet-tk">0</span> TK</div>
-                   <div style="font-size: 1rem; opacity: 0.9;"><span id="wallet-pkr">0</span> PKR</div>
-               </div>
-
-               <div class="menu-grid">
-                   <div class="menu-card" onclick="showSection('deposit')">
-                       <span class="menu-icon text-orange"><i class="fas fa-wallet"></i></span>
-                       <div>Deposit</div>
-                   </div>
-                   <div class="menu-card" onclick="showSection('withdraw')">
-                       <span class="menu-icon text-green"><i class="fas fa-money-bill-wave"></i></span>
-                       <div>Withdraw</div>
-                   </div>
-                   <div class="menu-card" onclick="showSection('transfer')">
-                       <span class="menu-icon text-blue"><i class="fas fa-exchange-alt"></i></span>
-                       <div>Transfer</div>
-                   </div>
-                   <div class="menu-card" onclick="showSection('premium')">
-                       <span class="menu-icon" style="color: gold;"><i class="fas fa-crown"></i></span>
-                       <div>Pro</div>
-                   </div>
-               </div>
-
-               <!-- Quick Portfolio Preview -->
-               <div style="background: var(--bg-card); padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #333; cursor: pointer;" onclick="showSection('portfolio')">
-                   <div style="display: flex; justify-content: space-between; align-items: center;">
-                       <div>
-                           <div style="font-weight: bold; margin-bottom: 5px;"><i class="fas fa-chart-line text-orange"></i> Portfolio</div>
-                           <div style="font-size: 0.85rem; color: var(--text-muted);">Track your investment P/L</div>
-                       </div>
-                       <div style="text-align: right;">
-                           <div id="quick-pl" style="font-weight: bold; font-size: 1.1rem;">0 PKR</div>
-                           <div id="quick-pl-percent" style="font-size: 0.8rem;">0%</div>
-                       </div>
-                   </div>
-               </div>
-
-               <h3>Transaction History</h3>
-               <div id="transaction-list" style="margin-top: 10px; display: flex; flex-direction: column; gap: 10px;">
-                   <div style="text-align:center; color:#555;">Loading history...</div>
-               </div>
-           </section>
-
-           <!-- Futures -->
-           <section id="view-futures" class="section hidden">
-               <h2 class="text-orange">Futures Trading</h2>
-               <p style="color: #aaa; margin-bottom: 20px;">Trade with leverage. High Risk, High Reward.</p>
-               
-               <div class="balance-card">
-                   <div class="balance-title">Available Balance</div>
-                   <div class="balance-amount"><span id="futures-tk">0</span> TK</div>
-               </div>
-
-               <div class="input-group">
-                   <label>Enter Amount (TK)</label>
-                   <input type="number" id="futures-amount" placeholder="e.g. 10 TK">
-               </div>
-
-               <div class="trade-buttons">
-                   <button class="btn btn-long" onclick="openFutures('long')">Buy / Long</button>
-                   <button class="btn btn-short" onclick="openFutures('short')">Sell / Short</button>
-               </div>
-
-               <h3 style="margin-top: 20px;">Your Positions</h3>
-               <div id="futures-positions" style="margin-top: 10px; display: flex; flex-direction: column; gap: 10px;">
-                   <div style="text-align:center; color:#555;">No open positions</div>
-               </div>
-
-               <button class="btn btn-outline" style="margin-top: 20px;" onclick="showSection('wallet')">Back</button>
-           </section>
-
-           <!-- Deposit -->
-           <section id="view-deposit" class="section hidden">
-               <h2 class="text-orange">Deposit Funds</h2>
-               <p style="color: #aaa; margin-bottom: 20px;">Select payment method below.</p>
-               
-               <div class="input-group">
-                   <label>Method</label>
-                   <select id="deposit-method" onchange="updateDepositDetails()">
-                       <option value="easypaisa">Easypaisa</option>
-                       <option value="jazzcash">JazzCash</option>
-                       <option value="tillid">Till Id - (Raast)</option>
-                       <option value="qrpay">QR Pay</option>
-                   </select>
-               </div>
-
-               <div style="background: var(--bg-card); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #333; min-height: 85px; display:flex; align-items:center; justify-content:space-between;">
-                   <div id="text-info" style="flex:1;">
-                       <div style="font-size: 0.8rem; color: #aaa;">Deposit To:</div>
-                       <div style="font-weight: bold; font-size: 1.1rem;" id="deposit-number">Select Method</div>
-                       <div style="font-size: 0.8rem; color: var(--primary);" id="deposit-name">---</div>
-                   </div>
-                   <img id="deposit-qr-image" src="./qr.png" style="display:none; max-width: 150px; height: auto; border-radius: 8px;" alt="QR Code">
-                   <button id="copy-btn" class="btn btn-sm btn-outline" onclick="copyDepositNumber()"><i class="fas fa-copy"></i></button>
-               </div>
-
-               <div class="input-group">
-                   <label>Amount Sent (PKR)</label>
-                   <input type="number" id="deposit-amount" oninput="calculateDeposit()" placeholder="e.g. 500 PKR">
-               </div>
-               <div class="input-group">
-                   <label>Reference No / Transaction ID</label>
-                   <input type="text" id="deposit-ref" placeholder="TRX ID">
-               </div>
-
-               <!-- NEW: Deposit Summary Box -->
-               <div class="deposit-info-box">
-                   <div class="deposit-info-row">
-                       <span>Current Rate:</span>
-                       <span><span id="deposit-rate">1</span> TK = <span id="deposit-price">0</span> PKR</span>
-                   </div>
-                   <div class="deposit-info-row">
-                       <span>You will receive:</span>
-                       <span style="font-weight: bold; color: var(--success);"><span id="deposit-calc-receive">0</span> TK</span>
-                   </div>
-                   <div class="deposit-info-row" style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,102,0,0.3);">
-                       <span>Investment Value:</span>
-                       <span style="font-weight: bold;"><span id="deposit-invest-value">0</span> PKR</span>
-                   </div>
-               </div>
-
-               <button class="btn" onclick="submitDeposit()">Submit Deposit Request</button>
-               <button class="btn btn-outline" style="margin-top: 10px;" onclick="showSection('wallet')">Back</button>
-           </section>
-
-           <!-- Withdraw -->
-           <section id="view-withdraw" class="section hidden">
-               <h2 class="text-orange">Withdraw Funds</h2>
-               <p style="color: #aaa; margin-bottom: 20px;">Withdraw TK to Your Account. Balance will be deducted immediately.</p>
-
-               <div style="background: var(--bg-card); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                   <div>Available Balance: <strong id="withdraw-bal-display">0 TK</strong></div>
-                   <div style="font-size: 0.8rem; color: var(--primary);" id="fee-display">Fee: 5%</div>
-               </div>
-
-               <div class="input-group">
-                   <label>Method</label>
-                   <select id="withdraw-method">
-                       <option value="BANK">BANK</option>
-                       <option value="jazzcash">JazzCash</option>
-                   </select>
-               </div>
-
-               <div class="input-group">
-                   <label>Account Number/ iban no.</label>
-                   <input type="text" id="withdraw-account" placeholder="0300...">
-               </div>
-
-               <div class="input-group">
-                   <label>Amount (TK)</label>
-                   <input type="number" id="withdraw-amount" placeholder="Tk coin" oninput="calculateWithdraw()">
-               </div>
-               
-               <div style="background: #222; padding: 10px; border-radius: 6px; margin-bottom: 20px; color: #aaa;">
-                   <small>Estimated Receive: <strong style="color: white; font-size: 1.1rem;"><span id="withdraw-calc-usdt">0.00</span> PKR</strong></small>
-               </div>
-
-               <button class="btn" onclick="submitWithdraw()">Request Withdrawal</button>
-               <button class="btn btn-outline" style="margin-top: 10px;" onclick="showSection('wallet')">Back</button>
-           </section>
-
-           <!-- Transfer -->
-           <section id="view-transfer" class="section hidden">
-               <h2 class="text-orange">Transfer Coins</h2>
-               <p style="color: #aaa; margin-bottom: 20px;">Send TK to another user instantly.</p>
-
-               <div class="input-group">
-                   <label>Receiver Email</label>
-                   <input type="email" id="transfer-email" placeholder="user@example.com">
-               </div>
-               <div class="input-group">
-                   <label>Amount (TK)</label>
-                   <input type="number" id="transfer-amount" placeholder="Amount">
-               </div>
-
-               <!-- Send Button -->
-               <button id="btn-transfer-send" class="btn" onclick="submitTransfer()">Send Now</button>
-               
-               <!-- Cooldown Message -->
-               <div id="transfer-wait-msg" class="hidden" style="margin-top: 15px; text-align: center; background: #333; padding: 15px; border-radius: 8px; border: 1px solid var(--primary);">
-                   <p class="text-orange" style="font-weight: bold;">Wait <span id="timer-count">02:00</span> minutes</p>
-                   <small style="color:#aaa;">Next transfer available soon</small>
-               </div>
-
-               <button class="btn btn-outline" style="margin-top: 10px;" onclick="showSection('wallet')">Back</button>
-           </section>
-
-           <!-- Premium -->
-           <section id="view-premium" class="section hidden">
-               <div style="text-align: center; margin-bottom: 20px;">
-                   <i class="fas fa-crown" style="font-size: 4rem; color: gold; margin-bottom: 15px;"></i>
-                   <h2>Go Premium</h2>
-                   <p>Unlock Zero Fee, Blue Tick & VIP Features.</p>
-               </div>
-
-               <div class="balance-card" style="text-align: center;">
-                   <div class="balance-title">Upgrade Cost</div>
-                   <div class="balance-amount">100 TK</div>
-                   <div style="margin-top: 10px;">
-                       <i class="fas fa-check-circle"></i> 0% Withdraw Fee<br>
-                       <i class="fas fa-check-circle"></i> Premium Badge<br>
-                       <i class="fas fa-check-circle"></i> Special Access
-                   </div>
-               </div>
-
-               <button class="btn" id="btn-upgrade" onclick="upgradePremium()">Upgrade Now</button>
-               <button class="btn btn-outline" style="margin-top: 10px;" onclick="showSection('wallet')">Back</button>
-           </section>
-
-           <!-- Chat -->
-           <section id="view-chat" class="section hidden">
-               <h2>Live Support 24/7 </h2>
-               <div class="chat-box">
-                   <div class="chat-messages" id="chat-messages"></div>
-                   <div class="chat-input-area">
-                       <input type="text" id="chat-input" placeholder="Type a message..." style="flex: 1; padding: 8px; border-radius: 4px; border: none; background: #333; color: white;">
-                       <button class="btn btn-sm" onclick="sendChatMessage()"><i class="fas fa-paper-plane"></i></button>
-                   </div>
-               </div>
-           </section>
-
-           <!-- Profile -->
-           <section id="view-profile" class="section hidden">
-               <div style="text-align: center; margin-bottom: 20px;">
-                   <div id="profile-avatar" class="avatar" style="width: 100px; height: 100px; margin-bottom: 10px; font-size: 2.5rem; background: var(--primary);">U</div>
-                   <h2 id="profile-name">User Name</h2>
-                   <p id="profile-email" style="color: #aaa;">tkcoin@email.com</p>
-                   <div id="profile-status" style="margin-top: 5px; font-size: 0.9rem; color: var(--primary);">Normal User</div>
-               </div>
-
-               <div class="menu-card" onclick="downloadApp()" style="margin-bottom: 15px;">
-                   <i class="fab fa-android" style="color: #a4c639; font-size: 2rem; margin-bottom: 5px;"></i>
-                   <div style="font-weight: bold;">Download App</div>
-                   <small style="color:#888;">For better experience</small>
-               </div>
-
-               <div class="menu-card" onclick="copyReferralLink()" style="margin-bottom: 15px; text-align: left; flex-direction: row; justify-content: space-between; padding: 15px;">
-                   <div>
-                       <div style="font-weight: bold; font-size: 0.9rem; color: #fff;">Invite & Earn</div>
-                       <small style="color: var(--text-muted); display: block; margin-top: 2px;">Share your ID to get 3% bonus</small>
-                   </div>
-                   <div style="text-align: right; display: flex; align-items: center; gap: 10px;">
-                       <span id="ref-code-display" style="font-family: monospace; color: var(--primary); font-weight: bold;">---</span>
-                       <i class="fas fa-copy" style="color: #555;"></i>
-                   </div>
-               </div>
-
-               <div style="margin-bottom: 20px;">
-                   <div style="display:flex; justify-content: space-between; margin-bottom: 10px;">
-                       <h3>Invited Members</h3>
-                       <span style="background:var(--primary); padding:2px 8px; border-radius:4px; font-weight:bold; font-size:0.8rem;">Total: <span id="total-invites-count">0</span></span>
-                   </div>
-                   <div id="invited-list" style="max-height: 200px; overflow-y: auto;">
-                       <div style="text-align:center; color:#777; font-size:0.8rem;">No invites yet.</div>
-                   </div>
-               </div>
-
-               <h3>About</h3>
-               <div class="menu-card" onclick="showAboutModal()" style="text-align: left; margin-bottom: 10px;">
-                   <i class="fas fa-info-circle"></i> TK Coin is a Singapore-based digital finance platform offering fast, secure transactions and smart earning solutions for global users
-               </div>
-               <button class="btn" style="background: #333;" onclick="logout()">Logout</button>
-           </section>
-       </main>
-
-       <nav class="bottom-nav" id="user-nav">
-           <a class="nav-item active" onclick="showSection('market')">
-               <i class="fas fa-chart-line"></i>
-               <span>Market</span>
-           </a>
-           <a class="nav-item" onclick="showSection('wallet')">
-               <i class="fas fa-wallet"></i>
-               <span>Wallet</span>
-           </a>
-           <a class="nav-item" onclick="showSection('chat')" id="chat-nav-item">
-               <i class="fas fa-comment-dots"></i>
-               <span>Live Chat</span>
-               <span id="chat-badge" class="nav-badge hidden">0</span>
-           </a>
-           <a class="nav-item" onclick="showSection('profile')">
-               <i class="fas fa-user"></i>
-               <span>Profile</span>
-           </a>
-       </nav>
-   </div>
-
-   <!-- Scripts -->
-   <script type="module">
-       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
-       import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js";
-       import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
-       import { getDatabase, ref, set, push, onValue, update, get, child, onChildAdded, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
-
-       const firebaseConfig = {
-           apiKey: "AIzaSyCBMk5ED0YNL9MqVThgMhoOuWvGwTgCJCg",
-           authDomain: "injector-c964a.firebaseapp.com",
-           databaseURL: "https://injector-c964a-default-rtdb.firebaseio.com",
-           projectId: "injector-c964a",
-           storageBucket: "injector-c964a.firebasestorage.app",
-           messagingSenderId: "746006402839",
-           appId: "1:746006402839:web:26d14a3fee7d6e6cc68952",
-           measurementId: "G-DBMSEZZWW1"
-       };
-
-       const app = initializeApp(firebaseConfig);
-       const analytics = getAnalytics(app);
-       const auth = getAuth(app);
-       const db = getDatabase(app);
-
-       let currentUserData = null; 
-       let marketData = { tkPrice: 1.50, usdtRate: 280 };
-       let appSettings = {
-           easypaisa: '0300-1234567',
-           jazzcash: '0321-7654321',
-           tillid: '03XX-XXXXXXX (Raast)', 
-           minWithdraw: 50,
-           withdrawFee: 0.05
-       };
-       let chartPoints = [];
-       let lastKnownBalance = 0; 
-       let isTransfersLoaded = false; 
-       let transferCooldownInterval = null;
-       let pressureData = { buy: 50, sell: 50 };
-       let pressureInterval = null;
-       let lastReadTimestamp = 0;
-       let marketMode = 'manual';
-       let autoFluctuationRange = 100;
-       let autoUpdateInterval = 30;
-       let currentFluctuatedPrice = null;
-       let autoRateTimer = null;
-       let userInvestments = []; // Store user investments for P/L calculation
-
-       window.playSound = (type) => {
-           const AudioContext = window.AudioContext || window.webkitAudioContext;
-           if (!AudioContext) return;
-           const ctx = new AudioContext();
-           const osc = ctx.createOscillator();
-           const gainNode = ctx.createGain();
-           osc.connect(gainNode);
-           gainNode.connect(ctx.destination);
-           if (type === 'success') {
-               osc.type = 'sine';
-               osc.frequency.setValueAtTime(500, ctx.currentTime);
-               osc.frequency.exponentialRampToValueAtTime(1000, ctx.currentTime + 0.1);
-               gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
-               gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
-               osc.start();
-               osc.stop(ctx.currentTime + 0.5);
-           } else if (type === 'error') {
-               osc.type = 'sawtooth';
-               osc.frequency.setValueAtTime(150, ctx.currentTime);
-               gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
-               gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
-               osc.start();
-               osc.stop(ctx.currentTime + 0.3);
-           }
-       }
-
-       window.closePopup = () => {
-           document.getElementById('receive-popup').classList.add('hidden');
-       }
-
-       window.showToast = (msg, type = 'success') => {
-           const container = document.getElementById('toast-container');
-           const toast = document.createElement('div');
-           toast.className = 'toast';
-           toast.style.borderLeftColor = type === 'error' ? 'var(--danger)' : 'var(--primary)';
-           toast.innerText = msg;
-           container.appendChild(toast);
-           if(type === 'error') playSound('error');
-           else playSound('success');
-           setTimeout(() => toast.remove(), 3000);
-       }
-
-       function getAdminEmail() { return "admin@app.com"; }
-
-       function checkUrlParams() {
-           const urlParams = new URLSearchParams(window.location.search);
-           const refCode = urlParams.get('ref');
-           if (refCode) {
-               document.getElementById('auth-ref').value = refCode;
-               if (!isSignup) toggleAuthMode();
-           }
-       }
-
-       function initApp() {
-           checkUrlParams();
-           
-           onAuthStateChanged(auth, (user) => {
-               if (user) {
-                   checkAndCreateUserInDB(user);
-               } else {
-                   document.getElementById('auth-screen').classList.remove('hidden');
-                   document.getElementById('app-container').classList.add('hidden');
-                   currentUserData = null;
-               }
-           });
-       }
-
-       function startZigzagAnimation() {
-           setInterval(() => {
-               if(!marketData) return;
-               const lastPrice = chartPoints.length > 0 ? chartPoints[chartPoints.length - 1] : marketData.tkPrice;
-               const change = (Math.random() - 0.5) * 0.05; 
-               let newPrice = lastPrice + change;
-               if(newPrice < 0.1) newPrice = 0.1;
-               chartPoints.push(newPrice);
-               if (chartPoints.length > 20) chartPoints.shift();
-               drawChart();
-           }, 1000); 
-       }
-
-       function updateMarketPressure() {
-           const buyPercent = Math.floor(Math.random() * 40) + 30;
-           const sellPercent = 100 - buyPercent;
-           
-           pressureData = { buy: buyPercent, sell: sellPercent };
-           
-           document.getElementById('buy-percentage').style.width = buyPercent + '%';
-           document.getElementById('buy-percentage').innerText = buyPercent + '%';
-           document.getElementById('sell-percentage').style.width = sellPercent + '%';
-           document.getElementById('sell-percentage').innerText = sellPercent + '%';
-           document.getElementById('last-updated').innerText = 'Updated now';
-           
-           setTimeout(() => {
-               document.getElementById('last-updated').innerText = 'Updated 1 min ago';
-           }, 60000);
-       }
-
-       function startAutoPriceFluctuation() {
-           const basePKR = marketData.tkPrice * marketData.usdtRate;
-           currentFluctuatedPrice = basePKR + (Math.random() * autoFluctuationRange);
-           
-           updateMarketUI();
-           
-           autoRateTimer = setInterval(() => {
-               if (marketMode !== 'auto') {
-                   clearInterval(autoRateTimer);
-                   autoRateTimer = null;
-                   return;
-               }
-               
-               const basePKR = marketData.tkPrice * marketData.usdtRate;
-               currentFluctuatedPrice = basePKR + (Math.random() * autoFluctuationRange);
-               
-               updateMarketUI();
-           }, autoUpdateInterval * 1000);
-       }
-
-       function checkAndCreateUserInDB(firebaseUser) {
-           const userRef = ref(db, 'users/' + firebaseUser.uid);
-           get(userRef).then((snapshot) => {
-               if (snapshot.exists()) {
-                   currentUserData = snapshot.val();
-                   currentUserData.uid = firebaseUser.uid;
-                   loginSuccess(currentUserData);
-               } else {
-                   const passwordInput = document.getElementById('auth-pass').value;
-                   const refCode = document.getElementById('auth-ref').value.trim();
-                   const isAdmin = firebaseUser.email === getAdminEmail();
-                   const newUser = {
-                       name: firebaseUser.email.split('@')[0],
-                       email: firebaseUser.email,
-                       password: passwordInput,
-                       role: isAdmin ? "admin" : "user",
-                       isBanned: false,
-                       isPremium: isAdmin ? true : false,
-                       balanceTK: isAdmin ? 10000 : 0,
-                       createdAt: new Date().toISOString(),
-                       lastReadTimestamp: 0
-                   };
-
-                   if (refCode) {
-                       newUser.referredBy = refCode;
-                       const referralPath = ref(db, `referrals/${refCode}/${firebaseUser.uid}`);
-                       set(referralPath, {
-                           name: newUser.name,
-                           joinedAt: new Date().toLocaleString()
-                       });
-                   }
-
-                   set(userRef, newUser).then(() => {
-                       currentUserData = newUser;
-                       currentUserData.uid = firebaseUser.uid;
-                       loginSuccess(currentUserData);
-                   });
-               }
-           });
-       }
-
-       let isSignup = false;
-       window.toggleAuthMode = () => {
-           isSignup = !isSignup;
-           const refGroup = document.getElementById('ref-group');
-           document.querySelector('.auth-box h2').innerText = isSignup ? "Create Account" : "TK Coin Login";
-           document.getElementById('auth-btn').innerText = isSignup ? "Signup" : "Login";
-           document.querySelector('.auth-toggle').innerText = isSignup ? "Already have an account? Login" : "Don't have an account? Signup";
-           
-           if(isSignup) refGroup.classList.remove('hidden');
-           else refGroup.classList.add('hidden');
-       };
-
-       document.getElementById('auth-form').addEventListener('submit', async (e) => {
-           e.preventDefault();
-           const email = document.getElementById('auth-email').value;
-           const pass = document.getElementById('auth-pass').value;
-           const btn = document.getElementById('auth-btn');
-           btn.innerText = "Processing...";
-           btn.disabled = true;
-           try {
-               if (isSignup) await createUserWithEmailAndPassword(auth, email, pass);
-               else await signInWithEmailAndPassword(auth, email, pass);
-           } catch (error) {
-               showToast(error.message, "error");
-               btn.innerText = isSignup ? "Signup" : "Login";
-               btn.disabled = false;
-           }
-       });
-
-       window.logout = () => {
-           signOut(auth).then(() => {
-               lastKnownBalance = 0;
-               showToast("Logged out");
-               window.location.reload();
-           });
-       };
-
-       function loginSuccess(user) {
-           document.getElementById('auth-screen').classList.add('hidden');
-           document.getElementById('app-container').classList.remove('hidden');
-           
-           document.getElementById('auth-btn').innerText = isSignup ? "Signup" : "Login";
-           document.getElementById('auth-btn').disabled = false;
-
-           lastKnownBalance = user.balanceTK || 0;
-           lastReadTimestamp = user.lastReadTimestamp || 0;
-
-           trackUserActivity(user.uid);
-
-           onValue(ref(db, 'users/' + user.uid), (snapshot) => {
-               const data = snapshot.val();
-               if (data) {
-                   const newBal = data.balanceTK;
-                   if (newBal > lastKnownBalance && lastKnownBalance > 0) {
-                       showToast("Coins Received!", "success");
-                       playSound('success');
-                   }
-                   currentUserData = data;
-                   currentUserData.uid = user.uid;
-                   lastKnownBalance = newBal;
-                   updateUI();
-                   
-                   if(document.getElementById('view-transfer').classList.contains('hidden') === false) {
-                       checkTransferCooldown();
-                   }
-               }
-           });
-
-           onValue(ref(db, 'market'), (snapshot) => {
-               const data = snapshot.val();
-               if (data) {
-                   marketData = data;
-                   marketMode = data.mode || 'manual';
-                   autoFluctuationRange = data.autoRange || 100;
-                   autoUpdateInterval = data.autoInterval || 30;
-                   
-                   if (autoRateTimer) {
-                       clearInterval(autoRateTimer);
-                       autoRateTimer = null;
-                   }
-                   
-                   if (marketMode === 'auto') {
-                       startAutoPriceFluctuation();
-                   } else {
-                       currentFluctuatedPrice = null;
-                   }
-                   
-                   updateMarketUI();
-                   
-                   if (chartPoints.length === 0) {
-                       for(let i=0; i<20; i++) chartPoints.push(marketData.tkPrice);
-                   }
-                   updateUI();
-                   
-                   // Update portfolio calculations when price changes
-                   calculatePortfolioPL();
-               }
-           });
-
-           onValue(ref(db, 'settings'), (snapshot) => {
-               const data = snapshot.val();
-               if (data) {
-                   appSettings.minWithdraw = data.minWithdraw || 50;
-                   appSettings.withdrawFee = data.withdrawFee || 0.05;
-                   appSettings.easypaisa = data.easypaisa || '0300-1234567';
-                   appSettings.jazzcash = data.jazzcash || '0321-7654321';
-                   appSettings.tillid = data.tillid || '03XX-XXXXXXX (Raast)';
-                   if (data.qrUrl) {
-                       const qrImg = document.getElementById('deposit-qr-image');
-                       if(qrImg) qrImg.src = data.qrUrl;
-                   }
-                   updateDepositDetails();
-               }
-           });
-
-           onValue(ref(db, 'news'), (snapshot) => {
-               const newsList = document.getElementById('news-feed');
-               const ticker = document.getElementById('news-ticker');
-               newsList.innerHTML = "";
-               ticker.innerHTML = "";
-               const data = snapshot.val();
-               if (data) {
-                   const keys = Object.keys(data);
-                   const lastKey = keys[keys.length - 1];
-                   const singleNews = data[lastKey];
-                   newsList.innerHTML += `
-                       <div style="background:var(--bg-card); padding:10px; border-radius:6px; border:1px solid #333;">
-                           <div style="font-weight:bold; color:#fff;">${singleNews.title}</div>
-                           <div style="font-size:0.8rem; color:#777;">${singleNews.date}</div>
-                       </div>
-                   `;
-                   ticker.innerHTML += `<span class="ticker-item">${singleNews.title}</span>`;
-               }
-           });
-
-           // NEW: Load user investments for P/L tracking
-           loadUserInvestments(user.uid);
-           
-           loadReferralStats(user.uid);
-           monitorIncomingTransfers(user.uid); 
-           startZigzagAnimation();
-
-           updateMarketPressure();
-           pressureInterval = setInterval(updateMarketPressure, 600000);
-
-           monitorUnreadChat(user.uid);
-
-           if (user.role === 'admin') {
-               showToast("Admin detected...", "info");
-               setTimeout(() => window.location.href = 'admin.html', 1500);
-               return;
-           } else {
-               showSection('market');
-           }
-       }
-
-       // NEW: Load user investments from deposits
-       function loadUserInvestments(uid) {
-           const investmentsRef = ref(db, 'deposits');
-           onValue(investmentsRef, (snapshot) => {
-               userInvestments = [];
-               const data = snapshot.val();
-               if (data) {
-                   Object.entries(data).forEach(([key, deposit]) => {
-                       if (deposit.userId === uid && deposit.status === 'approved') {
-                           userInvestments.push({
-                               id: key,
-                               ...deposit
-                           });
-                       }
-                   });
-               }
-               calculatePortfolioPL();
-           });
-       }
-
-       // NEW: Calculate Portfolio Profit/Loss
-       function calculatePortfolioPL() {
-           if (!currentUserData || !marketData) return;
-           
-           const currentPrice = getCurrentPrice();
-           let totalInvested = 0;
-           let totalCurrentValue = 0;
-           
-           userInvestments.forEach(inv => {
-               const investedAmount = parseFloat(inv.rawAmount) || 0; // PKR invested
-               const tkAmount = parseFloat(inv.amount) || 0; // TK received
-               const buyPrice = parseFloat(inv.tkPriceAtDeposit) || marketData.tkPrice; // Price at deposit time
-               
-               totalInvested += investedAmount;
-               
-               // Current value = TK amount * current price
-               const currentValue = tkAmount * currentPrice * marketData.usdtRate;
-               totalCurrentValue += currentValue;
-           });
-           
-           const netPL = totalCurrentValue - totalInvested;
-           const plPercentage = totalInvested > 0 ? ((netPL / totalInvested) * 100) : 0;
-           
-           // Update Portfolio View
-           document.getElementById('portfolio-total-invested').innerText = totalInvested.toFixed(2) + ' PKR';
-           document.getElementById('portfolio-total-value').innerText = totalCurrentValue.toFixed(2);
-           document.getElementById('portfolio-net-pl').innerText = (netPL >= 0 ? '+' : '') + netPL.toFixed(2) + ' PKR';
-           
-           const netPLElement = document.getElementById('portfolio-net-pl');
-           if (netPL >= 0) {
-               netPLElement.classList.remove('loss');
-               netPLElement.classList.add('profit');
-           } else {
-               netPLElement.classList.remove('profit');
-               netPLElement.classList.add('loss');
-           }
-           
-           document.getElementById('portfolio-current-price').innerText = currentPrice.toFixed(2);
-           
-           const priceChangeElement = document.getElementById('portfolio-price-change');
-           // Calculate 24h change (mock based on market fluctuation)
-           const changePercent = ((Math.random() * 4) - 2).toFixed(2);
-           priceChangeElement.innerText = (changePercent >= 0 ? '+' : '') + changePercent + '%';
-           priceChangeElement.style.color = changePercent >= 0 ? '#00ff88' : '#ff4757';
-           
-           // Update Quick View in Wallet
-           document.getElementById('quick-pl').innerText = (netPL >= 0 ? '+' : '') + netPL.toFixed(2) + ' PKR';
-           document.getElementById('quick-pl').style.color = netPL >= 0 ? '#00c853' : '#ff3d00';
-           document.getElementById('quick-pl-percent').innerText = (plPercentage >= 0 ? '+' : '') + plPercentage.toFixed(2) + '%';
-           document.getElementById('quick-pl-percent').style.color = netPL >= 0 ? '#00c853' : '#ff3d00';
-           
-           // Render Investments List
-           renderInvestmentsList(currentPrice);
-       }
-
-       // NEW: Get current price based on market mode
-       function getCurrentPrice() {
-           if (marketMode === 'auto' && currentFluctuatedPrice !== null) {
-               return currentFluctuatedPrice / marketData.usdtRate;
-           }
-           return marketData.tkPrice;
-       }
-
-       // NEW: Render individual investment cards with P/L
-       function renderInvestmentsList(currentPrice) {
-           const listContainer = document.getElementById('investments-list');
-           
-           if (userInvestments.length === 0) {
-               listContainer.innerHTML = `
-                   <div style="text-align:center; color:#777; padding: 20px;">
-                       <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
-                       No investments yet. Make a deposit to start!
-                   </div>
-               `;
-               return;
-           }
-           
-           listContainer.innerHTML = '';
-           
-           userInvestments.forEach(inv => {
-               const investedPKR = parseFloat(inv.rawAmount) || 0;
-               const tkAmount = parseFloat(inv.amount) || 0;
-               const buyPrice = parseFloat(inv.tkPriceAtDeposit) || marketData.tkPrice;
-               const currentTKPrice = currentPrice;
-               
-               const currentValue = tkAmount * currentTKPrice * marketData.usdtRate;
-               const pl = currentValue - investedPKR;
-               const plPercent = investedPKR > 0 ? ((pl / investedPKR) * 100) : 0;
-               const isProfit = pl >= 0;
-               
-               const card = document.createElement('div');
-               card.className = `investment-card ${isProfit ? 'profit' : 'loss'}`;
-               
-               card.innerHTML = `
-                   <div class="investment-header">
-                       <div>
-                           <div class="investment-amount">${tkAmount.toFixed(2)} TK</div>
-                           <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
-                               <i class="fas fa-calendar-alt"></i> ${inv.date}
-                           </div>
-                       </div>
-                       <div style="text-align: right;">
-                           <div style="font-size: 0.8rem; color: var(--text-muted);">Invested</div>
-                           <div style="font-weight: bold;">${investedPKR.toFixed(2)} PKR</div>
-                       </div>
-                   </div>
-                   
-                   <div class="investment-details">
-                       <div class="investment-detail-item">
-                           <span class="investment-detail-label">Buy Price</span>
-                           <span class="investment-detail-value">${buyPrice.toFixed(4)} <span class="rate-badge">PKR</span></span>
-                       </div>
-                       <div class="investment-detail-item">
-                           <span class="investment-detail-label">Current Price</span>
-                           <span class="investment-detail-value">${currentTKPrice.toFixed(4)} <span class="rate-badge">PKR</span></span>
-                       </div>
-                   </div>
-                   
-                   <div class="pl-display">
-                       <div>
-                           <div style="font-size: 0.8rem; color: var(--text-muted);">Current Value</div>
-                           <div style="font-weight: bold; font-size: 1.1rem;">${currentValue.toFixed(2)} PKR</div>
-                       </div>
-                       <div style="text-align: right;">
-                           <div class="pl-amount ${isProfit ? 'text-green' : 'text-red'}">
-                               ${isProfit ? '+' : ''}${pl.toFixed(2)} PKR
-                           </div>
-                           <div class="pl-percentage ${isProfit ? 'text-green' : 'text-red'}">
-                               ${isProfit ? '<i class="fas fa-arrow-up"></i>' : '<i class="fas fa-arrow-down"></i>'} 
-                               ${Math.abs(plPercent).toFixed(2)}%
-                           </div>
-                       </div>
-                   </div>
-               `;
-               
-               listContainer.appendChild(card);
-           });
-       }
-
-       function monitorIncomingTransfers(myUid) {
-           const transfersRef = ref(db, 'transfers');
-           
-           get(transfersRef).then(() => {
-               isTransfersLoaded = true;
-           });
-
-           onChildAdded(transfersRef, (snapshot) => {
-               if (!isTransfersLoaded) return;
-               const data = snapshot.val();
-               if (data.to === myUid) {
-                   showReceivePopup(data.amount);
-               }
-           });
-       }
-
-       function showReceivePopup(amount) {
-           const popup = document.getElementById('receive-popup');
-           document.getElementById('popup-amount').innerText = amount.toFixed(2);
-           popup.classList.remove('hidden');
-           playSound('success');
-       }
-
-       function startTransferTimer(duration) {
-           let timer = duration;
-           const btn = document.getElementById('btn-transfer-send');
-           const msg = document.getElementById('transfer-wait-msg');
-           const timeDisplay = document.getElementById('timer-count');
-
-           btn.classList.add('hidden');
-           msg.classList.remove('hidden');
-
-           if (transferCooldownInterval) clearInterval(transferCooldownInterval);
-
-           transferCooldownInterval = setInterval(() => {
-               let minutes = parseInt(timer / 60, 10);
-               let seconds = parseInt(timer % 60, 10);
-
-               minutes = minutes < 10 ? "0" + minutes : minutes;
-               seconds = seconds < 10 ? "0" + seconds : seconds;
-
-               timeDisplay.innerText = minutes + ":" + seconds;
-
-               if (--timer < 0) {
-                   clearInterval(transferCooldownInterval);
-                   btn.classList.remove('hidden');
-                   msg.classList.add('hidden');
-                   document.getElementById('transfer-email').value = '';
-                   document.getElementById('transfer-amount').value = '';
-               }
-           }, 1000);
-       }
-
-       function checkTransferCooldown() {
-           if (!currentUserData) return;
-           const btn = document.getElementById('btn-transfer-send');
-           const msg = document.getElementById('transfer-wait-msg');
-
-           if (currentUserData.lastTransferAt) {
-               const now = Date.now();
-               const last = currentUserData.lastTransferAt;
-               const diff = now - last;
-               const twoMinutes = 120000;
-
-               if (diff < twoMinutes) {
-                   startTransferTimer(twoMinutes - diff);
-               } else {
-                   btn.classList.remove('hidden');
-                   msg.classList.add('hidden');
-                   if(transferCooldownInterval) clearInterval(transferCooldownInterval);
-               }
-           } else {
-               btn.classList.remove('hidden');
-               msg.classList.add('hidden');
-           }
-       }
-
-       function loadReferralStats(uid) {
-           const listContainer = document.getElementById('invited-list');
-           const countDisplay = document.getElementById('total-invites-count');
-           
-           onValue(ref(db, `referrals/${uid}`), (snapshot) => {
-               listContainer.innerHTML = "";
-               const data = snapshot.val();
-               
-               if (!data || Object.keys(data).length === 0) {
-                   listContainer.innerHTML = `<div style="text-align:center; color:#777; font-size:0.8rem;">No invites yet.</div>`;
-                   countDisplay.innerText = "0";
-                   return;
-               }
-
-               const invites = Object.values(data);
-               countDisplay.innerText = invites.length;
-
-               invites.forEach(member => {
-                   const div = document.createElement('div');
-                   div.className = 'invited-item';
-                   div.innerHTML = `
-                       <span class="invited-name"><i class="fas fa-user" style="margin-right:5px; font-size:0.8rem; color:#555;"></i> ${member.name}</span>
-                       <span class="invited-date">${member.joinedAt}</span>
-                   `;
-                   listContainer.appendChild(div);
-               });
-           });
-       }
-
-       window.showSection = (sectionId) => {
-           document.querySelectorAll('#user-views .section').forEach(el => el.classList.add('hidden'));
-           document.getElementById(`view-${sectionId}`).classList.remove('hidden');
-           document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-           const navIndex = ['market', 'wallet', 'chat', 'profile'].indexOf(sectionId);
-           if (navIndex >= 0) document.querySelectorAll('.nav-item')[navIndex].classList.add('active');
-           if (sectionId === 'wallet') loadUserHistory(); 
-           if (sectionId === 'chat') {
-               loadUserChat();
-               resetUnreadChatCount();
-           }
-           if (sectionId === 'portfolio') {
-               calculatePortfolioPL();
-           }
-           
-           if(sectionId === 'transfer') {
-               checkTransferCooldown();
-           }
-       };
-
-       function updateUI() {
-           if (!currentUserData) return;
-           const initial = currentUserData.name ? currentUserData.name.charAt(0).toUpperCase() : "U";
-           document.getElementById('header-name').innerText = currentUserData.name;
-           document.getElementById('header-balance').innerText = currentUserData.balanceTK.toFixed(2) + " TK";
-           const headerAvatar = document.getElementById('header-avatar');
-           headerAvatar.innerText = initial;
-           headerAvatar.style.background = 'var(--primary)';
-           document.getElementById('profile-name').innerText = currentUserData.name;
-           document.getElementById('profile-email').innerText = currentUserData.email;
-           const profileAvatar = document.getElementById('profile-avatar');
-           profileAvatar.innerText = initial;
-           document.getElementById('wallet-tk').innerText = currentUserData.balanceTK.toFixed(2);
-           document.getElementById('futures-tk').innerText = currentUserData.balanceTK.toFixed(2);
-           const pkrValue = currentUserData.balanceTK * marketData.tkPrice * marketData.usdtRate;
-           document.getElementById('wallet-pkr').innerText = pkrValue.toFixed(2);
-           
-           if (currentUserData.isPremium) {
-               document.getElementById('profile-status').innerHTML = `<span class="text-blue"><i class="fas fa-check-circle blue-tick"></i> Premium User</span>`;
-               document.getElementById('header-premium-badge').classList.remove('hidden');
-           } else {
-               document.getElementById('profile-status').innerText = "Standard User";
-               document.getElementById('header-premium-badge').classList.add('hidden');
-           }
-           const fee = currentUserData.isPremium ? 0 : (appSettings.withdrawFee * 100);
-           document.getElementById('fee-display').innerText = `Fee: ${fee}%`;
-           document.getElementById('withdraw-bal-display').innerText = currentUserData.balanceTK.toFixed(2) + " TK";
-           document.getElementById('ref-code-display').innerText = currentUserData.uid;
-       }
-
-       function updateMarketUI() {
-           let priceInPKR;
-           
-           if (marketMode === 'auto' && currentFluctuatedPrice !== null) {
-               priceInPKR = currentFluctuatedPrice;
-           } else {
-               priceInPKR = marketData.tkPrice * marketData.usdtRate;
-           }
-           
-           document.getElementById('market-price').innerText = priceInPKR.toFixed(2);
-           
-           // Update deposit calculation if on deposit page
-           if (!document.getElementById('view-deposit').classList.contains('hidden')) {
-               calculateDeposit();
-           }
-       }
-
-       function drawChart() {
-           const canvas = document.getElementById('marketCanvas');
-           const ctx = canvas.getContext('2d');
-           canvas.width = canvas.parentElement.offsetWidth;
-           canvas.height = canvas.parentElement.offsetHeight;
-           const points = chartPoints.length > 0 ? chartPoints : [marketData.tkPrice];
-           const max = Math.max(...points) * 1.05;
-           const min = Math.min(...points) * 0.95;
-           const range = max - min;
-           const stepX = canvas.width / (points.length - 1 || 1);
-           ctx.clearRect(0, 0, canvas.width, canvas.height);
-           ctx.beginPath();
-           ctx.strokeStyle = '#ff6600';
-           ctx.lineWidth = 2;
-           points.forEach((p, i) => {
-               const x = i * stepX;
-               const y = points.length === 1 ? canvas.height/2 : canvas.height - ((p - min) / range) * canvas.height;
-               if(i===0) ctx.moveTo(x, y);
-               else ctx.lineTo(x, y);
-           });
-           ctx.stroke();
-       }
-
-       window.downloadApp = () => {
-           window.location.href = 'tkcoin.apk';
-       };
-
-       window.copyReferralLink = () => {
-           const uid = currentUserData.uid;
-           const baseUrl = window.location.href.split('?')[0];
-           const link = baseUrl + "?ref=" + uid;
-           
-           navigator.clipboard.writeText(link).then(() => {
-               showToast("Referral Link Copied!", "success");
-           }).catch(() => {
-               showToast("Failed to copy", "error");
-           });
-       };
-
-       window.updateDepositDetails = () => {
-           const method = document.getElementById('deposit-method').value;
-           const displayNum = document.getElementById('deposit-number');
-           const displayName = document.getElementById('deposit-name');
-           const qrImg = document.getElementById('deposit-qr-image');
-           const textInfo = document.getElementById('text-info');
-           const copyBtn = document.getElementById('copy-btn');
-
-           textInfo.style.display = 'block';
-           qrImg.style.display = 'none';
-           copyBtn.style.display = 'block';
-
-           if (method === 'easypaisa') { 
-               displayNum.innerText = appSettings.easypaisa; 
-               displayName.innerText = "Easypaisa"; 
-           } 
-           else if (method === 'jazzcash') { 
-               displayNum.innerText = appSettings.jazzcash; 
-               displayName.innerText = "JazzCash"; 
-           }
-           else if (method === 'tillid') { 
-               displayNum.innerText = appSettings.tillid; 
-               displayName.innerText = "Till Id (Raast)"; 
-           }
-           else if (method === 'qrpay') { 
-               textInfo.style.display = 'none';
-               copyBtn.style.display = 'none';
-               qrImg.style.display = 'block';
-               qrImg.src = "./qr.png"; 
-           }
-           calculateDeposit();
-       };
-
-       window.calculateDeposit = () => {
-           const amount = parseFloat(document.getElementById('deposit-amount').value) || 0;
-           const usdtValue = amount / marketData.usdtRate;
-           const receive = usdtValue / marketData.tkPrice;
-           
-           // NEW: Show detailed deposit info
-           document.getElementById('deposit-rate').innerText = '1';
-           document.getElementById('deposit-price').innerText = (marketData.tkPrice * marketData.usdtRate).toFixed(2);
-           document.getElementById('deposit-calc-receive').innerText = receive.toFixed(2);
-           document.getElementById('deposit-invest-value').innerText = amount.toFixed(2);
-       }
-
-       window.copyDepositNumber = () => {
-           navigator.clipboard.writeText(document.getElementById('deposit-number').innerText);
-           showToast("Copied!");
-       };
-
-       window.submitDeposit = () => {
-           const amountInput = parseFloat(document.getElementById('deposit-amount').value);
-           const refId = document.getElementById('deposit-ref').value;
-           const method = document.getElementById('deposit-method').value;
-           
-           if (!amountInput || amountInput <= 0) return showToast("Enter valid amount", "error");
-           if (!refId) return showToast("Enter Transaction ID", "error");
-           
-           const pkrAmount = amountInput;
-           const usdtValue = pkrAmount / marketData.usdtRate;
-           const receiveTk = usdtValue / marketData.tkPrice;
-           
-           // NEW: Store price at time of deposit for P/L calculation
-           const depositData = {
-               userId: currentUserData.uid,
-               userEmail: currentUserData.email,
-               method: method,
-               amount: receiveTk,
-               rawAmount: pkrAmount, // PKR amount invested
-               tkPriceAtDeposit: marketData.tkPrice, // Price when bought
-               usdtRateAtDeposit: marketData.usdtRate, // Rate when bought
-               ref: refId,
-               date: new Date().toLocaleString(),
-               status: 'pending'
-           };
-           
-           push(ref(db, 'deposits'), depositData).then(() => {
-               showToast("Request Submitted!");
-               
-               if (currentUserData.referredBy) {
-                   const referrerUid = currentUserData.referredBy;
-                   const bonus = receiveTk * 0.03; 
-
-                   get(ref(db, 'users/' + referrerUid)).then((snapshot) => {
-                       if (snapshot.exists()) {
-                           const referrerData = snapshot.val();
-                           const newBalance = (referrerData.balanceTK || 0) + bonus;
-                           
-                           update(ref(db, 'users/' + referrerUid), {
-                               balanceTK: newBalance
-                           });
-                       }
-                   });
-               }
-
-               document.getElementById('deposit-amount').value = '';
-               document.getElementById('deposit-ref').value = '';
-               showSection('wallet');
-           });
-       };
-
-       window.calculateWithdraw = () => {
-           const tk = parseFloat(document.getElementById('withdraw-amount').value) || 0;
-           const usdtVal = tk * marketData.tkPrice;
-           const pkrVal = usdtVal * marketData.usdtRate;
-           document.getElementById('withdraw-calc-usdt').innerText = pkrVal.toFixed(2);
-       }
-
-       window.submitWithdraw = () => {
-           const amount = parseFloat(document.getElementById('withdraw-amount').value);
-           const method = document.getElementById('withdraw-method').value;
-           const account = document.getElementById('withdraw-account').value;
-
-           if (!amount || amount < appSettings.minWithdraw) return showToast("Min withdraw " + appSettings.minWithdraw, "error");
-           if (!account) return showToast("Enter details", "error");
-
-           const feeRate = currentUserData.isPremium ? 0 : appSettings.withdrawFee;
-           const fee = amount * feeRate;
-           const total = amount + fee;
-
-           if (total > currentUserData.balanceTK) return showToast("Insufficient balance", "error");
-
-           const usdtVal = amount * marketData.tkPrice;
-           const pkrVal = usdtVal * marketData.usdtRate;
-
-           const newWithdrawKey = push(ref(db, 'withdrawals')).key;
-
-           const withdrawData = {
-               userId: currentUserData.uid,
-               userEmail: currentUserData.email,
-               method: method,
-               account: account,
-               amount: amount, 
-               pkrAmount: pkrVal, 
-               fee: fee,
-               total: total, 
-               date: new Date().toLocaleString(),
-               status: 'pending'
-           };
-
-           const updates = {};
-           updates['users/' + currentUserData.uid + '/balanceTK'] = currentUserData.balanceTK - total;
-           updates['withdrawals/' + newWithdrawKey] = withdrawData;
-
-           update(ref(db), updates).then(() => {
-               showToast("Withdrawal Requested. Balance Deducted.");
-               document.getElementById('withdraw-amount').value = '';
-               document.getElementById('withdraw-account').value = '';
-               showSection('wallet');
-           }).catch((error) => {
-               console.error("Withdraw Error:", error);
-               showToast("Failed to submit request. Try again.", "error");
-           });
-       };
-
-       window.submitTransfer = () => {
-           const email = document.getElementById('transfer-email').value.trim();
-           const amount = parseFloat(document.getElementById('transfer-amount').value);
-
-           if (!email) return showToast("Enter email", "error");
-           if (email === currentUserData.email) return showToast("Cannot send to yourself", "error");
-           if (!amount || amount <= 0) return showToast("Invalid amount", "error");
-           
-           const currentBal = parseFloat(currentUserData.balanceTK || 0);
-           if (amount > currentBal) return showToast("Insufficient balance", "error");
-
-           showToast("Checking user...", "info");
-
-           get(ref(db, 'users')).then((snapshot) => {
-               let receiverUid = null;
-               if (snapshot.exists()) {
-                   snapshot.forEach((childSnapshot) => {
-                       if (childSnapshot.val().email.toLowerCase() === email.toLowerCase()) {
-                           receiverUid = childSnapshot.key;
-                       }
-                   });
-               }
-
-               if (receiverUid) {
-                   showToast("User Found! Transferring...", "success");
-                   
-                   const updates = {};
-                   updates['users/' + currentUserData.uid + '/balanceTK'] = currentBal - amount;
-                   const receiverData = snapshot.val()[receiverUid];
-                   const receiverBal = parseFloat(receiverData.balanceTK || 0);
-                   updates['users/' + receiverUid + '/balanceTK'] = receiverBal + amount;
-
-                   const transferRef = push(ref(db, 'transfers'));
-                   const transferData = {
-                       from: currentUserData.uid,
-                       fromName: currentUserData.name,
-                       to: receiverUid,
-                       toName: receiverData.name,
-                       amount: amount,
-                       date: new Date().toLocaleString(),
-                       timestamp: Date.now()
-                   };
-                   updates['transfers/' + transferRef.key] = transferData;
-                   updates['users/' + currentUserData.uid + '/lastTransferAt'] = Date.now();
-
-                   update(ref(db), updates).then(() => {
-                       showToast("Transfer Successful!");
-                       startTransferTimer(120000);
-                       document.getElementById('transfer-amount').value = '';
-                       document.getElementById('transfer-email').value = '';
-                   });
-               } else {
-                   showToast("User Not Found", "error");
-               }
-           });
-       };
-
-       window.upgradePremium = () => {
-           if (currentUserData.balanceTK >= 100) {
-               update(ref(db, 'users/' + currentUserData.uid), {
-                   balanceTK: currentUserData.balanceTK - 100,
-                   isPremium: true
-               }).then(() => showToast("Upgraded!"));
-           } else {
-               showToast("Need 100 TK", "error");
-           }
-       };
-
-       window.openFutures = (type) => {
-           const amount = parseFloat(document.getElementById('futures-amount').value);
-           if(!amount || amount > currentUserData.balanceTK) return showToast("Insufficient Balance", "error");
-           update(ref(db, 'users/' + currentUserData.uid + '/balanceTK'), currentUserData.balanceTK - amount);
-           showToast(`Opened ${type} Position with ${amount} TK`);
-           document.getElementById('futures-amount').value = '';
-       }
-
-       function loadUserChat() {
-           const chatRef = ref(db, 'chats/' + currentUserData.uid);
-           onValue(chatRef, (snapshot) => {
-               const container = document.getElementById('chat-messages');
-               container.innerHTML = "";
-               const data = snapshot.val();
-               if (!data) {
-                   container.innerHTML = `<div style="text-align:center; color:#777; margin-top:20px;">Start conversation.</div>`;
-                   return;
-               }
-               Object.values(data).forEach(msg => {
-                   const isUser = msg.sender === currentUserData.uid;
-                   const div = document.createElement('div');
-                   div.className = `message ${isUser ? 'msg-user' : 'msg-admin'}`;
-                   div.innerText = msg.text;
-                   container.appendChild(div);
-               });
-               container.scrollTop = container.scrollHeight;
-           });
-       }
-
-       function monitorUnreadChat(uid) {
-           const unreadRef = ref(db, `users/${uid}/unreadChatCount`);
-           onValue(unreadRef, (snapshot) => {
-               const count = snapshot.val() || 0;
-               const badge = document.getElementById('chat-badge');
-               if (count > 0) {
-                   badge.innerText = count > 9 ? '9+' : count;
-                   badge.classList.remove('hidden');
-               } else {
-                   badge.classList.add('hidden');
-               }
-           });
-
-           const chatRef = ref(db, 'chats/' + uid);
-           onChildAdded(chatRef, (snapshot) => {
-               const msg = snapshot.val();
-               if (msg.sender !== uid && msg.timestamp > lastReadTimestamp) {
-                   const userRef = ref(db, `users/${uid}`);
-                   get(userRef).then((userSnapshot) => {
-                       if (userSnapshot.exists()) {
-                           const userData = userSnapshot.val();
-                           const currentCount = userData.unreadChatCount || 0;
-                           update(userRef, {
-                               unreadChatCount: currentCount + 1
-                           });
-                       }
-                   });
-               }
-           });
-       }
-
-       function resetUnreadChatCount() {
-           if (!currentUserData) return;
-           const uid = currentUserData.uid;
-           const now = Date.now();
-           const userRef = ref(db, `users/${uid}`);
-           
-           update(userRef, {
-               unreadChatCount: 0,
-               lastReadTimestamp: now
-           }).then(() => {
-               lastReadTimestamp = now;
-           });
-       }
-
-       window.sendChatMessage = () => {
-           const input = document.getElementById('chat-input');
-           const text = input.value;
-           if(!text) return;
-           const chatRef = ref(db, 'chats/' + currentUserData.uid);
-           push(chatRef, {
-               sender: currentUserData.uid,
-               text: text,
-               timestamp: Date.now()
-           });
-           input.value = "";
-       }
-
-       function loadUserHistory() {
-           const list = document.getElementById('transaction-list');
-           list.innerHTML = '<div style="text-align:center; color:#777;">Loading...</div>';
-           let allTx = [];
-
-           const renderHistory = () => {
-               list.innerHTML = "";
-               if(allTx.length === 0) {
-                   list.innerHTML = "<div style='text-align:center; color:#777; margin-top:10px;'>No transactions yet.</div>";
-                   return;
-               }
-               allTx.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-               allTx.forEach(item => {
-                   let statusColor = 'var(--primary)';
-                   let title = item.type ? item.type.toUpperCase() : 'TRANSFER';
-                   let subtitle = item.method || '';
-                   let amountColor = '#fff';
-
-                   if(item.type === 'Deposit' || item.type === 'Withdraw') {
-                       if(item.status === 'approved') statusColor = 'var(--success)';
-                       if(item.status === 'rejected') statusColor = 'var(--danger)';
-                   } else if (item.type === 'Transfer') {
-                        title = 'TRANSFER';
-                        subtitle = item.direction === 'Sent' ? `Sent to: ${item.peerName}` : `Received from: ${item.peerName}`;
-                        amountColor = item.direction === 'Sent' ? 'var(--danger)' : 'var(--success)';
-                   }
-
-                   list.innerHTML += `
-                       <div style="background: var(--bg-card); padding: 12px; border-radius: 8px; border: 1px solid #333;">
-                           <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                               <span style="font-weight:bold; color:#fff;">${title}</span>
-                               <span style="font-size:0.8rem; color:#aaa;">${item.date}</span>
-                           </div>
-                           <div style="display:flex; justify-content:space-between; align-items:center;">
-                               <div>
-                                   <div style="color:${amountColor}; font-weight:bold;">${item.amount} TK</div>
-                                   <div style="font-size:0.8rem; color:#777;">${subtitle}</div>
-                               </div>
-                               ${item.status ? `<div class="status-badge" style="background:${statusColor}; color:${item.status==='pending'?'black':'white'}">${item.status}</div>` : ''}
-                           </div>
-                       </div>
-                   `;
-               });
-           };
-
-           onValue(ref(db, 'deposits'), (snapshot) => {
-               const data = snapshot.val();
-               if(data) {
-                   Object.values(data).forEach(d => {
-                       if(d.userId === currentUserData.uid) {
-                           d.type = 'Deposit';
-                           allTx.push(d);
-                       }
-                   });
-               }
-               renderHistory();
-           });
-
-           onValue(ref(db, 'withdrawals'), (snapshot) => {
-               const data = snapshot.val();
-               if(data) {
-                   Object.values(data).forEach(w => {
-                       if(w.userId === currentUserData.uid) {
-                           w.type = 'Withdraw';
-                           w.amount = w.total; 
-                           allTx.push(w);
-                       }
-                   });
-               }
-               renderHistory();
-           });
-
-           onValue(ref(db, 'transfers'), (snapshot) => {
-               const data = snapshot.val();
-               if(data) {
-                   Object.values(data).forEach(t => {
-                       if(t.from === currentUserData.uid) {
-                           t.type = 'Transfer';
-                           t.direction = 'Sent';
-                           t.peerName = t.toName || 'Unknown';
-                           allTx.push(t);
-                       } else if (t.to === currentUserData.uid) {
-                           t.type = 'Transfer';
-                           t.direction = 'Received';
-                           t.peerName = t.fromName || 'Unknown';
-                           allTx.push(t);
-                       }
-                   });
-               }
-               renderHistory();
-           });
-       }
-       
-       initApp();
-
-       document.addEventListener('click', () => {
-           if(currentUserData && currentUserData.uid) {
-               trackUserActivity(currentUserData.uid);
-           }
-       });
-       document.addEventListener('touchstart', () => {
-           if(currentUserData && currentUserData.uid) {
-               trackUserActivity(currentUserData.uid);
-           }
-       });
-
-       function trackUserActivity(uid) {
-           update(ref(db, 'users/' + uid), {
-               lastActive: Date.now(),
-               isOnline: true
-           });
-       }
-   </script>
+    <div id="toast-container"></div>
+
+    <!-- Full Screen Receive Popup -->
+    <div id="receive-popup" class="hidden">
+        <i class="fas fa-hand-holding-usd" style="font-size: 5rem; color: gold; margin-bottom: 20px; animation: bounce 1s infinite;"></i>
+        <h2 style="color: white;">Coins Received!</h2>
+        <p style="color: #ccc; margin-top: 10px;">You received <span id="popup-amount" class="text-green" style="font-weight: bold;">0</span> TK</p>
+        <button class="btn" style="margin-top: 30px; width: auto; padding: 10px 40px;" onclick="window.closePopup()">OK</button>
+    </div>
+
+    <!-- Auth Screen -->
+    <div id="auth-screen">
+        <div class="auth-box">
+            <h2 class="text-orange" style="text-align: center; margin-bottom: 20px;">TK Coin Login</h2>
+            <form id="auth-form">
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" id="auth-email" required placeholder="user@example.com">
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="auth-pass" required placeholder="password">
+                </div>
+                <div class="input-group hidden" id="ref-group">
+                    <label>Referral Code (Optional)</label>
+                    <input type="text" id="auth-ref" placeholder="Enter Referral Code">
+                </div>
+
+                <button type="submit" class="btn" id="auth-btn">Login</button>
+            </form>
+            <div class="auth-toggle" onclick="toggleAuthMode()">Don't have an account? Signup</div>
+            <div style="margin-top: 15px; font-size: 0.8rem; color: #666; text-align: center;">
+                For your security, make sure your login details are correct. Never share your password with anyone..
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="app-container" class="hidden">
+        <div class="ticker-wrap">
+            <div class="ticker" id="news-ticker"></div>
+        </div>
+
+        <header>
+            <div class="logo">
+                <i class="fas fa-coins"></i> TK Coin
+                <span id="header-premium-badge" class="hidden blue-tick"><i class="fas fa-check-circle"></i></span>
+            </div>
+            <div class="user-info" onclick="showSection('profile')">
+                <div style="text-align: right;">
+                    <div id="header-name">User</div>
+                    <div id="header-balance" style="color: var(--primary);">0 TK</div>
+                </div>
+                <div id="header-avatar" class="avatar">U</div>
+            </div>
+        </header>
+
+        <main id="user-views">
+            <!-- Market -->
+            <section id="view-market" class="section">
+                <div class="balance-card">
+                    <div class="balance-title">Current TK Price</div>
+                    <div class="balance-amount"><span id="market-price">0.00</span> PKR</div>
+                    <small style="opacity: 0.8;">Total Hold TK: 20M+ Coins</small>
+                </div>
+
+                <!-- Market Pressure Indicator -->
+                <div class="market-pressure-card">
+                    <h3 style="margin-bottom: 10px; color: var(--primary);">Market Pressure</h3>
+                    <div class="pressure-bar-container" id="pressure-bar">
+                        <div class="pressure-buy" id="buy-percentage">50%</div>
+                        <div class="pressure-sell" id="sell-percentage">50%</div>
+                    </div>
+                    <div class="pressure-labels">
+                        <span><i class="fas fa-arrow-up" style="color: #00c853;"></i> Buyers</span>
+                        <span id="last-updated">Updated now</span>
+                        <span><i class="fas fa-arrow-down" style="color: #ff3d00;"></i> Sellers</span>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3>Live Market</h3>
+                    <span style="font-size: 0.8rem; color: var(--success);">● Live</span>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="marketCanvas"></canvas>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <h3>News Feed</h3>
+                    <div id="news-feed" style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;"></div>
+                </div>
+            </section>
+
+            <!-- Portfolio View -->
+            <section id="view-portfolio" class="section hidden">
+                <h2 class="text-orange" style="margin-bottom: 15px;"><i class="fas fa-chart-pie"></i> My Portfolio</h2>
+                
+                <!-- Portfolio Summary -->
+                <div class="portfolio-summary">
+                    <div class="balance-title" style="opacity: 0.9;">Total Investment Value</div>
+                    <div class="balance-amount" style="font-size: 1.8rem;"><span id="portfolio-total-value">0</span> PKR</div>
+                    
+                    <div class="portfolio-grid">
+                        <div class="portfolio-item">
+                            <div class="portfolio-label">Total Invested</div>
+                            <div class="portfolio-value" id="portfolio-total-invested">0 PKR</div>
+                        </div>
+                        <div class="portfolio-item">
+                            <div class="portfolio-label">Net P/L</div>
+                            <div class="portfolio-value" id="portfolio-net-pl">0 PKR</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Current Price Info -->
+                <div class="deposit-info-box">
+                    <div class="deposit-info-row">
+                        <span>Current TK Price:</span>
+                        <span style="font-weight: bold; color: var(--primary);"><span id="portfolio-current-price">0.00</span> PKR</span>
+                    </div>
+                    <div class="deposit-info-row">
+                        <span>Today's Change:</span>
+                        <span id="portfolio-price-change" style="font-weight: bold;">0%</span>
+                    </div>
+                </div>
+
+                <h3 style="margin-bottom: 15px;">My Investments</h3>
+                <div id="investments-list" style="display: flex; flex-direction: column; gap: 10px;">
+                    <div style="text-align:center; color:#777; padding: 20px;">
+                        <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                        No investments yet. Make a deposit to start!
+                    </div>
+                </div>
+            </section>
+
+            <!-- Wallet -->
+            <section id="view-wallet" class="section hidden">
+                <div class="balance-card">
+                    <div class="balance-title">Total Balance</div>
+                    <div class="balance-amount"><span id="wallet-tk">0</span> TK</div>
+                    <div style="font-size: 1rem; opacity: 0.9;"><span id="wallet-pkr">0</span> PKR</div>
+                </div>
+
+                <div class="menu-grid">
+                    <div class="menu-card" onclick="showSection('deposit')">
+                        <span class="menu-icon text-orange"><i class="fas fa-wallet"></i></span>
+                        <div>Deposit</div>
+                    </div>
+                    <div class="menu-card" onclick="showSection('withdraw')">
+                        <span class="menu-icon text-green"><i class="fas fa-money-bill-wave"></i></span>
+                        <div>Withdraw</div>
+                    </div>
+                    <div class="menu-card" onclick="showSection('transfer')">
+                        <span class="menu-icon text-blue"><i class="fas fa-exchange-alt"></i></span>
+                        <div>Transfer</div>
+                    </div>
+                    <div class="menu-card" onclick="showSection('premium')">
+                        <span class="menu-icon" style="color: gold;"><i class="fas fa-crown"></i></span>
+                        <div>Pro</div>
+                    </div>
+                </div>
+
+                <!-- Quick Portfolio Preview -->
+                <div style="background: var(--bg-card); padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #333; cursor: pointer;" onclick="showSection('portfolio')">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: bold; margin-bottom: 5px;"><i class="fas fa-chart-line text-orange"></i> Portfolio</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted);">Track your investment P/L</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div id="quick-pl" style="font-weight: bold; font-size: 1.1rem;">0 PKR</div>
+                            <div id="quick-pl-percent" style="font-size: 0.8rem;">0%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Transaction History</h3>
+                <div id="transaction-list" style="margin-top: 10px; display: flex; flex-direction: column; gap: 10px;">
+                    <div style="text-align:center; color:#555;">Loading history...</div>
+                </div>
+            </section>
+
+            <!-- Futures -->
+            <section id="view-futures" class="section hidden">
+                <h2 class="text-orange">Futures Trading</h2>
+                <p style="color: #aaa; margin-bottom: 20px;">Trade with leverage. High Risk, High Reward.</p>
+                
+                <div class="balance-card">
+                    <div class="balance-title">Available Balance</div>
+                    <div class="balance-amount"><span id="futures-tk">0</span> TK</div>
+                </div>
+
+                <div class="input-group">
+                    <label>Enter Amount (TK)</label>
+                    <input type="number" id="futures-amount" placeholder="e.g. 10 TK">
+                </div>
+
+                <div class="trade-buttons">
+                    <button class="btn btn-long" onclick="openFutures('long')">Buy / Long</button>
+                    <button class="btn btn-short" onclick="openFutures('short')">Sell / Short</button>
+                </div>
+
+                <h3 style="margin-top: 20px;">Your Positions</h3>
+                <div id="futures-positions" style="margin-top: 10px; display: flex; flex-direction: column; gap: 10px;">
+                    <div style="text-align:center; color:#555;">No open positions</div>
+                </div>
+
+                <button class="btn btn-outline" style="margin-top: 20px;" onclick="showSection('wallet')">Back</button>
+            </section>
+
+            <!-- Deposit -->
+            <section id="view-deposit" class="section hidden">
+                <h2 class="text-orange">Deposit Funds</h2>
+                <p style="color: #aaa; margin-bottom: 20px;">Select payment method below.</p>
+                
+                <div class="input-group">
+                    <label>Method</label>
+                    <select id="deposit-method" onchange="updateDepositDetails()">
+                        <option value="easypaisa">Easypaisa</option>
+                        <option value="jazzcash">JazzCash</option>
+                        <option value="tillid">Till Id - (Raast)</option>
+                        <option value="qrpay">QR Pay</option>
+                    </select>
+                </div>
+
+                <div style="background: var(--bg-card); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #333; min-height: 85px; display:flex; align-items:center; justify-content:space-between;">
+                    <div id="text-info" style="flex:1;">
+                        <div style="font-size: 0.8rem; color: #aaa;">Deposit To:</div>
+                        <div style="font-weight: bold; font-size: 1.1rem;" id="deposit-number">Select Method</div>
+                        <div style="font-size: 0.8rem; color: var(--primary);" id="deposit-name">---</div>
+                    </div>
+                    <img id="deposit-qr-image" src="./qr.png" style="display:none; max-width: 150px; height: auto; border-radius: 8px;" alt="QR Code">
+                    <button id="copy-btn" class="btn btn-sm btn-outline" onclick="copyDepositNumber()"><i class="fas fa-copy"></i></button>
+                </div>
+
+                <div class="input-group">
+                    <label>Amount Sent (PKR)</label>
+                    <input type="number" id="deposit-amount" oninput="calculateDeposit()" placeholder="e.g. 500 PKR">
+                </div>
+                <div class="input-group">
+                    <label>Reference No / Transaction ID</label>
+                    <input type="text" id="deposit-ref" placeholder="TRX ID">
+                </div>
+
+                <!-- Deposit Summary Box -->
+                <div class="deposit-info-box">
+                    <div class="deposit-info-row">
+                        <span>Current Rate:</span>
+                        <span><span id="deposit-rate">1</span> TK = <span id="deposit-price">0</span> PKR</span>
+                    </div>
+                    <div class="deposit-info-row">
+                        <span>You will receive:</span>
+                        <span style="font-weight: bold; color: var(--success);"><span id="deposit-calc-receive">0</span> TK</span>
+                    </div>
+                    <div class="deposit-info-row" style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,102,0,0.3);">
+                        <span>Investment Value:</span>
+                        <span style="font-weight: bold;"><span id="deposit-invest-value">0</span> PKR</span>
+                    </div>
+                </div>
+
+                <button class="btn" onclick="submitDeposit()">Submit Deposit Request</button>
+                <button class="btn btn-outline" style="margin-top: 10px;" onclick="showSection('wallet')">Back</button>
+            </section>
+
+            <!-- Withdraw -->
+            <section id="view-withdraw" class="section hidden">
+                <h2 class="text-orange">Withdraw Funds</h2>
+                <p style="color: #aaa; margin-bottom: 20px;">Withdraw TK to Your Account. Balance will be deducted immediately.</p>
+
+                <div style="background: var(--bg-card); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <div>Available Balance: <strong id="withdraw-bal-display">0 TK</strong></div>
+                    <div style="font-size: 0.8rem; color: var(--primary);" id="fee-display">Fee: 5%</div>
+                </div>
+
+                <div class="input-group">
+                    <label>Method</label>
+                    <select id="withdraw-method">
+                        <option value="BANK">BANK</option>
+                        <option value="jazzcash">JazzCash</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>Account Number/ iban no.</label>
+                    <input type="text" id="withdraw-account" placeholder="0300...">
+                </div>
+
+                <div class="input-group">
+                    <label>Amount (TK)</label>
+                    <input type="number" id="withdraw-amount" placeholder="Tk coin" oninput="calculateWithdraw()">
+                </div>
+                
+                <div style="background: #222; padding: 10px; border-radius: 6px; margin-bottom: 20px; color: #aaa;">
+                    <small>Estimated Receive: <strong style="color: white; font-size: 1.1rem;"><span id="withdraw-calc-usdt">0.00</span> PKR</strong></small>
+                </div>
+
+                <button class="btn" onclick="submitWithdraw()">Request Withdrawal</button>
+                <button class="btn btn-outline" style="margin-top: 10px;" onclick="showSection('wallet')">Back</button>
+            </section>
+
+            <!-- Transfer -->
+            <section id="view-transfer" class="section hidden">
+                <h2 class="text-orange">Transfer Coins</h2>
+                <p style="color: #aaa; margin-bottom: 20px;">Send TK to another user instantly.</p>
+
+                <div class="input-group">
+                    <label>Receiver Email</label>
+                    <input type="email" id="transfer-email" placeholder="user@example.com">
+                </div>
+                <div class="input-group">
+                    <label>Amount (TK)</label>
+                    <input type="number" id="transfer-amount" placeholder="Amount">
+                </div>
+
+                <button id="btn-transfer-send" class="btn" onclick="submitTransfer()">Send Now</button>
+                
+                <div id="transfer-wait-msg" class="hidden" style="margin-top: 15px; text-align: center; background: #333; padding: 15px; border-radius: 8px; border: 1px solid var(--primary);">
+                    <p class="text-orange" style="font-weight: bold;">Wait <span id="timer-count">02:00</span> minutes</p>
+                    <small style="color:#aaa;">Next transfer available soon</small>
+                </div>
+
+                <button class="btn btn-outline" style="margin-top: 10px;" onclick="showSection('wallet')">Back</button>
+            </section>
+
+            <!-- Premium -->
+            <section id="view-premium" class="section hidden">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <i class="fas fa-crown" style="font-size: 4rem; color: gold; margin-bottom: 15px;"></i>
+                    <h2>Go Premium</h2>
+                    <p>Unlock Zero Fee, Blue Tick & VIP Features.</p>
+                </div>
+
+                <div class="balance-card" style="text-align: center;">
+                    <div class="balance-title">Upgrade Cost</div>
+                    <div class="balance-amount">100 TK</div>
+                    <div style="margin-top: 10px;">
+                        <i class="fas fa-check-circle"></i> 0% Withdraw Fee<br>
+                        <i class="fas fa-check-circle"></i> Premium Badge<br>
+                        <i class="fas fa-check-circle"></i> Special Access
+                    </div>
+                </div>
+
+                <button class="btn" id="btn-upgrade" onclick="upgradePremium()">Upgrade Now</button>
+                <button class="btn btn-outline" style="margin-top: 10px;" onclick="showSection('wallet')">Back</button>
+            </section>
+
+            <!-- Chat -->
+            <section id="view-chat" class="section hidden">
+                <h2>Live Support 24/7 </h2>
+                <div class="chat-box">
+                    <div class="chat-messages" id="chat-messages"></div>
+                    <div class="chat-input-area">
+                        <input type="text" id="chat-input" placeholder="Type a message..." style="flex: 1; padding: 8px; border-radius: 4px; border: none; background: #333; color: white;">
+                        <button class="btn btn-sm" onclick="sendChatMessage()"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Profile -->
+            <section id="view-profile" class="section hidden">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div id="profile-avatar" class="avatar" style="width: 100px; height: 100px; margin-bottom: 10px; font-size: 2.5rem; background: var(--primary);">U</div>
+                    <h2 id="profile-name">User Name</h2>
+                    <p id="profile-email" style="color: #aaa;">tkcoin@email.com</p>
+                    <div id="profile-status" style="margin-top: 5px; font-size: 0.9rem; color: var(--primary);">Normal User</div>
+                </div>
+
+                <div class="menu-card" onclick="downloadApp()" style="margin-bottom: 15px;">
+                    <i class="fab fa-android" style="color: #a4c639; font-size: 2rem; margin-bottom: 5px;"></i>
+                    <div style="font-weight: bold;">Download App</div>
+                    <small style="color:#888;">For better experience</small>
+                </div>
+
+                <div class="menu-card" onclick="copyReferralLink()" style="margin-bottom: 15px; text-align: left; flex-direction: row; justify-content: space-between; padding: 15px;">
+                    <div>
+                        <div style="font-weight: bold; font-size: 0.9rem; color: #fff;">Invite & Earn</div>
+                        <small style="color: var(--text-muted); display: block; margin-top: 2px;">Share your ID to get 3% bonus</small>
+                    </div>
+                    <div style="text-align: right; display: flex; align-items: center; gap: 10px;">
+                        <span id="ref-code-display" style="font-family: monospace; color: var(--primary); font-weight: bold;">---</span>
+                        <i class="fas fa-copy" style="color: #555;"></i>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <div style="display:flex; justify-content: space-between; margin-bottom: 10px;">
+                        <h3>Invited Members</h3>
+                        <span style="background:var(--primary); padding:2px 8px; border-radius:4px; font-weight:bold; font-size:0.8rem;">Total: <span id="total-invites-count">0</span></span>
+                    </div>
+                    <div id="invited-list" style="max-height: 200px; overflow-y: auto;">
+                        <div style="text-align:center; color:#777; font-size:0.8rem;">No invites yet.</div>
+                    </div>
+                </div>
+
+                <h3>About</h3>
+                <div class="menu-card" onclick="showAboutModal()" style="text-align: left; margin-bottom: 10px;">
+                    <i class="fas fa-info-circle"></i> TK Coin is a Singapore-based digital finance platform offering fast, secure transactions and smart earning solutions for global users
+                </div>
+                <button class="btn" style="background: #333;" onclick="logout()">Logout</button>
+            </section>
+        </main>
+
+        <nav class="bottom-nav" id="user-nav">
+            <a class="nav-item active" onclick="showSection('market')">
+                <i class="fas fa-chart-line"></i>
+                <span>Market</span>
+            </a>
+            <a class="nav-item" onclick="showSection('wallet')">
+                <i class="fas fa-wallet"></i>
+                <span>Wallet</span>
+            </a>
+            <a class="nav-item" onclick="showSection('chat')" id="chat-nav-item">
+                <i class="fas fa-comment-dots"></i>
+                <span>Live Chat</span>
+                <span id="chat-badge" class="nav-badge hidden">0</span>
+            </a>
+            <a class="nav-item" onclick="showSection('profile')">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+        import { getDatabase, ref, set, push, onValue, update, get, child, onChildAdded, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCBMk5ED0YNL9MqVThgMhoOuWvGwTgCJCg",
+            authDomain: "injector-c964a.firebaseapp.com",
+            databaseURL: "https://injector-c964a-default-rtdb.firebaseio.com",
+            projectId: "injector-c964a",
+            storageBucket: "injector-c964a.firebasestorage.app",
+            messagingSenderId: "746006402839",
+            appId: "1:746006402839:web:26d14a3fee7d6e6cc68952",
+            measurementId: "G-DBMSEZZWW1"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        let currentUserData = null; 
+        let marketData = { tkPrice: 1.50, usdtRate: 280 };
+        let appSettings = {
+            easypaisa: '0300-1234567',
+            jazzcash: '0321-7654321',
+            tillid: '03XX-XXXXXXX (Raast)', 
+            minWithdraw: 50,
+            withdrawFee: 0.05
+        };
+        let chartPoints = [];
+        let lastKnownBalance = 0; 
+        let isTransfersLoaded = false; 
+        let transferCooldownInterval = null;
+        let pressureData = { buy: 50, sell: 50 };
+        let pressureInterval = null;
+        let lastReadTimestamp = 0;
+        let marketMode = 'manual';
+        let autoFluctuationRange = 100;
+        let autoUpdateInterval = 30;
+        let currentFluctuatedPrice = null;
+        let autoRateTimer = null;
+        let userInvestments = [];
+
+        window.playSound = (type) => {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContext) return;
+            const ctx = new AudioContext();
+            const osc = ctx.createOscillator();
+            const gainNode = ctx.createGain();
+            osc.connect(gainNode);
+            gainNode.connect(ctx.destination);
+            if (type === 'success') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(500, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1000, ctx.currentTime + 0.1);
+                gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.5);
+            } else if (type === 'error') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, ctx.currentTime);
+                gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.3);
+            }
+        }
+
+        window.closePopup = () => {
+            document.getElementById('receive-popup').classList.add('hidden');
+        }
+
+        window.showToast = (msg, type = 'success') => {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.style.borderLeftColor = type === 'error' ? 'var(--danger)' : 'var(--primary)';
+            toast.innerText = msg;
+            container.appendChild(toast);
+            if(type === 'error') playSound('error');
+            else playSound('success');
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function getAdminEmail() { return "admin@app.com"; }
+
+        function checkUrlParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const refCode = urlParams.get('ref');
+            if (refCode) {
+                document.getElementById('auth-ref').value = refCode;
+                if (!isSignup) toggleAuthMode();
+            }
+        }
+
+        function initApp() {
+            checkUrlParams();
+            
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    checkAndCreateUserInDB(user);
+                } else {
+                    document.getElementById('auth-screen').classList.remove('hidden');
+                    document.getElementById('app-container').classList.add('hidden');
+                    currentUserData = null;
+                }
+            });
+        }
+
+        function startZigzagAnimation() {
+            setInterval(() => {
+                if(!marketData) return;
+                const lastPrice = chartPoints.length > 0 ? chartPoints[chartPoints.length - 1] : marketData.tkPrice;
+                const change = (Math.random() - 0.5) * 0.05; 
+                let newPrice = lastPrice + change;
+                if(newPrice < 0.1) newPrice = 0.1;
+                chartPoints.push(newPrice);
+                if (chartPoints.length > 20) chartPoints.shift();
+                drawChart();
+            }, 1000); 
+        }
+
+        function updateMarketPressure() {
+            const buyPercent = Math.floor(Math.random() * 40) + 30;
+            const sellPercent = 100 - buyPercent;
+            
+            pressureData = { buy: buyPercent, sell: sellPercent };
+            
+            document.getElementById('buy-percentage').style.width = buyPercent + '%';
+            document.getElementById('buy-percentage').innerText = buyPercent + '%';
+            document.getElementById('sell-percentage').style.width = sellPercent + '%';
+            document.getElementById('sell-percentage').innerText = sellPercent + '%';
+            document.getElementById('last-updated').innerText = 'Updated now';
+            
+            setTimeout(() => {
+                document.getElementById('last-updated').innerText = 'Updated 1 min ago';
+            }, 60000);
+        }
+
+        function startAutoPriceFluctuation() {
+            const basePKR = marketData.tkPrice * marketData.usdtRate;
+            currentFluctuatedPrice = basePKR + (Math.random() * autoFluctuationRange);
+            
+            updateMarketUI();
+            
+            autoRateTimer = setInterval(() => {
+                if (marketMode !== 'auto') {
+                    clearInterval(autoRateTimer);
+                    autoRateTimer = null;
+                    return;
+                }
+                
+                const basePKR = marketData.tkPrice * marketData.usdtRate;
+                currentFluctuatedPrice = basePKR + (Math.random() * autoFluctuationRange);
+                
+                updateMarketUI();
+            }, autoUpdateInterval * 1000);
+        }
+
+        function checkAndCreateUserInDB(firebaseUser) {
+            const userRef = ref(db, 'users/' + firebaseUser.uid);
+            get(userRef).then((snapshot) => {
+                if (snapshot.exists()) {
+                    currentUserData = snapshot.val();
+                    currentUserData.uid = firebaseUser.uid;
+                    loginSuccess(currentUserData);
+                } else {
+                    const passwordInput = document.getElementById('auth-pass').value;
+                    const refCode = document.getElementById('auth-ref').value.trim();
+                    const isAdmin = firebaseUser.email === getAdminEmail();
+                    const newUser = {
+                        name: firebaseUser.email.split('@')[0],
+                        email: firebaseUser.email,
+                        password: passwordInput,
+                        role: isAdmin ? "admin" : "user",
+                        isBanned: false,
+                        isPremium: isAdmin ? true : false,
+                        balanceTK: isAdmin ? 10000 : 0,
+                        createdAt: new Date().toISOString(),
+                        lastReadTimestamp: 0
+                    };
+
+                    if (refCode) {
+                        newUser.referredBy = refCode;
+                        const referralPath = ref(db, `referrals/${refCode}/${firebaseUser.uid}`);
+                        set(referralPath, {
+                            name: newUser.name,
+                            joinedAt: new Date().toLocaleString()
+                        });
+                    }
+
+                    set(userRef, newUser).then(() => {
+                        currentUserData = newUser;
+                        currentUserData.uid = firebaseUser.uid;
+                        loginSuccess(currentUserData);
+                    });
+                }
+            });
+        }
+
+        let isSignup = false;
+        window.toggleAuthMode = () => {
+            isSignup = !isSignup;
+            const refGroup = document.getElementById('ref-group');
+            document.querySelector('.auth-box h2').innerText = isSignup ? "Create Account" : "TK Coin Login";
+            document.getElementById('auth-btn').innerText = isSignup ? "Signup" : "Login";
+            document.querySelector('.auth-toggle').innerText = isSignup ? "Already have an account? Login" : "Don't have an account? Signup";
+            
+            if(isSignup) refGroup.classList.remove('hidden');
+            else refGroup.classList.add('hidden');
+        };
+
+        document.getElementById('auth-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('auth-email').value;
+            const pass = document.getElementById('auth-pass').value;
+            const btn = document.getElementById('auth-btn');
+            btn.innerText = "Processing...";
+            btn.disabled = true;
+            try {
+                if (isSignup) await createUserWithEmailAndPassword(auth, email, pass);
+                else await signInWithEmailAndPassword(auth, email, pass);
+            } catch (error) {
+                showToast(error.message, "error");
+                btn.innerText = isSignup ? "Signup" : "Login";
+                btn.disabled = false;
+            }
+        });
+
+        window.logout = () => {
+            signOut(auth).then(() => {
+                lastKnownBalance = 0;
+                showToast("Logged out");
+                window.location.reload();
+            });
+        };
+
+        // FIXED: Update Portfolio Price Display
+        function updatePortfolioPriceDisplay() {
+            const currentPrice = getCurrentPrice();
+            const priceInPKR = currentPrice * marketData.usdtRate;
+            
+            const portfolioPriceEl = document.getElementById('portfolio-current-price');
+            if (portfolioPriceEl) {
+                portfolioPriceEl.innerText = priceInPKR.toFixed(2);
+            }
+        }
+
+        // FIXED: Calculate Portfolio P/L with correct price
+        function calculatePortfolioPL() {
+            if (!currentUserData || !marketData) return;
+            
+            const currentPrice = getCurrentPrice();
+            const currentPricePKR = currentPrice * marketData.usdtRate;
+            
+            // Update current price display immediately
+            updatePortfolioPriceDisplay();
+            
+            let totalInvested = 0;
+            let totalCurrentValue = 0;
+            
+            userInvestments.forEach(inv => {
+                const investedAmount = parseFloat(inv.rawAmount) || 0;
+                const tkAmount = parseFloat(inv.amount) || 0;
+                
+                totalInvested += investedAmount;
+                
+                // Current value = TK amount × current price in PKR
+                const currentValue = tkAmount * currentPricePKR;
+                totalCurrentValue += currentValue;
+            });
+            
+            const netPL = totalCurrentValue - totalInvested;
+            const plPercentage = totalInvested > 0 ? ((netPL / totalInvested) * 100) : 0;
+            
+            // Update Portfolio View
+            document.getElementById('portfolio-total-invested').innerText = totalInvested.toFixed(2) + ' PKR';
+            document.getElementById('portfolio-total-value').innerText = totalCurrentValue.toFixed(2);
+            
+            const netPLElement = document.getElementById('portfolio-net-pl');
+            netPLElement.innerText = (netPL >= 0 ? '+' : '') + netPL.toFixed(2) + ' PKR';
+            
+            if (netPL >= 0) {
+                netPLElement.classList.remove('loss');
+                netPLElement.classList.add('profit');
+            } else {
+                netPLElement.classList.remove('profit');
+                netPLElement.classList.add('loss');
+            }
+            
+            // Update price change (mock)
+            const priceChangeElement = document.getElementById('portfolio-price-change');
+            const changePercent = ((Math.random() * 4) - 2).toFixed(2);
+            priceChangeElement.innerText = (changePercent >= 0 ? '+' : '') + changePercent + '%';
+            priceChangeElement.style.color = changePercent >= 0 ? '#00ff88' : '#ff4757';
+            
+            // Update Quick View in Wallet
+            document.getElementById('quick-pl').innerText = (netPL >= 0 ? '+' : '') + netPL.toFixed(2) + ' PKR';
+            document.getElementById('quick-pl').style.color = netPL >= 0 ? '#00c853' : '#ff3d00';
+            document.getElementById('quick-pl-percent').innerText = (plPercentage >= 0 ? '+' : '') + plPercentage.toFixed(2) + '%';
+            document.getElementById('quick-pl-percent').style.color = netPL >= 0 ? '#00c853' : '#ff3d00';
+            
+            // Render Investments List
+            renderInvestmentsList(currentPricePKR);
+        }
+
+        // FIXED: Render Investments with correct buy/current price
+        function renderInvestmentsList(currentPricePKR) {
+            const listContainer = document.getElementById('investments-list');
+            
+            if (userInvestments.length === 0) {
+                listContainer.innerHTML = `
+                    <div style="text-align:center; color:#777; padding: 20px;">
+                        <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                        No investments yet. Make a deposit to start!
+                    </div>
+                `;
+                return;
+            }
+            
+            listContainer.innerHTML = '';
+            
+            userInvestments.forEach(inv => {
+                const investedPKR = parseFloat(inv.rawAmount) || 0;
+                const tkAmount = parseFloat(inv.amount) || 0;
+                
+                // FIXED: Calculate buy price in PKR correctly
+                const buyPriceTK = parseFloat(inv.tkPriceAtDeposit) || marketData.tkPrice;
+                const buyRate = parseFloat(inv.usdtRateAtDeposit) || marketData.usdtRate;
+                const buyPricePKR = buyPriceTK * buyRate;
+                
+                // Current calculations
+                const currentValue = tkAmount * currentPricePKR;
+                const pl = currentValue - investedPKR;
+                const plPercent = investedPKR > 0 ? ((pl / investedPKR) * 100) : 0;
+                const isProfit = pl >= 0;
+                
+                const card = document.createElement('div');
+                card.className = `investment-card ${isProfit ? 'profit' : 'loss'}`;
+                
+                card.innerHTML = `
+                    <div class="investment-header">
+                        <div>
+                            <div class="investment-amount">${tkAmount.toFixed(2)} TK</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
+                                <i class="fas fa-calendar-alt"></i> ${inv.date}
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">Invested</div>
+                            <div style="font-weight: bold;">${investedPKR.toFixed(2)} PKR</div>
+                        </div>
+                    </div>
+                    
+                    <div class="investment-details">
+                        <div class="investment-detail-item">
+                            <span class="investment-detail-label">Buy Price</span>
+                            <span class="investment-detail-value">${buyPricePKR.toFixed(2)} <span class="rate-badge">PKR</span></span>
+                        </div>
+                        <div class="investment-detail-item">
+                            <span class="investment-detail-label">Current Price</span>
+                            <span class="investment-detail-value">${currentPricePKR.toFixed(2)} <span class="rate-badge">PKR</span></span>
+                        </div>
+                    </div>
+                    
+                    <div class="pl-display">
+                        <div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">Current Value</div>
+                            <div style="font-weight: bold; font-size: 1.1rem;">${currentValue.toFixed(2)} PKR</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div class="pl-amount ${isProfit ? 'text-green' : 'text-red'}">
+                                ${isProfit ? '+' : ''}${pl.toFixed(2)} PKR
+                            </div>
+                            <div class="pl-percentage ${isProfit ? 'text-green' : 'text-red'}">
+                                ${isProfit ? '<i class="fas fa-arrow-up"></i>' : '<i class="fas fa-arrow-down"></i>'} 
+                                ${Math.abs(plPercent).toFixed(2)}%
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                listContainer.appendChild(card);
+            });
+        }
+
+        function loginSuccess(user) {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('app-container').classList.remove('hidden');
+            
+            document.getElementById('auth-btn').innerText = isSignup ? "Signup" : "Login";
+            document.getElementById('auth-btn').disabled = false;
+
+            lastKnownBalance = user.balanceTK || 0;
+            lastReadTimestamp = user.lastReadTimestamp || 0;
+
+            trackUserActivity(user.uid);
+
+            onValue(ref(db, 'users/' + user.uid), (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    const newBal = data.balanceTK;
+                    if (newBal > lastKnownBalance && lastKnownBalance > 0) {
+                        showToast("Coins Received!", "success");
+                        playSound('success');
+                    }
+                    currentUserData = data;
+                    currentUserData.uid = user.uid;
+                    lastKnownBalance = newBal;
+                    updateUI();
+                    
+                    if(document.getElementById('view-transfer').classList.contains('hidden') === false) {
+                        checkTransferCooldown();
+                    }
+                }
+            });
+
+            // FIXED: Market listener with portfolio update
+            onValue(ref(db, 'market'), (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    marketData = data;
+                    marketMode = data.mode || 'manual';
+                    autoFluctuationRange = data.autoRange || 100;
+                    autoUpdateInterval = data.autoInterval || 30;
+                    
+                    if (autoRateTimer) {
+                        clearInterval(autoRateTimer);
+                        autoRateTimer = null;
+                    }
+                    
+                    if (marketMode === 'auto') {
+                        startAutoPriceFluctuation();
+                    } else {
+                        currentFluctuatedPrice = null;
+                    }
+                    
+                    updateMarketUI();
+                    
+                    // FIXED: Update portfolio price when market changes
+                    updatePortfolioPriceDisplay();
+                    
+                    if (chartPoints.length === 0) {
+                        for(let i=0; i<20; i++) chartPoints.push(marketData.tkPrice);
+                    }
+                    updateUI();
+                    
+                    // FIXED: Recalculate P/L with new price
+                    calculatePortfolioPL();
+                }
+            });
+
+            onValue(ref(db, 'settings'), (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    appSettings.minWithdraw = data.minWithdraw || 50;
+                    appSettings.withdrawFee = data.withdrawFee || 0.05;
+                    appSettings.easypaisa = data.easypaisa || '0300-1234567';
+                    appSettings.jazzcash = data.jazzcash || '0321-7654321';
+                    appSettings.tillid = data.tillid || '03XX-XXXXXXX (Raast)';
+                    if (data.qrUrl) {
+                        const qrImg = document.getElementById('deposit-qr-image');
+                        if(qrImg) qrImg.src = data.qrUrl;
+                    }
+                    updateDepositDetails();
+                }
+            });
+
+            onValue(ref(db, 'news'), (snapshot) => {
+                const newsList = document.getElementById('news-feed');
+                const ticker = document.getElementById('news-ticker');
+                newsList.innerHTML = "";
+                ticker.innerHTML = "";
+                const data = snapshot.val();
+                if (data) {
+                    const keys = Object.keys(data);
+                    const lastKey = keys[keys.length - 1];
+                    const singleNews = data[lastKey];
+                    newsList.innerHTML += `
+                        <div style="background:var(--bg-card); padding:10px; border-radius:6px; border:1px solid #333;">
+                            <div style="font-weight:bold; color:#fff;">${singleNews.title}</div>
+                            <div style="font-size:0.8rem; color:#777;">${singleNews.date}</div>
+                        </div>
+                    `;
+                    ticker.innerHTML += `<span class="ticker-item">${singleNews.title}</span>`;
+                }
+            });
+
+            loadUserInvestments(user.uid);
+            loadReferralStats(user.uid);
+            monitorIncomingTransfers(user.uid); 
+            startZigzagAnimation();
+
+            updateMarketPressure();
+            pressureInterval = setInterval(updateMarketPressure, 600000);
+
+            monitorUnreadChat(user.uid);
+
+            if (user.role === 'admin') {
+                showToast("Admin detected...", "info");
+                setTimeout(() => window.location.href = 'admin.html', 1500);
+                return;
+            } else {
+                showSection('market');
+            }
+        }
+
+        function loadUserInvestments(uid) {
+            const investmentsRef = ref(db, 'deposits');
+            onValue(investmentsRef, (snapshot) => {
+                userInvestments = [];
+                const data = snapshot.val();
+                if (data) {
+                    Object.entries(data).forEach(([key, deposit]) => {
+                        if (deposit.userId === uid && deposit.status === 'approved') {
+                            userInvestments.push({
+                                id: key,
+                                ...deposit
+                            });
+                        }
+                    });
+                }
+                calculatePortfolioPL();
+            });
+        }
+
+        function getCurrentPrice() {
+            if (marketMode === 'auto' && currentFluctuatedPrice !== null) {
+                return currentFluctuatedPrice / marketData.usdtRate;
+            }
+            return marketData.tkPrice;
+        }
+
+        function monitorIncomingTransfers(myUid) {
+            const transfersRef = ref(db, 'transfers');
+            
+            get(transfersRef).then(() => {
+                isTransfersLoaded = true;
+            });
+
+            onChildAdded(transfersRef, (snapshot) => {
+                if (!isTransfersLoaded) return;
+                const data = snapshot.val();
+                if (data.to === myUid) {
+                    showReceivePopup(data.amount);
+                }
+            });
+        }
+
+        function showReceivePopup(amount) {
+            const popup = document.getElementById('receive-popup');
+            document.getElementById('popup-amount').innerText = amount.toFixed(2);
+            popup.classList.remove('hidden');
+            playSound('success');
+        }
+
+        function startTransferTimer(duration) {
+            let timer = duration;
+            const btn = document.getElementById('btn-transfer-send');
+            const msg = document.getElementById('transfer-wait-msg');
+            const timeDisplay = document.getElementById('timer-count');
+
+            btn.classList.add('hidden');
+            msg.classList.remove('hidden');
+
+            if (transferCooldownInterval) clearInterval(transferCooldownInterval);
+
+            transferCooldownInterval = setInterval(() => {
+                let minutes = parseInt(timer / 60, 10);
+                let seconds = parseInt(timer % 60, 10);
+
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                timeDisplay.innerText = minutes + ":" + seconds;
+
+                if (--timer < 0) {
+                    clearInterval(transferCooldownInterval);
+                    btn.classList.remove('hidden');
+                    msg.classList.add('hidden');
+                    document.getElementById('transfer-email').value = '';
+                    document.getElementById('transfer-amount').value = '';
+                }
+            }, 1000);
+        }
+
+        function checkTransferCooldown() {
+            if (!currentUserData) return;
+            const btn = document.getElementById('btn-transfer-send');
+            const msg = document.getElementById('transfer-wait-msg');
+
+            if (currentUserData.lastTransferAt) {
+                const now = Date.now();
+                const last = currentUserData.lastTransferAt;
+                const diff = now - last;
+                const twoMinutes = 120000;
+
+                if (diff < twoMinutes) {
+                    startTransferTimer(twoMinutes - diff);
+                } else {
+                    btn.classList.remove('hidden');
+                    msg.classList.add('hidden');
+                    if(transferCooldownInterval) clearInterval(transferCooldownInterval);
+                }
+            } else {
+                btn.classList.remove('hidden');
+                msg.classList.add('hidden');
+            }
+        }
+
+        function loadReferralStats(uid) {
+            const listContainer = document.getElementById('invited-list');
+            const countDisplay = document.getElementById('total-invites-count');
+            
+            onValue(ref(db, `referrals/${uid}`), (snapshot) => {
+                listContainer.innerHTML = "";
+                const data = snapshot.val();
+                
+                if (!data || Object.keys(data).length === 0) {
+                    listContainer.innerHTML = `<div style="text-align:center; color:#777; font-size:0.8rem;">No invites yet.</div>`;
+                    countDisplay.innerText = "0";
+                    return;
+                }
+
+                const invites = Object.values(data);
+                countDisplay.innerText = invites.length;
+
+                invites.forEach(member => {
+                    const div = document.createElement('div');
+                    div.className = 'invited-item';
+                    div.innerHTML = `
+                        <span class="invited-name"><i class="fas fa-user" style="margin-right:5px; font-size:0.8rem; color:#555;"></i> ${member.name}</span>
+                        <span class="invited-date">${member.joinedAt}</span>
+                    `;
+                    listContainer.appendChild(div);
+                });
+            });
+        }
+
+        window.showSection = (sectionId) => {
+            document.querySelectorAll('#user-views .section').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`view-${sectionId}`).classList.remove('hidden');
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            const navIndex = ['market', 'wallet', 'chat', 'profile'].indexOf(sectionId);
+            if (navIndex >= 0) document.querySelectorAll('.nav-item')[navIndex].classList.add('active');
+            if (sectionId === 'wallet') loadUserHistory(); 
+            if (sectionId === 'chat') {
+                loadUserChat();
+                resetUnreadChatCount();
+            }
+            if (sectionId === 'portfolio') {
+                calculatePortfolioPL();
+            }
+            
+            if(sectionId === 'transfer') {
+                checkTransferCooldown();
+            }
+        };
+
+        function updateUI() {
+            if (!currentUserData) return;
+            const initial = currentUserData.name ? currentUserData.name.charAt(0).toUpperCase() : "U";
+            document.getElementById('header-name').innerText = currentUserData.name;
+            document.getElementById('header-balance').innerText = currentUserData.balanceTK.toFixed(2) + " TK";
+            const headerAvatar = document.getElementById('header-avatar');
+            headerAvatar.innerText = initial;
+            headerAvatar.style.background = 'var(--primary)';
+            document.getElementById('profile-name').innerText = currentUserData.name;
+            document.getElementById('profile-email').innerText = currentUserData.email;
+            const profileAvatar = document.getElementById('profile-avatar');
+            profileAvatar.innerText = initial;
+            document.getElementById('wallet-tk').innerText = currentUserData.balanceTK.toFixed(2);
+            document.getElementById('futures-tk').innerText = currentUserData.balanceTK.toFixed(2);
+            const pkrValue = currentUserData.balanceTK * marketData.tkPrice * marketData.usdtRate;
+            document.getElementById('wallet-pkr').innerText = pkrValue.toFixed(2);
+            
+            if (currentUserData.isPremium) {
+                document.getElementById('profile-status').innerHTML = `<span class="text-blue"><i class="fas fa-check-circle blue-tick"></i> Premium User</span>`;
+                document.getElementById('header-premium-badge').classList.remove('hidden');
+            } else {
+                document.getElementById('profile-status').innerText = "Standard User";
+                document.getElementById('header-premium-badge').classList.add('hidden');
+            }
+            const fee = currentUserData.isPremium ? 0 : (appSettings.withdrawFee * 100);
+            document.getElementById('fee-display').innerText = `Fee: ${fee}%`;
+            document.getElementById('withdraw-bal-display').innerText = currentUserData.balanceTK.toFixed(2) + " TK";
+            document.getElementById('ref-code-display').innerText = currentUserData.uid;
+        }
+
+        function updateMarketUI() {
+            let priceInPKR;
+            
+            if (marketMode === 'auto' && currentFluctuatedPrice !== null) {
+                priceInPKR = currentFluctuatedPrice;
+            } else {
+                priceInPKR = marketData.tkPrice * marketData.usdtRate;
+            }
+            
+            document.getElementById('market-price').innerText = priceInPKR.toFixed(2);
+            
+            if (!document.getElementById('view-deposit').classList.contains('hidden')) {
+                calculateDeposit();
+            }
+        }
+
+        function drawChart() {
+            const canvas = document.getElementById('marketCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.parentElement.offsetWidth;
+            canvas.height = canvas.parentElement.offsetHeight;
+            const points = chartPoints.length > 0 ? chartPoints : [marketData.tkPrice];
+            const max = Math.max(...points) * 1.05;
+            const min = Math.min(...points) * 0.95;
+            const range = max - min;
+            const stepX = canvas.width / (points.length - 1 || 1);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.beginPath();
+            ctx.strokeStyle = '#ff6600';
+            ctx.lineWidth = 2;
+            points.forEach((p, i) => {
+                const x = i * stepX;
+                const y = points.length === 1 ? canvas.height/2 : canvas.height - ((p - min) / range) * canvas.height;
+                if(i===0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+        }
+
+        window.downloadApp = () => {
+            window.location.href = 'tkcoin.apk';
+        };
+
+        window.copyReferralLink = () => {
+            const uid = currentUserData.uid;
+            const baseUrl = window.location.href.split('?')[0];
+            const link = baseUrl + "?ref=" + uid;
+            
+            navigator.clipboard.writeText(link).then(() => {
+                showToast("Referral Link Copied!", "success");
+            }).catch(() => {
+                showToast("Failed to copy", "error");
+            });
+        };
+
+        window.updateDepositDetails = () => {
+            const method = document.getElementById('deposit-method').value;
+            const displayNum = document.getElementById('deposit-number');
+            const displayName = document.getElementById('deposit-name');
+            const qrImg = document.getElementById('deposit-qr-image');
+            const textInfo = document.getElementById('text-info');
+            const copyBtn = document.getElementById('copy-btn');
+
+            textInfo.style.display = 'block';
+            qrImg.style.display = 'none';
+            copyBtn.style.display = 'block';
+
+            if (method === 'easypaisa') { 
+                displayNum.innerText = appSettings.easypaisa; 
+                displayName.innerText = "Easypaisa"; 
+            } 
+            else if (method === 'jazzcash') { 
+                displayNum.innerText = appSettings.jazzcash; 
+                displayName.innerText = "JazzCash"; 
+            }
+            else if (method === 'tillid') { 
+                displayNum.innerText = appSettings.tillid; 
+                displayName.innerText = "Till Id (Raast)"; 
+            }
+            else if (method === 'qrpay') { 
+                textInfo.style.display = 'none';
+                copyBtn.style.display = 'none';
+                qrImg.style.display = 'block';
+                qrImg.src = "./qr.png"; 
+            }
+            calculateDeposit();
+        };
+
+        window.calculateDeposit = () => {
+            const amount = parseFloat(document.getElementById('deposit-amount').value) || 0;
+            const usdtValue = amount / marketData.usdtRate;
+            const receive = usdtValue / marketData.tkPrice;
+            
+            document.getElementById('deposit-rate').innerText = '1';
+            document.getElementById('deposit-price').innerText = (marketData.tkPrice * marketData.usdtRate).toFixed(2);
+            document.getElementById('deposit-calc-receive').innerText = receive.toFixed(2);
+            document.getElementById('deposit-invest-value').innerText = amount.toFixed(2);
+        }
+
+        window.copyDepositNumber = () => {
+            navigator.clipboard.writeText(document.getElementById('deposit-number').innerText);
+            showToast("Copied!");
+        };
+
+        window.submitDeposit = () => {
+            const amountInput = parseFloat(document.getElementById('deposit-amount').value);
+            const refId = document.getElementById('deposit-ref').value;
+            const method = document.getElementById('deposit-method').value;
+            
+            if (!amountInput || amountInput <= 0) return showToast("Enter valid amount", "error");
+            if (!refId) return showToast("Enter Transaction ID", "error");
+            
+            const pkrAmount = amountInput;
+            const usdtValue = pkrAmount / marketData.usdtRate;
+            const receiveTk = usdtValue / marketData.tkPrice;
+            
+            const depositData = {
+                userId: currentUserData.uid,
+                userEmail: currentUserData.email,
+                method: method,
+                amount: receiveTk,
+                rawAmount: pkrAmount,
+                tkPriceAtDeposit: marketData.tkPrice,
+                usdtRateAtDeposit: marketData.usdtRate,
+                ref: refId,
+                date: new Date().toLocaleString(),
+                status: 'pending'
+            };
+            
+            push(ref(db, 'deposits'), depositData).then(() => {
+                showToast("Request Submitted!");
+                
+                if (currentUserData.referredBy) {
+                    const referrerUid = currentUserData.referredBy;
+                    const bonus = receiveTk * 0.03; 
+
+                    get(ref(db, 'users/' + referrerUid)).then((snapshot) => {
+                        if (snapshot.exists()) {
+                            const referrerData = snapshot.val();
+                            const newBalance = (referrerData.balanceTK || 0) + bonus;
+                            
+                            update(ref(db, 'users/' + referrerUid), {
+                                balanceTK: newBalance
+                            });
+                        }
+                    });
+                }
+
+                document.getElementById('deposit-amount').value = '';
+                document.getElementById('deposit-ref').value = '';
+                showSection('wallet');
+            });
+        };
+
+        window.calculateWithdraw = () => {
+            const tk = parseFloat(document.getElementById('withdraw-amount').value) || 0;
+            const usdtVal = tk * marketData.tkPrice;
+            const pkrVal = usdtVal * marketData.usdtRate;
+            document.getElementById('withdraw-calc-usdt').innerText = pkrVal.toFixed(2);
+        }
+
+        window.submitWithdraw = () => {
+            const amount = parseFloat(document.getElementById('withdraw-amount').value);
+            const method = document.getElementById('withdraw-method').value;
+            const account = document.getElementById('withdraw-account').value;
+
+            if (!amount || amount < appSettings.minWithdraw) return showToast("Min withdraw " + appSettings.minWithdraw, "error");
+            if (!account) return showToast("Enter details", "error");
+
+            const feeRate = currentUserData.isPremium ? 0 : appSettings.withdrawFee;
+            const fee = amount * feeRate;
+            const total = amount + fee;
+
+            if (total > currentUserData.balanceTK) return showToast("Insufficient balance", "error");
+
+            const usdtVal = amount * marketData.tkPrice;
+            const pkrVal = usdtVal * marketData.usdtRate;
+
+            const newWithdrawKey = push(ref(db, 'withdrawals')).key;
+
+            const withdrawData = {
+                userId: currentUserData.uid,
+                userEmail: currentUserData.email,
+                method: method,
+                account: account,
+                amount: amount, 
+                pkrAmount: pkrVal, 
+                fee: fee,
+                total: total, 
+                date: new Date().toLocaleString(),
+                status: 'pending'
+            };
+
+            const updates = {};
+            updates['users/' + currentUserData.uid + '/balanceTK'] = currentUserData.balanceTK - total;
+            updates['withdrawals/' + newWithdrawKey] = withdrawData;
+
+            update(ref(db), updates).then(() => {
+                showToast("Withdrawal Requested. Balance Deducted.");
+                document.getElementById('withdraw-amount').value = '';
+                document.getElementById('withdraw-account').value = '';
+                showSection('wallet');
+            }).catch((error) => {
+                console.error("Withdraw Error:", error);
+                showToast("Failed to submit request. Try again.", "error");
+            });
+        };
+
+        window.submitTransfer = () => {
+            const email = document.getElementById('transfer-email').value.trim();
+            const amount = parseFloat(document.getElementById('transfer-amount').value);
+
+            if (!email) return showToast("Enter email", "error");
+            if (email === currentUserData.email) return showToast("Cannot send to yourself", "error");
+            if (!amount || amount <= 0) return showToast("Invalid amount", "error");
+            
+            const currentBal = parseFloat(currentUserData.balanceTK || 0);
+            if (amount > currentBal) return showToast("Insufficient balance", "error");
+
+            showToast("Checking user...", "info");
+
+            get(ref(db, 'users')).then((snapshot) => {
+                let receiverUid = null;
+                if (snapshot.exists()) {
+                    snapshot.forEach((childSnapshot) => {
+                        if (childSnapshot.val().email.toLowerCase() === email.toLowerCase()) {
+                            receiverUid = childSnapshot.key;
+                        }
+                    });
+                }
+
+                if (receiverUid) {
+                    showToast("User Found! Transferring...", "success");
+                    
+                    const updates = {};
+                    updates['users/' + currentUserData.uid + '/balanceTK'] = currentBal - amount;
+                    const receiverData = snapshot.val()[receiverUid];
+                    const receiverBal = parseFloat(receiverData.balanceTK || 0);
+                    updates['users/' + receiverUid + '/balanceTK'] = receiverBal + amount;
+
+                    const transferRef = push(ref(db, 'transfers'));
+                    const transferData = {
+                        from: currentUserData.uid,
+                        fromName: currentUserData.name,
+                        to: receiverUid,
+                        toName: receiverData.name,
+                        amount: amount,
+                        date: new Date().toLocaleString(),
+                        timestamp: Date.now()
+                    };
+                    updates['transfers/' + transferRef.key] = transferData;
+                    updates['users/' + currentUserData.uid + '/lastTransferAt'] = Date.now();
+
+                    update(ref(db), updates).then(() => {
+                        showToast("Transfer Successful!");
+                        startTransferTimer(120000);
+                        document.getElementById('transfer-amount').value = '';
+                        document.getElementById('transfer-email').value = '';
+                    });
+                } else {
+                    showToast("User Not Found", "error");
+                }
+            });
+        };
+
+        window.upgradePremium = () => {
+            if (currentUserData.balanceTK >= 100) {
+                update(ref(db, 'users/' + currentUserData.uid), {
+                    balanceTK: currentUserData.balanceTK - 100,
+                    isPremium: true
+                }).then(() => showToast("Upgraded!"));
+            } else {
+                showToast("Need 100 TK", "error");
+            }
+        };
+
+        window.openFutures = (type) => {
+            const amount = parseFloat(document.getElementById('futures-amount').value);
+            if(!amount || amount > currentUserData.balanceTK) return showToast("Insufficient Balance", "error");
+            update(ref(db, 'users/' + currentUserData.uid + '/balanceTK'), currentUserData.balanceTK - amount);
+            showToast(`Opened ${type} Position with ${amount} TK`);
+            document.getElementById('futures-amount').value = '';
+        }
+
+        function loadUserChat() {
+            const chatRef = ref(db, 'chats/' + currentUserData.uid);
+            onValue(chatRef, (snapshot) => {
+                const container = document.getElementById('chat-messages');
+                container.innerHTML = "";
+                const data = snapshot.val();
+                if (!data) {
+                    container.innerHTML = `<div style="text-align:center; color:#777; margin-top:20px;">Start conversation.</div>`;
+                    return;
+                }
+                Object.values(data).forEach(msg => {
+                    const isUser = msg.sender === currentUserData.uid;
+                    const div = document.createElement('div');
+                    div.className = `message ${isUser ? 'msg-user' : 'msg-admin'}`;
+                    div.innerText = msg.text;
+                    container.appendChild(div);
+                });
+                container.scrollTop = container.scrollHeight;
+            });
+        }
+
+        function monitorUnreadChat(uid) {
+            const unreadRef = ref(db, `users/${uid}/unreadChatCount`);
+            onValue(unreadRef, (snapshot) => {
+                const count = snapshot.val() || 0;
+                const badge = document.getElementById('chat-badge');
+                if (count > 0) {
+                    badge.innerText = count > 9 ? '9+' : count;
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+            });
+
+            const chatRef = ref(db, 'chats/' + uid);
+            onChildAdded(chatRef, (snapshot) => {
+                const msg = snapshot.val();
+                if (msg.sender !== uid && msg.timestamp > lastReadTimestamp) {
+                    const userRef = ref(db, `users/${uid}`);
+                    get(userRef).then((userSnapshot) => {
+                        if (userSnapshot.exists()) {
+                            const userData = userSnapshot.val();
+                            const currentCount = userData.unreadChatCount || 0;
+                            update(userRef, {
+                                unreadChatCount: currentCount + 1
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        function resetUnreadChatCount() {
+            if (!currentUserData) return;
+            const uid = currentUserData.uid;
+            const now = Date.now();
+            const userRef = ref(db, `users/${uid}`);
+            
+            update(userRef, {
+                unreadChatCount: 0,
+                lastReadTimestamp: now
+            }).then(() => {
+                lastReadTimestamp = now;
+            });
+        }
+
+        window.sendChatMessage = () => {
+            const input = document.getElementById('chat-input');
+            const text = input.value;
+            if(!text) return;
+            const chatRef = ref(db, 'chats/' + currentUserData.uid);
+            push(chatRef, {
+                sender: currentUserData.uid,
+                text: text,
+                timestamp: Date.now()
+            });
+            input.value = "";
+        }
+
+        function loadUserHistory() {
+            const list = document.getElementById('transaction-list');
+            list.innerHTML = '<div style="text-align:center; color:#777;">Loading...</div>';
+            let allTx = [];
+
+            const renderHistory = () => {
+                list.innerHTML = "";
+                if(allTx.length === 0) {
+                    list.innerHTML = "<div style='text-align:center; color:#777; margin-top:10px;'>No transactions yet.</div>";
+                    return;
+                }
+                allTx.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                allTx.forEach(item => {
+                    let statusColor = 'var(--primary)';
+                    let title = item.type ? item.type.toUpperCase() : 'TRANSFER';
+                    let subtitle = item.method || '';
+                    let amountColor = '#fff';
+
+                    if(item.type === 'Deposit' || item.type === 'Withdraw') {
+                        if(item.status === 'approved') statusColor = 'var(--success)';
+                        if(item.status === 'rejected') statusColor = 'var(--danger)';
+                    } else if (item.type === 'Transfer') {
+                         title = 'TRANSFER';
+                         subtitle = item.direction === 'Sent' ? `Sent to: ${item.peerName}` : `Received from: ${item.peerName}`;
+                         amountColor = item.direction === 'Sent' ? 'var(--danger)' : 'var(--success)';
+                    }
+
+                    list.innerHTML += `
+                        <div style="background: var(--bg-card); padding: 12px; border-radius: 8px; border: 1px solid #333;">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                                <span style="font-weight:bold; color:#fff;">${title}</span>
+                                <span style="font-size:0.8rem; color:#aaa;">${item.date}</span>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <div>
+                                    <div style="color:${amountColor}; font-weight:bold;">${item.amount} TK</div>
+                                    <div style="font-size:0.8rem; color:#777;">${subtitle}</div>
+                                </div>
+                                ${item.status ? `<div class="status-badge" style="background:${statusColor}; color:${item.status==='pending'?'black':'white'}">${item.status}</div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+            };
+
+            onValue(ref(db, 'deposits'), (snapshot) => {
+                const data = snapshot.val();
+                if(data) {
+                    Object.values(data).forEach(d => {
+                        if(d.userId === currentUserData.uid) {
+                            d.type = 'Deposit';
+                            allTx.push(d);
+                        }
+                    });
+                }
+                renderHistory();
+            });
+
+            onValue(ref(db, 'withdrawals'), (snapshot) => {
+                const data = snapshot.val();
+                if(data) {
+                    Object.values(data).forEach(w => {
+                        if(w.userId === currentUserData.uid) {
+                            w.type = 'Withdraw';
+                            w.amount = w.total; 
+                            allTx.push(w);
+                        }
+                    });
+                }
+                renderHistory();
+            });
+
+            onValue(ref(db, 'transfers'), (snapshot) => {
+                const data = snapshot.val();
+                if(data) {
+                    Object.values(data).forEach(t => {
+                        if(t.from === currentUserData.uid) {
+                            t.type = 'Transfer';
+                            t.direction = 'Sent';
+                            t.peerName = t.toName || 'Unknown';
+                            allTx.push(t);
+                        } else if (t.to === currentUserData.uid) {
+                            t.type = 'Transfer';
+                            t.direction = 'Received';
+                            t.peerName = t.fromName || 'Unknown';
+                            allTx.push(t);
+                        }
+                    });
+                }
+                renderHistory();
+            });
+        }
+        
+        initApp();
+
+        document.addEventListener('click', () => {
+            if(currentUserData && currentUserData.uid) {
+                trackUserActivity(currentUserData.uid);
+            }
+        });
+        document.addEventListener('touchstart', () => {
+            if(currentUserData && currentUserData.uid) {
+                trackUserActivity(currentUserData.uid);
+            }
+        });
+
+        function trackUserActivity(uid) {
+            update(ref(db, 'users/' + uid), {
+                lastActive: Date.now(),
+                isOnline: true
+            });
+        }
+    </script>
 </body>
 </html>
