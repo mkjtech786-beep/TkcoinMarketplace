@@ -227,6 +227,112 @@
         .ticker-item { display: inline-block; padding: 0 20px; font-size: 0.9rem; }
         @keyframes ticker { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
 
+        /* TODAY CHART STYLES */
+        .today-chart-container {
+            background: var(--bg-card);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            border: 1px solid #333;
+        }
+        
+        .today-chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .today-chart-title {
+            color: var(--primary);
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+        
+        .today-stats {
+            display: flex;
+            gap: 15px;
+            font-size: 0.8rem;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.7rem;
+        }
+        
+        .stat-value {
+            font-weight: bold;
+        }
+        
+        .stat-high { color: var(--success); }
+        .stat-low { color: var(--danger); }
+        
+        #todayChartCanvas {
+            width: 100%;
+            height: 250px;
+            background: linear-gradient(180deg, rgba(255,102,0,0.05) 0%, transparent 100%);
+            border-radius: 8px;
+        }
+        
+        .price-history-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 15px;
+            border-top: 1px solid #333;
+            padding-top: 10px;
+        }
+        
+        .price-history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 10px;
+            margin-bottom: 5px;
+            background: #2a2a2a;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            border-left: 3px solid var(--primary);
+        }
+        
+        .price-history-item.up {
+            border-left-color: var(--success);
+        }
+        
+        .price-history-item.down {
+            border-left-color: var(--danger);
+        }
+        
+        .history-time {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+        
+        .history-price {
+            font-weight: bold;
+            font-family: monospace;
+        }
+        
+        .history-change {
+            font-size: 0.75rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(0,0,0,0.3);
+        }
+        
+        .history-change.up {
+            color: var(--success);
+        }
+        
+        .history-change.down {
+            color: var(--danger);
+        }
+
         /* Cards */
         .balance-card {
             background: linear-gradient(135deg, var(--primary), #ff9100);
@@ -571,7 +677,39 @@
                     </div>
                 </div>
 
-                <div style="display: flex; justify-content: space-between; align-items: center;">
+                <!-- TODAY'S CHART SECTION -->
+                <div class="today-chart-container">
+                    <div class="today-chart-header">
+                        <div class="today-chart-title">
+                            <i class="fas fa-chart-line"></i> Today's Price History
+                            <span id="manual-mode-badge" class="hidden" style="background: var(--primary); color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; margin-left: 10px;">Updated</span>
+                        </div>
+                        <div class="today-stats">
+                            <div class="stat-item">
+                                <div class="stat-label">High</div>
+                                <div class="stat-value stat-high" id="today-high">0.00</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">Low</div>
+                                <div class="stat-value stat-low" id="today-low">0.00</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">Movement</div>
+                                <div class="stat-value" id="today-changes">0</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <canvas id="todayChartCanvas"></canvas>
+                    
+                    <div class="price-history-list" id="price-history-list">
+                        <div style="text-align: center; color: #777; padding: 20px;">
+                            <i class="fas fa-info-circle"></i> Price history will appear when admin changes price in manual mode
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
                     <h3>Live Market</h3>
                     <span style="font-size: 0.8rem; color: var(--success);">● Live</span>
                 </div>
@@ -614,7 +752,7 @@
                         <span style="font-weight: bold; color: var(--primary);"><span id="portfolio-current-price">0.00</span> PKR</span>
                     </div>
                     <div class="deposit-info-row">
-                        <span>Next Price analyzed by the AI Bot </span>
+                        <span>Today's Change:</span>
                         <span id="portfolio-price-change" style="font-weight: bold;">0%</span>
                     </div>
                 </div>
@@ -737,6 +875,11 @@
                     <input type="text" id="deposit-ref" placeholder="TRX ID">
                 </div>
 
+                <!-- Minimum Deposit Warning -->
+                <div id="min-deposit-warning" class="hidden" style="background: rgba(255,0,0,0.1); border: 1px solid var(--danger); padding: 10px; border-radius: 6px; margin-bottom: 15px; color: var(--danger); font-size: 0.85rem;">
+                    <i class="fas fa-exclamation-triangle"></i> Minimum deposit is <span id="min-deposit-amount">500</span> PKR
+                </div>
+
                 <!-- Deposit Summary Box -->
                 <div class="deposit-info-box">
                     <div class="deposit-info-row">
@@ -805,6 +948,16 @@
                 <div class="input-group">
                     <label>Amount (TK)</label>
                     <input type="number" id="transfer-amount" placeholder="Amount">
+                </div>
+
+                <!-- Minimum Transfer Warning -->
+                <div id="min-transfer-warning" class="hidden" style="background: rgba(255,0,0,0.1); border: 1px solid var(--danger); padding: 10px; border-radius: 6px; margin-bottom: 15px; color: var(--danger); font-size: 0.85rem;">
+                    <i class="fas fa-exclamation-triangle"></i> Minimum transfer is <span id="min-transfer-amount">10</span> TK
+                </div>
+
+                <!-- Transfer Tax Info -->
+                <div id="transfer-tax-info" class="hidden" style="background: rgba(255,102,0,0.1); border: 1px solid var(--primary); padding: 10px; border-radius: 6px; margin-bottom: 15px; color: var(--primary); font-size: 0.85rem;">
+                    <i class="fas fa-info-circle"></i> Transfer Tax: <span id="transfer-tax-percent">2</span>% (<span id="transfer-tax-amount">0</span> TK will be deducted)
                 </div>
 
                 <button id="btn-transfer-send" class="btn" onclick="submitTransfer()">Send Now</button>
@@ -918,10 +1071,10 @@
 
     <!-- Scripts -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
-        import { getDatabase, ref, set, push, onValue, update, get, child, onChildAdded, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getDatabase, ref, set, push, onValue, update, get, child, onChildAdded, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCBMk5ED0YNL9MqVThgMhoOuWvGwTgCJCg",
@@ -946,7 +1099,10 @@
             jazzcash: '0321-7654321',
             tillid: '03XX-XXXXXXX (Raast)', 
             minWithdraw: 50,
-            withdrawFee: 0.05
+            withdrawFee: 0.05,
+            minTransfer: 10,
+            transferTax: 0.02,
+            minDeposit: 500
         };
         let chartPoints = [];
         let lastKnownBalance = 0; 
@@ -961,6 +1117,8 @@
         let currentFluctuatedPrice = null;
         let autoRateTimer = null;
         let userInvestments = [];
+        let todayPriceHistory = [];
+        let lastManualPrice = null;
 
         window.playSound = (type) => {
             const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -1168,29 +1326,236 @@
             }
         }
 
-        // FIXED: Calculate Portfolio P/L with correct price
+        // ============================================
+        // TODAY'S CHART FUNCTIONS
+        // ============================================
+        function loadTodayPriceHistory() {
+            const today = new Date().toDateString();
+            const historyRef = ref(db, 'priceHistory/' + today);
+            
+            onValue(historyRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    todayPriceHistory = Object.values(data).sort((a, b) => a.timestamp - b.timestamp);
+                    updateTodayChart();
+                    renderPriceHistoryList();
+                } else {
+                    todayPriceHistory = [];
+                    updateTodayChart();
+                    renderPriceHistoryList();
+                }
+            });
+        }
+
+        function updateTodayChart() {
+            const canvas = document.getElementById('todayChartCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas size
+            canvas.width = canvas.parentElement.offsetWidth;
+            canvas.height = 250;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            if (todayPriceHistory.length === 0) {
+                // Draw empty state
+                ctx.fillStyle = '#555';
+                ctx.font = '14px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('No price changes today', canvas.width / 2, canvas.height / 2);
+                return;
+            }
+            
+            // Calculate stats
+            const prices = todayPriceHistory.map(h => h.price);
+            const high = Math.max(...prices);
+            const low = Math.min(...prices);
+            const changes = todayPriceHistory.length;
+            
+            document.getElementById('today-high').innerText = high.toFixed(2);
+            document.getElementById('today-low').innerText = low.toFixed(2);
+            document.getElementById('today-changes').innerText = changes;
+            
+            // Draw chart
+            const padding = 40;
+            const chartWidth = canvas.width - (padding * 2);
+            const chartHeight = canvas.height - (padding * 2);
+            
+            const priceRange = high - low || 1;
+            const stepX = chartWidth / (todayPriceHistory.length - 1 || 1);
+            
+            // Draw grid lines
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 4; i++) {
+                const y = padding + (chartHeight / 4) * i;
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(canvas.width - padding, y);
+                ctx.stroke();
+            }
+            
+            // Draw price line
+            ctx.beginPath();
+            ctx.strokeStyle = '#ff6600';
+            ctx.lineWidth = 3;
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
+            
+            todayPriceHistory.forEach((point, index) => {
+                const x = padding + (index * stepX);
+                const y = padding + chartHeight - ((point.price - low) / priceRange) * chartHeight;
+                
+                if (index === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            });
+            
+            ctx.stroke();
+            
+            // Draw points
+            todayPriceHistory.forEach((point, index) => {
+                const x = padding + (index * stepX);
+                const y = padding + chartHeight - ((point.price - low) / priceRange) * chartHeight;
+                
+                // Determine color based on change
+                let color = '#ff6600';
+                if (index > 0) {
+                    const prevPrice = todayPriceHistory[index - 1].price;
+                    if (point.price > prevPrice) color = '#00c853';
+                    else if (point.price < prevPrice) color = '#ff3d00';
+                }
+                
+                // Draw point
+                ctx.beginPath();
+                ctx.fillStyle = color;
+                ctx.arc(x, y, 6, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Draw white border
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // Draw time label
+                if (index % Math.ceil(todayPriceHistory.length / 6) === 0 || index === todayPriceHistory.length - 1) {
+                    ctx.fillStyle = '#aaa';
+                    ctx.font = '10px Arial';
+                    ctx.textAlign = 'center';
+                    const time = new Date(point.timestamp).toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'});
+                    ctx.fillText(time, x, canvas.height - 10);
+                }
+            });
+            
+            // Draw Y-axis labels
+            ctx.fillStyle = '#777';
+            ctx.font = '11px Arial';
+            ctx.textAlign = 'right';
+            for (let i = 0; i <= 4; i++) {
+                const price = low + (priceRange / 4) * (4 - i);
+                const y = padding + (chartHeight / 4) * i;
+                ctx.fillText(price.toFixed(2), padding - 10, y + 4);
+            }
+        }
+
+        function renderPriceHistoryList() {
+            const list = document.getElementById('price-history-list');
+            
+            if (todayPriceHistory.length === 0) {
+                list.innerHTML = `
+                    <div style="text-align: center; color: #777; padding: 20px;">
+                        <i class="fas fa-info-circle"></i> Price history will appear when admin changes price in manual mode
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            // Show in reverse order (newest first)
+            [...todayPriceHistory].reverse().forEach((item, index) => {
+                const time = new Date(item.timestamp).toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+                const date = new Date(item.timestamp).toLocaleDateString();
+                
+                let changeHtml = '';
+                let changeClass = '';
+                
+                if (index < todayPriceHistory.length - 1) {
+                    const nextItem = todayPriceHistory[todayPriceHistory.length - 2 - index];
+                    const change = item.price - nextItem.price;
+                    const changePercent = (change / nextItem.price) * 100;
+                    
+                    if (change > 0) {
+                        changeClass = 'up';
+                        changeHtml = `<span class="history-change up"><i class="fas fa-arrow-up"></i> +${changePercent.toFixed(2)}%</span>`;
+                    } else if (change < 0) {
+                        changeClass = 'down';
+                        changeHtml = `<span class="history-change down"><i class="fas fa-arrow-down"></i> ${changePercent.toFixed(2)}%</span>`;
+                    } else {
+                        changeHtml = `<span class="history-change"><i class="fas fa-minus"></i> 0%</span>`;
+                    }
+                }
+                
+                html += `
+                    <div class="price-history-item ${changeClass}">
+                        <div>
+                            <div class="history-time"><i class="fas fa-clock"></i> ${time} <span style="color: #555;">| ${date}</span></div>
+                            <div style="margin-top: 4px;">
+                                <span class="history-price" style="color: ${item.price > (todayPriceHistory[todayPriceHistory.indexOf(item) - 1]?.price || item.price) ? '#00c853' : item.price < (todayPriceHistory[todayPriceHistory.indexOf(item) - 1]?.price || item.price) ? '#ff3d00' : '#ff6600'}">
+                                    ${item.price.toFixed(2)} PKR
+                                </span>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            ${changeHtml}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            list.innerHTML = html;
+        }
+
+        // ============================================
+        // FIXED: Calculate Portfolio P/L based on AVAILABLE BALANCE only
+        // ============================================
         function calculatePortfolioPL() {
             if (!currentUserData || !marketData) return;
             
             const currentPrice = getCurrentPrice();
             const currentPricePKR = currentPrice * marketData.usdtRate;
+            const availableBalance = parseFloat(currentUserData.balanceTK) || 0;
             
-            // Update current price display immediately
+            // Update current price display
             updatePortfolioPriceDisplay();
             
+            // CRITICAL FIX: Only calculate for coins you actually HOLD
+            // If balance is 0, portfolio shows 0
             let totalInvested = 0;
             let totalCurrentValue = 0;
             
-            userInvestments.forEach(inv => {
-                const investedAmount = parseFloat(inv.rawAmount) || 0;
-                const tkAmount = parseFloat(inv.amount) || 0;
+            if (availableBalance > 0 && userInvestments.length > 0) {
+                // Calculate total historical investment
+                let totalHistoricalInvested = 0;
+                let totalHistoricalTK = 0;
                 
-                totalInvested += investedAmount;
+                userInvestments.forEach(inv => {
+                    totalHistoricalInvested += parseFloat(inv.rawAmount) || 0;
+                    totalHistoricalTK += parseFloat(inv.amount) || 0;
+                });
                 
-                // Current value = TK amount × current price in PKR
-                const currentValue = tkAmount * currentPricePKR;
-                totalCurrentValue += currentValue;
-            });
+                // Calculate average buy price per TK
+                const avgBuyPricePerTK = totalHistoricalTK > 0 ? totalHistoricalInvested / totalHistoricalTK : 0;
+                
+                // Current value of REMAINING coins only
+                totalCurrentValue = availableBalance * currentPricePKR;
+                
+                // Invested amount proportional to remaining coins
+                const retentionRatio = totalHistoricalTK > 0 ? availableBalance / totalHistoricalTK : 0;
+                totalInvested = totalHistoricalInvested * retentionRatio;
+            }
             
             const netPL = totalCurrentValue - totalInvested;
             const plPercentage = totalInvested > 0 ? ((netPL / totalInvested) * 100) : 0;
@@ -1222,39 +1587,59 @@
             document.getElementById('quick-pl-percent').innerText = (plPercentage >= 0 ? '+' : '') + plPercentage.toFixed(2) + '%';
             document.getElementById('quick-pl-percent').style.color = netPL >= 0 ? '#00c853' : '#ff3d00';
             
-            // Render Investments List
-            renderInvestmentsList(currentPricePKR);
+            // Render Investments List - Only show proportional to remaining balance
+            renderInvestmentsList(currentPricePKR, availableBalance);
         }
 
-        // FIXED: Render Investments with correct buy/current price
-        function renderInvestmentsList(currentPricePKR) {
+        // ============================================
+        // FIXED: Render Investments - Show only if you have balance
+        // ============================================
+        function renderInvestmentsList(currentPricePKR, availableBalance) {
             const listContainer = document.getElementById('investments-list');
             
-            if (userInvestments.length === 0) {
+            // If no balance, show empty state
+            if (availableBalance <= 0 || userInvestments.length === 0) {
                 listContainer.innerHTML = `
                     <div style="text-align:center; color:#777; padding: 20px;">
                         <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
-                        No investments yet. Make a deposit to start!
+                        No active investments. Your balance is 0 TK.<br>
+                        <small style="color: #555;">Make a deposit to start investing!</small>
                     </div>
                 `;
                 return;
             }
             
+            // Calculate total historical TK to find retention ratio
+            let totalHistoricalTK = 0;
+            userInvestments.forEach(inv => {
+                totalHistoricalTK += parseFloat(inv.amount) || 0;
+            });
+            
+            const retentionRatio = totalHistoricalTK > 0 ? availableBalance / totalHistoricalTK : 0;
+            
             listContainer.innerHTML = '';
             
+            // Show investments proportionally
             userInvestments.forEach(inv => {
-                const investedPKR = parseFloat(inv.rawAmount) || 0;
-                const tkAmount = parseFloat(inv.amount) || 0;
+                const originalTK = parseFloat(inv.amount) || 0;
+                const originalInvested = parseFloat(inv.rawAmount) || 0;
                 
-                // FIXED: Calculate buy price in PKR correctly
+                // Proportional amounts based on remaining balance
+                const activeTK = originalTK * retentionRatio;
+                const activeInvested = originalInvested * retentionRatio;
+                
+                // Only show if there's something to show
+                if (activeTK <= 0.01) return;
+                
+                // Calculate buy price in PKR
                 const buyPriceTK = parseFloat(inv.tkPriceAtDeposit) || marketData.tkPrice;
                 const buyRate = parseFloat(inv.usdtRateAtDeposit) || marketData.usdtRate;
                 const buyPricePKR = buyPriceTK * buyRate;
                 
-                // Current calculations
-                const currentValue = tkAmount * currentPricePKR;
-                const pl = currentValue - investedPKR;
-                const plPercent = investedPKR > 0 ? ((pl / investedPKR) * 100) : 0;
+                // Current calculations for ACTIVE (remaining) amount only
+                const currentValue = activeTK * currentPricePKR;
+                const pl = currentValue - activeInvested;
+                const plPercent = activeInvested > 0 ? ((pl / activeInvested) * 100) : 0;
                 const isProfit = pl >= 0;
                 
                 const card = document.createElement('div');
@@ -1263,14 +1648,14 @@
                 card.innerHTML = `
                     <div class="investment-header">
                         <div>
-                            <div class="investment-amount">${tkAmount.toFixed(2)} TK</div>
+                            <div class="investment-amount">${activeTK.toFixed(2)} TK <small style="font-size:0.7rem; color:#777;">(of ${originalTK.toFixed(2)})</small></div>
                             <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
                                 <i class="fas fa-calendar-alt"></i> ${inv.date}
                             </div>
                         </div>
                         <div style="text-align: right;">
                             <div style="font-size: 0.8rem; color: var(--text-muted);">Invested</div>
-                            <div style="font-weight: bold;">${investedPKR.toFixed(2)} PKR</div>
+                            <div style="font-weight: bold;">${activeInvested.toFixed(2)} PKR</div>
                         </div>
                     </div>
                     
@@ -1341,10 +1726,27 @@
             onValue(ref(db, 'market'), (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
+                    const oldMode = marketMode;
+                    const oldPrice = marketData.tkPrice;
+                    
                     marketData = data;
                     marketMode = data.mode || 'manual';
                     autoFluctuationRange = data.autoRange || 100;
                     autoUpdateInterval = data.autoInterval || 30;
+                    
+                    // Show/hide manual badge
+                    const badge = document.getElementById('manual-mode-badge');
+                    if (marketMode === 'manual') {
+                        badge.classList.remove('hidden');
+                    } else {
+                        badge.classList.add('hidden');
+                    }
+                    
+                    // Check if manual price changed
+                    if (marketMode === 'manual' && oldMode === 'manual' && oldPrice !== data.tkPrice) {
+                        // Save price change to history
+                        savePriceChangeToHistory(data.tkPrice * data.usdtRate);
+                    }
                     
                     if (autoRateTimer) {
                         clearInterval(autoRateTimer);
@@ -1355,6 +1757,7 @@
                         startAutoPriceFluctuation();
                     } else {
                         currentFluctuatedPrice = null;
+                        lastManualPrice = data.tkPrice * data.usdtRate;
                     }
                     
                     updateMarketUI();
@@ -1380,11 +1783,16 @@
                     appSettings.easypaisa = data.easypaisa || '0300-1234567';
                     appSettings.jazzcash = data.jazzcash || '0321-7654321';
                     appSettings.tillid = data.tillid || '03XX-XXXXXXX (Raast)';
+                    appSettings.minTransfer = data.minTransfer || 10;
+                    appSettings.transferTax = data.transferTax || 0.02;
+                    appSettings.minDeposit = data.minDeposit || 500;
+                    
                     if (data.qrUrl) {
                         const qrImg = document.getElementById('deposit-qr-image');
                         if(qrImg) qrImg.src = data.qrUrl;
                     }
                     updateDepositDetails();
+                    updateTransferInfo();
                 }
             });
 
@@ -1412,6 +1820,9 @@
             loadReferralStats(user.uid);
             monitorIncomingTransfers(user.uid); 
             startZigzagAnimation();
+            
+            // Load today's price history
+            loadTodayPriceHistory();
 
             updateMarketPressure();
             pressureInterval = setInterval(updateMarketPressure, 600000);
@@ -1425,6 +1836,18 @@
             } else {
                 showSection('market');
             }
+        }
+
+        function savePriceChangeToHistory(price) {
+            const today = new Date().toDateString();
+            const historyRef = ref(db, 'priceHistory/' + today);
+            const newEntry = {
+                price: price,
+                timestamp: Date.now(),
+                date: new Date().toISOString()
+            };
+            
+            push(historyRef, newEntry);
         }
 
         function loadUserInvestments(uid) {
@@ -1706,6 +2129,18 @@
             document.getElementById('deposit-price').innerText = (marketData.tkPrice * marketData.usdtRate).toFixed(2);
             document.getElementById('deposit-calc-receive').innerText = receive.toFixed(2);
             document.getElementById('deposit-invest-value').innerText = amount.toFixed(2);
+            
+            // Check minimum deposit
+            const minDeposit = appSettings.minDeposit || 500;
+            const warningEl = document.getElementById('min-deposit-warning');
+            const amountEl = document.getElementById('min-deposit-amount');
+            
+            if (amount > 0 && amount < minDeposit) {
+                warningEl.classList.remove('hidden');
+                amountEl.innerText = minDeposit;
+            } else {
+                warningEl.classList.add('hidden');
+            }
         }
 
         window.copyDepositNumber = () => {
@@ -1717,6 +2152,12 @@
             const amountInput = parseFloat(document.getElementById('deposit-amount').value);
             const refId = document.getElementById('deposit-ref').value;
             const method = document.getElementById('deposit-method').value;
+            
+            // Check minimum deposit
+            const minDeposit = appSettings.minDeposit || 500;
+            if (amountInput < minDeposit) {
+                return showToast(`Minimum deposit is ${minDeposit} PKR`, "error");
+            }
             
             if (!amountInput || amountInput <= 0) return showToast("Enter valid amount", "error");
             if (!refId) return showToast("Enter Transaction ID", "error");
@@ -1817,16 +2258,31 @@
             });
         };
 
+        function updateTransferInfo() {
+            const minTransfer = appSettings.minTransfer || 10;
+            const transferTax = appSettings.transferTax || 0.02;
+            
+            document.getElementById('min-transfer-amount').innerText = minTransfer;
+            document.getElementById('transfer-tax-percent').innerText = (transferTax * 100).toFixed(0);
+        }
+
         window.submitTransfer = () => {
             const email = document.getElementById('transfer-email').value.trim();
             const amount = parseFloat(document.getElementById('transfer-amount').value);
+            
+            const minTransfer = appSettings.minTransfer || 10;
+            const transferTax = appSettings.transferTax || 0.02;
 
             if (!email) return showToast("Enter email", "error");
             if (email === currentUserData.email) return showToast("Cannot send to yourself", "error");
             if (!amount || amount <= 0) return showToast("Invalid amount", "error");
+            if (amount < minTransfer) return showToast(`Minimum transfer is ${minTransfer} TK`, "error");
+            
+            const taxAmount = amount * transferTax;
+            const totalDeduction = amount + taxAmount;
             
             const currentBal = parseFloat(currentUserData.balanceTK || 0);
-            if (amount > currentBal) return showToast("Insufficient balance", "error");
+            if (totalDeduction > currentBal) return showToast(`Insufficient balance (need ${totalDeduction.toFixed(2)} TK including tax)`, "error");
 
             showToast("Checking user...", "info");
 
@@ -1844,7 +2300,7 @@
                     showToast("User Found! Transferring...", "success");
                     
                     const updates = {};
-                    updates['users/' + currentUserData.uid + '/balanceTK'] = currentBal - amount;
+                    updates['users/' + currentUserData.uid + '/balanceTK'] = currentBal - totalDeduction;
                     const receiverData = snapshot.val()[receiverUid];
                     const receiverBal = parseFloat(receiverData.balanceTK || 0);
                     updates['users/' + receiverUid + '/balanceTK'] = receiverBal + amount;
@@ -1856,6 +2312,8 @@
                         to: receiverUid,
                         toName: receiverData.name,
                         amount: amount,
+                        tax: taxAmount,
+                        totalDeduction: totalDeduction,
                         date: new Date().toLocaleString(),
                         timestamp: Date.now()
                     };
@@ -1863,7 +2321,7 @@
                     updates['users/' + currentUserData.uid + '/lastTransferAt'] = Date.now();
 
                     update(ref(db), updates).then(() => {
-                        showToast("Transfer Successful!");
+                        showToast(`Transfer Successful! Tax: ${taxAmount.toFixed(2)} TK`);
                         startTransferTimer(120000);
                         document.getElementById('transfer-amount').value = '';
                         document.getElementById('transfer-email').value = '';
@@ -1873,6 +2331,30 @@
                 }
             });
         };
+
+        // Update transfer input validation
+        document.getElementById('transfer-amount')?.addEventListener('input', (e) => {
+            const amount = parseFloat(e.target.value) || 0;
+            const minTransfer = appSettings.minTransfer || 10;
+            const transferTax = appSettings.transferTax || 0.02;
+            
+            const warningEl = document.getElementById('min-transfer-warning');
+            const taxInfoEl = document.getElementById('transfer-tax-info');
+            
+            if (amount > 0 && amount < minTransfer) {
+                warningEl.classList.remove('hidden');
+            } else {
+                warningEl.classList.add('hidden');
+            }
+            
+            if (amount > 0) {
+                taxInfoEl.classList.remove('hidden');
+                const taxAmount = amount * transferTax;
+                document.getElementById('transfer-tax-amount').innerText = taxAmount.toFixed(2);
+            } else {
+                taxInfoEl.classList.add('hidden');
+            }
+        });
 
         window.upgradePremium = () => {
             if (currentUserData.balanceTK >= 100) {
