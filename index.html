@@ -271,59 +271,6 @@
             background: linear-gradient(180deg, rgba(255,102,0,0.05) 0%, transparent 100%);
             border-radius: 8px;
         }
-        
-        .price-history-list {
-            max-height: 200px;
-            overflow-y: auto;
-            margin-top: 15px;
-            border-top: 1px solid #333;
-            padding-top: 10px;
-        }
-        
-        .price-history-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 10px;
-            margin-bottom: 5px;
-            background: #2a2a2a;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            border-left: 3px solid var(--primary);
-        }
-        
-        .price-history-item.up {
-            border-left-color: var(--success);
-        }
-        
-        .price-history-item.down {
-            border-left-color: var(--danger);
-        }
-        
-        .history-time {
-            color: var(--text-muted);
-            font-size: 0.75rem;
-        }
-        
-        .history-price {
-            font-weight: bold;
-            font-family: monospace;
-        }
-        
-        .history-change {
-            font-size: 0.75rem;
-            padding: 2px 6px;
-            border-radius: 4px;
-            background: rgba(0,0,0,0.3);
-        }
-        
-        .history-change.up {
-            color: var(--success);
-        }
-        
-        .history-change.down {
-            color: var(--danger);
-        }
 
         .balance-card {
             background: linear-gradient(135deg, var(--primary), #ff9100);
@@ -805,10 +752,11 @@
                     </div>
                 </div>
 
+                <!-- TODAY'S CHART SECTION - CLEAN VERSION -->
                 <div class="today-chart-container">
                     <div class="today-chart-header">
                         <div class="today-chart-title">
-                            <i class="fas fa-chart-line"></i> Today's Price History
+                            <i class="fas fa-chart-line"></i> Today's Price Movement
                             <span id="manual-mode-badge" class="hidden" style="background: var(--primary); color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; margin-left: 10px;">Updated</span>
                         </div>
                         <div class="today-stats">
@@ -826,12 +774,10 @@
                             </div>
                         </div>
                     </div>
+                    
                     <canvas id="todayChartCanvas"></canvas>
-                    <div class="price-history-list" id="price-history-list">
-                        <div style="text-align: center; color: #777; padding: 20px;">
-                            <i class="fas fa-info-circle"></i> Price history will appear when admin changes price
-                        </div>
-                    </div>
+                    
+                    <!-- NO HISTORY LIST - ONLY CHART -->
                 </div>
 
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
@@ -1515,6 +1461,7 @@
             }
         }
 
+        // ======== CLEAN PRICE HISTORY - ONLY SHOW ACTUAL CHANGES ========
         function loadTodayPriceHistory() {
             const today = new Date().toDateString();
             const historyRef = ref(db, 'priceHistory/' + today);
@@ -1522,13 +1469,26 @@
             onValue(historyRef, (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
-                    todayPriceHistory = Object.values(data).sort((a, b) => a.timestamp - b.timestamp);
+                    // Filter only unique price changes (remove consecutive duplicates)
+                    const allPoints = Object.values(data).sort((a, b) => a.timestamp - b.timestamp);
+                    todayPriceHistory = [];
+                    
+                    allPoints.forEach((point, index) => {
+                        if (index === 0) {
+                            todayPriceHistory.push(point);
+                        } else {
+                            const lastPoint = todayPriceHistory[todayPriceHistory.length - 1];
+                            // Only add if price actually changed (more than 0.01 difference)
+                            if (Math.abs(point.price - lastPoint.price) > 0.01) {
+                                todayPriceHistory.push(point);
+                            }
+                        }
+                    });
+                    
                     updateTodayChart();
-                    renderPriceHistoryList();
                 } else {
                     todayPriceHistory = [];
                     updateTodayChart();
-                    renderPriceHistoryList();
                 }
             });
         }
@@ -1547,13 +1507,17 @@
                 ctx.font = '14px Arial';
                 ctx.textAlign = 'center';
                 ctx.fillText('No price changes today', canvas.width / 2, canvas.height / 2);
+                
+                document.getElementById('today-high').innerText = '0.00';
+                document.getElementById('today-low').innerText = '0.00';
+                document.getElementById('today-changes').innerText = '0';
                 return;
             }
             
             const prices = todayPriceHistory.map(h => h.price);
             const high = Math.max(...prices);
             const low = Math.min(...prices);
-            const changes = todayPriceHistory.length;
+            const changes = todayPriceHistory.length - 1; // Changes = points - 1
             
             document.getElementById('today-high').innerText = high.toFixed(2);
             document.getElementById('today-low').innerText = low.toFixed(2);
@@ -1566,6 +1530,7 @@
             const priceRange = high - low || 1;
             const stepX = chartWidth / (todayPriceHistory.length - 1 || 1);
             
+            // Draw grid lines
             ctx.strokeStyle = '#333';
             ctx.lineWidth = 1;
             for (let i = 0; i <= 4; i++) {
@@ -1576,6 +1541,7 @@
                 ctx.stroke();
             }
             
+            // Draw connecting line
             ctx.beginPath();
             ctx.strokeStyle = '#ff6600';
             ctx.lineWidth = 3;
@@ -1595,27 +1561,39 @@
             
             ctx.stroke();
             
+            // Draw ONLY change points (skip if same as previous)
             todayPriceHistory.forEach((point, index) => {
                 const x = padding + (index * stepX);
                 const y = padding + chartHeight - ((point.price - low) / priceRange) * chartHeight;
                 
-                let color = '#ff6600';
+                // Determine color based on change direction
+                let color = '#ff6600'; // Default orange for first point
+                
                 if (index > 0) {
                     const prevPrice = todayPriceHistory[index - 1].price;
-                    if (point.price > prevPrice) color = '#00c853';
-                    else if (point.price < prevPrice) color = '#ff3d00';
+                    if (point.price > prevPrice) {
+                        color = '#00c853'; // Green for UP
+                    } else if (point.price < prevPrice) {
+                        color = '#ff3d00'; // Red for DOWN
+                    } else {
+                        // Skip drawing dot if no change
+                        return;
+                    }
                 }
                 
+                // Draw point
                 ctx.beginPath();
                 ctx.fillStyle = color;
-                ctx.arc(x, y, 6, 0, Math.PI * 2);
+                ctx.arc(x, y, 8, 0, Math.PI * 2);
                 ctx.fill();
                 
+                // Draw white border
                 ctx.strokeStyle = '#fff';
                 ctx.lineWidth = 2;
                 ctx.stroke();
                 
-                if (index % Math.ceil(todayPriceHistory.length / 6) === 0 || index === todayPriceHistory.length - 1) {
+                // Draw time label for first, last and every 3rd point
+                if (index === 0 || index === todayPriceHistory.length - 1 || index % 3 === 0) {
                     ctx.fillStyle = '#aaa';
                     ctx.font = '10px Arial';
                     ctx.textAlign = 'center';
@@ -1624,6 +1602,7 @@
                 }
             });
             
+            // Draw Y-axis labels
             ctx.fillStyle = '#777';
             ctx.font = '11px Arial';
             ctx.textAlign = 'right';
@@ -1632,62 +1611,6 @@
                 const y = padding + (chartHeight / 4) * i;
                 ctx.fillText(price.toFixed(2), padding - 10, y + 4);
             }
-        }
-
-        function renderPriceHistoryList() {
-            const list = document.getElementById('price-history-list');
-            
-            if (todayPriceHistory.length === 0) {
-                list.innerHTML = `
-                    <div style="text-align: center; color: #777; padding: 20px;">
-                        <i class="fas fa-info-circle"></i> Price history will appear when admin changes price
-                    </div>
-                `;
-                return;
-            }
-            
-            let html = '';
-            [...todayPriceHistory].reverse().forEach((item, index) => {
-                const time = new Date(item.timestamp).toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit', second:'2-digit'});
-                const date = new Date(item.timestamp).toLocaleDateString();
-                
-                let changeHtml = '';
-                let changeClass = '';
-                
-                if (index < todayPriceHistory.length - 1) {
-                    const nextItem = todayPriceHistory[todayPriceHistory.length - 2 - index];
-                    const change = item.price - nextItem.price;
-                    const changePercent = (change / nextItem.price) * 100;
-                    
-                    if (change > 0) {
-                        changeClass = 'up';
-                        changeHtml = `<span class="history-change up"><i class="fas fa-arrow-up"></i> +${changePercent.toFixed(2)}%</span>`;
-                    } else if (change < 0) {
-                        changeClass = 'down';
-                        changeHtml = `<span class="history-change down"><i class="fas fa-arrow-down"></i> ${changePercent.toFixed(2)}%</span>`;
-                    } else {
-                        changeHtml = `<span class="history-change"><i class="fas fa-minus"></i> 0%</span>`;
-                    }
-                }
-                
-                html += `
-                    <div class="price-history-item ${changeClass}">
-                        <div>
-                            <div class="history-time"><i class="fas fa-clock"></i> ${time} <span style="color: #555;">| ${date}</span></div>
-                            <div style="margin-top: 4px;">
-                                <span class="history-price" style="color: ${item.price > (todayPriceHistory[todayPriceHistory.indexOf(item) - 1]?.price || item.price) ? '#00c853' : item.price < (todayPriceHistory[todayPriceHistory.indexOf(item) - 1]?.price || item.price) ? '#ff3d00' : '#ff6600'}">
-                                    ${item.price.toFixed(2)} PKR
-                                </span>
-                            </div>
-                        </div>
-                        <div style="text-align: right;">
-                            ${changeHtml}
-                        </div>
-                    </div>
-                `;
-            });
-            
-            list.innerHTML = html;
         }
 
         function calculatePortfolioPL() {
