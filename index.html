@@ -68,7 +68,6 @@
         }
         .input-group input:focus { border-color: var(--primary); }
 
-        /* Toast */
         #toast-container {
             position: fixed;
             top: 20px;
@@ -87,7 +86,6 @@
         }
         @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
 
-        /* Full Screen Popup */
         #receive-popup {
             position: fixed;
             top: 0;
@@ -112,7 +110,6 @@
             50% { transform: translateY(-10px); }
         }
 
-        /* Auth */
         #auth-screen {
             display: flex;
             justify-content: center;
@@ -130,7 +127,6 @@
         }
         .auth-toggle { text-align: center; margin-top: 15px; font-size: 0.9rem; cursor: pointer; color: var(--primary); }
 
-        /* Layout */
         header {
             background: var(--bg-card);
             padding: 15px;
@@ -145,7 +141,6 @@
         .logo { font-size: 1.2rem; font-weight: bold; color: var(--primary); display: flex; align-items: center; gap: 5px; }
         .user-info { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; cursor: pointer; }
         
-        /* Avatar */
         .avatar {
             width: 35px;
             height: 35px;
@@ -160,7 +155,6 @@
             text-transform: uppercase;
         }
 
-        /* Navigation */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -204,7 +198,6 @@
 
         .section { padding: 15px; max-width: 600px; margin: 0 auto; }
         
-        /* Chart */
         .chart-container {
             background: var(--bg-card);
             padding: 15px;
@@ -227,7 +220,6 @@
         .ticker-item { display: inline-block; padding: 0 20px; font-size: 0.9rem; }
         @keyframes ticker { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
 
-        /* TODAY CHART STYLES */
         .today-chart-container {
             background: var(--bg-card);
             padding: 15px;
@@ -333,7 +325,6 @@
             color: var(--danger);
         }
 
-        /* Cards */
         .balance-card {
             background: linear-gradient(135deg, var(--primary), #ff9100);
             color: #fff;
@@ -362,7 +353,6 @@
         .menu-card:hover { border-color: var(--primary); transform: translateY(-3px); }
         .menu-icon { font-size: 1.5rem; margin-bottom: 10px; display: block; }
 
-        /* Chat */
         .chat-box {
             background: var(--bg-card);
             height: 60vh;
@@ -377,7 +367,6 @@
         .msg-user { align-self: flex-end; background: var(--primary); color: white; }
         .chat-input-area { padding: 10px; display: flex; gap: 10px; border-top: 1px solid #333; }
 
-        /* Premium Badge */
         .badge-premium { color: var(--blue); margin-left: 5px; }
         .blue-tick { color: #1da1f2; margin-left: 2px; }
         .status-badge { padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; }
@@ -385,12 +374,10 @@
         .status-approved { background: #00c853; color: white; }
         .status-rejected { background: #ff3d00; color: white; }
 
-        /* Futures Styles */
         .trade-buttons { display: flex; gap: 10px; margin-top: 10px; }
         .btn-long { background: var(--success); flex: 1; }
         .btn-short { background: var(--danger); flex: 1; }
 
-        /* Invited List Style */
         .invited-item {
             background: var(--bg-card);
             padding: 10px;
@@ -404,7 +391,6 @@
         .invited-name { font-weight: bold; color: #fff; font-size: 0.9rem; }
         .invited-date { font-size: 0.7rem; color: #777; }
 
-        /* Market Pressure Indicator */
         .market-pressure-card {
             background: var(--bg-card);
             padding: 15px;
@@ -448,7 +434,6 @@
             color: var(--text-muted);
         }
 
-        /* Investment/Portfolio Styles */
         .portfolio-summary {
             background: linear-gradient(135deg, #1e3c72, #2a5298);
             color: white;
@@ -592,6 +577,154 @@
             font-size: 0.75rem;
             margin-left: 5px;
         }
+
+        /* Savings Styles */
+        .savings-plan-selector {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .savings-plan-btn {
+            background: var(--bg-card);
+            border: 2px solid #333;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        
+        .savings-plan-btn:hover {
+            border-color: var(--primary);
+        }
+        
+        .savings-plan-btn.selected {
+            border-color: var(--success);
+            background: rgba(0,200,83,0.1);
+        }
+        
+        .plan-days {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .plan-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+        
+        .plan-profit {
+            font-size: 1.1rem;
+            color: var(--success);
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        
+        .savings-card {
+            background: var(--bg-card);
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+        
+        .savings-card.active {
+            border-left: 4px solid var(--success);
+        }
+        
+        .savings-card.matured {
+            border-left: 4px solid var(--blue);
+        }
+        
+        .savings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .savings-amount {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .savings-status {
+            font-size: 0.8rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: var(--success);
+            color: white;
+        }
+        
+        .savings-status.matured {
+            background: var(--blue);
+        }
+        
+        .savings-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+        
+        .savings-detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .savings-detail-label {
+            font-size: 0.75rem;
+            margin-bottom: 2px;
+        }
+        
+        .savings-detail-value {
+            color: white;
+            font-weight: 500;
+        }
+        
+        .profit-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 10px;
+            border-top: 1px solid #333;
+        }
+        
+        .profit-amount {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--success);
+        }
+        
+        .locked-notice {
+            background: rgba(255,0,0,0.1);
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+        
+        .matured-notice {
+            background: rgba(0,200,83,0.1);
+            border: 1px solid var(--success);
+            color: var(--success);
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-size: 0.85rem;
+            text-align: center;
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -599,7 +732,6 @@
 
     <div id="toast-container"></div>
 
-    <!-- Full Screen Receive Popup -->
     <div id="receive-popup" class="hidden">
         <i class="fas fa-hand-holding-usd" style="font-size: 5rem; color: gold; margin-bottom: 20px; animation: bounce 1s infinite;"></i>
         <h2 style="color: white;">Coins Received!</h2>
@@ -607,7 +739,6 @@
         <button class="btn" style="margin-top: 30px; width: auto; padding: 10px 40px;" onclick="window.closePopup()">OK</button>
     </div>
 
-    <!-- Auth Screen -->
     <div id="auth-screen">
         <div class="auth-box">
             <h2 class="text-orange" style="text-align: center; margin-bottom: 20px;">TK Coin Login</h2>
@@ -624,7 +755,6 @@
                     <label>Referral Code (Optional)</label>
                     <input type="text" id="auth-ref" placeholder="Enter Referral Code">
                 </div>
-
                 <button type="submit" class="btn" id="auth-btn">Login</button>
             </form>
             <div class="auth-toggle" onclick="toggleAuthMode()">Don't have an account? Signup</div>
@@ -634,7 +764,6 @@
         </div>
     </div>
 
-    <!-- Main App Container -->
     <div id="app-container" class="hidden">
         <div class="ticker-wrap">
             <div class="ticker" id="news-ticker"></div>
@@ -663,7 +792,6 @@
                     <small style="opacity: 0.8;">Total Hold TK: 20M+ Coins</small>
                 </div>
 
-                <!-- Market Pressure Indicator -->
                 <div class="market-pressure-card">
                     <h3 style="margin-bottom: 10px; color: var(--primary);">Market Pressure</h3>
                     <div class="pressure-bar-container" id="pressure-bar">
@@ -677,7 +805,6 @@
                     </div>
                 </div>
 
-                <!-- TODAY'S CHART SECTION -->
                 <div class="today-chart-container">
                     <div class="today-chart-header">
                         <div class="today-chart-title">
@@ -694,17 +821,15 @@
                                 <div class="stat-value stat-low" id="today-low">0.00</div>
                             </div>
                             <div class="stat-item">
-                                <div class="stat-label">Movement</div>
+                                <div class="stat-label">Changes</div>
                                 <div class="stat-value" id="today-changes">0</div>
                             </div>
                         </div>
                     </div>
-                    
                     <canvas id="todayChartCanvas"></canvas>
-                    
                     <div class="price-history-list" id="price-history-list">
                         <div style="text-align: center; color: #777; padding: 20px;">
-                            <i class="fas fa-info-circle"></i> Price history will appear when admin changes price in manual mode
+                            <i class="fas fa-info-circle"></i> Price history will appear when admin changes price
                         </div>
                     </div>
                 </div>
@@ -713,7 +838,6 @@
                     <h3>Live Market</h3>
                     <span style="font-size: 0.8rem; color: var(--success);">● Live</span>
                 </div>
-                
                 <div class="chart-container">
                     <canvas id="marketCanvas"></canvas>
                 </div>
@@ -727,12 +851,9 @@
             <!-- Portfolio View -->
             <section id="view-portfolio" class="section hidden">
                 <h2 class="text-orange" style="margin-bottom: 15px;"><i class="fas fa-chart-pie"></i> My Portfolio</h2>
-                
-                <!-- Portfolio Summary -->
                 <div class="portfolio-summary">
                     <div class="balance-title" style="opacity: 0.9;">Total Investment Value</div>
                     <div class="balance-amount" style="font-size: 1.8rem;"><span id="portfolio-total-value">0</span> PKR</div>
-                    
                     <div class="portfolio-grid">
                         <div class="portfolio-item">
                             <div class="portfolio-label">Total Invested</div>
@@ -744,8 +865,6 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Current Price Info -->
                 <div class="deposit-info-box">
                     <div class="deposit-info-row">
                         <span>Current TK Price:</span>
@@ -756,7 +875,6 @@
                         <span id="portfolio-price-change" style="font-weight: bold;">0%</span>
                     </div>
                 </div>
-
                 <h3 style="margin-bottom: 15px;">My Investments</h3>
                 <div id="investments-list" style="display: flex; flex-direction: column; gap: 10px;">
                     <div style="text-align:center; color:#777; padding: 20px;">
@@ -793,7 +911,6 @@
                     </div>
                 </div>
 
-                <!-- Quick Portfolio Preview -->
                 <div style="background: var(--bg-card); padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #333; cursor: pointer;" onclick="showSection('portfolio')">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
@@ -817,27 +934,22 @@
             <section id="view-futures" class="section hidden">
                 <h2 class="text-orange">Futures Trading</h2>
                 <p style="color: #aaa; margin-bottom: 20px;">Trade with leverage. High Risk, High Reward.</p>
-                
                 <div class="balance-card">
                     <div class="balance-title">Available Balance</div>
                     <div class="balance-amount"><span id="futures-tk">0</span> TK</div>
                 </div>
-
                 <div class="input-group">
                     <label>Enter Amount (TK)</label>
                     <input type="number" id="futures-amount" placeholder="e.g. 10 TK">
                 </div>
-
                 <div class="trade-buttons">
                     <button class="btn btn-long" onclick="openFutures('long')">Buy / Long</button>
                     <button class="btn btn-short" onclick="openFutures('short')">Sell / Short</button>
                 </div>
-
                 <h3 style="margin-top: 20px;">Your Positions</h3>
                 <div id="futures-positions" style="margin-top: 10px; display: flex; flex-direction: column; gap: 10px;">
                     <div style="text-align:center; color:#555;">No open positions</div>
                 </div>
-
                 <button class="btn btn-outline" style="margin-top: 20px;" onclick="showSection('wallet')">Back</button>
             </section>
 
@@ -845,7 +957,6 @@
             <section id="view-deposit" class="section hidden">
                 <h2 class="text-orange">Deposit Funds</h2>
                 <p style="color: #aaa; margin-bottom: 20px;">Select payment method below.</p>
-                
                 <div class="input-group">
                     <label>Method</label>
                     <select id="deposit-method" onchange="updateDepositDetails()">
@@ -855,7 +966,6 @@
                         <option value="qrpay">QR Pay</option>
                     </select>
                 </div>
-
                 <div style="background: var(--bg-card); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #333; min-height: 85px; display:flex; align-items:center; justify-content:space-between;">
                     <div id="text-info" style="flex:1;">
                         <div style="font-size: 0.8rem; color: #aaa;">Deposit To:</div>
@@ -865,7 +975,6 @@
                     <img id="deposit-qr-image" src="./qr.png" style="display:none; max-width: 150px; height: auto; border-radius: 8px;" alt="QR Code">
                     <button id="copy-btn" class="btn btn-sm btn-outline" onclick="copyDepositNumber()"><i class="fas fa-copy"></i></button>
                 </div>
-
                 <div class="input-group">
                     <label>Amount Sent (PKR)</label>
                     <input type="number" id="deposit-amount" oninput="calculateDeposit()" placeholder="e.g. 500 PKR">
@@ -874,13 +983,9 @@
                     <label>Reference No / Transaction ID</label>
                     <input type="text" id="deposit-ref" placeholder="TRX ID">
                 </div>
-
-                <!-- Minimum Deposit Warning -->
                 <div id="min-deposit-warning" class="hidden" style="background: rgba(255,0,0,0.1); border: 1px solid var(--danger); padding: 10px; border-radius: 6px; margin-bottom: 15px; color: var(--danger); font-size: 0.85rem;">
                     <i class="fas fa-exclamation-triangle"></i> Minimum deposit is <span id="min-deposit-amount">500</span> PKR
                 </div>
-
-                <!-- Deposit Summary Box -->
                 <div class="deposit-info-box">
                     <div class="deposit-info-row">
                         <span>Current Rate:</span>
@@ -895,7 +1000,6 @@
                         <span style="font-weight: bold;"><span id="deposit-invest-value">0</span> PKR</span>
                     </div>
                 </div>
-
                 <button class="btn" onclick="submitDeposit()">Submit Deposit Request</button>
                 <button class="btn btn-outline" style="margin-top: 10px;" onclick="showSection('wallet')">Back</button>
             </section>
@@ -904,12 +1008,10 @@
             <section id="view-withdraw" class="section hidden">
                 <h2 class="text-orange">Withdraw Funds</h2>
                 <p style="color: #aaa; margin-bottom: 20px;">Withdraw TK to Your Account. Balance will be deducted immediately.</p>
-
                 <div style="background: var(--bg-card); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
                     <div>Available Balance: <strong id="withdraw-bal-display">0 TK</strong></div>
                     <div style="font-size: 0.8rem; color: var(--primary);" id="fee-display">Fee: 5%</div>
                 </div>
-
                 <div class="input-group">
                     <label>Method</label>
                     <select id="withdraw-method">
@@ -917,21 +1019,17 @@
                         <option value="jazzcash">JazzCash</option>
                     </select>
                 </div>
-
                 <div class="input-group">
                     <label>Account Number/ iban no.</label>
                     <input type="text" id="withdraw-account" placeholder="0300...">
                 </div>
-
                 <div class="input-group">
                     <label>Amount (TK)</label>
                     <input type="number" id="withdraw-amount" placeholder="Tk coin" oninput="calculateWithdraw()">
                 </div>
-                
                 <div style="background: #222; padding: 10px; border-radius: 6px; margin-bottom: 20px; color: #aaa;">
                     <small>Estimated Receive: <strong style="color: white; font-size: 1.1rem;"><span id="withdraw-calc-usdt">0.00</span> PKR</strong></small>
                 </div>
-
                 <button class="btn" onclick="submitWithdraw()">Request Withdrawal</button>
                 <button class="btn btn-outline" style="margin-top: 10px;" onclick="showSection('wallet')">Back</button>
             </section>
@@ -940,7 +1038,6 @@
             <section id="view-transfer" class="section hidden">
                 <h2 class="text-orange">Transfer Coins</h2>
                 <p style="color: #aaa; margin-bottom: 20px;">Send TK to another user instantly.</p>
-
                 <div class="input-group">
                     <label>Receiver Email</label>
                     <input type="email" id="transfer-email" placeholder="user@example.com">
@@ -949,24 +1046,17 @@
                     <label>Amount (TK)</label>
                     <input type="number" id="transfer-amount" placeholder="Amount">
                 </div>
-
-                <!-- Minimum Transfer Warning -->
                 <div id="min-transfer-warning" class="hidden" style="background: rgba(255,0,0,0.1); border: 1px solid var(--danger); padding: 10px; border-radius: 6px; margin-bottom: 15px; color: var(--danger); font-size: 0.85rem;">
                     <i class="fas fa-exclamation-triangle"></i> Minimum transfer is <span id="min-transfer-amount">10</span> TK
                 </div>
-
-                <!-- Transfer Tax Info -->
                 <div id="transfer-tax-info" class="hidden" style="background: rgba(255,102,0,0.1); border: 1px solid var(--primary); padding: 10px; border-radius: 6px; margin-bottom: 15px; color: var(--primary); font-size: 0.85rem;">
                     <i class="fas fa-info-circle"></i> Transfer Tax: <span id="transfer-tax-percent">2</span>% (<span id="transfer-tax-amount">0</span> TK will be deducted)
                 </div>
-
                 <button id="btn-transfer-send" class="btn" onclick="submitTransfer()">Send Now</button>
-                
                 <div id="transfer-wait-msg" class="hidden" style="margin-top: 15px; text-align: center; background: #333; padding: 15px; border-radius: 8px; border: 1px solid var(--primary);">
                     <p class="text-orange" style="font-weight: bold;">Wait <span id="timer-count">02:00</span> minutes</p>
                     <small style="color:#aaa;">Next transfer available soon</small>
                 </div>
-
                 <button class="btn btn-outline" style="margin-top: 10px;" onclick="showSection('wallet')">Back</button>
             </section>
 
@@ -977,7 +1067,6 @@
                     <h2>Go Premium</h2>
                     <p>Unlock Zero Fee, Blue Tick & VIP Features.</p>
                 </div>
-
                 <div class="balance-card" style="text-align: center;">
                     <div class="balance-title">Upgrade Cost</div>
                     <div class="balance-amount">100 TK</div>
@@ -987,7 +1076,6 @@
                         <i class="fas fa-check-circle"></i> Special Access
                     </div>
                 </div>
-
                 <button class="btn" id="btn-upgrade" onclick="upgradePremium()">Upgrade Now</button>
                 <button class="btn btn-outline" style="margin-top: 10px;" onclick="showSection('wallet')">Back</button>
             </section>
@@ -1040,12 +1128,109 @@
                     </div>
                 </div>
 
+                <!-- Savings Section -->
+                <div class="menu-card" onclick="showSection('savings')" style="margin-bottom: 15px; text-align: left; flex-direction: row; justify-content: space-between; padding: 15px; background: linear-gradient(135deg, rgba(0,200,83,0.2), rgba(0,200,83,0.05)); border-color: var(--success);">
+                    <div>
+                        <div style="font-weight: bold; font-size: 1rem; color: var(--success);"><i class="fas fa-piggy-bank"></i> Savings Account</div>
+                        <small style="color: var(--text-muted); display: block; margin-top: 2px;">Earn daily profit on locked savings</small>
+                    </div>
+                    <div style="text-align: right;">
+                        <div id="savings-preview-amount" style="font-weight: bold; color: var(--success);">Rs. 0</div>
+                        <small style="color: var(--text-muted); font-size: 0.7rem;">Active Savings</small>
+                    </div>
+                </div>
+
                 <h3>About</h3>
                 <div class="menu-card" onclick="showAboutModal()" style="text-align: left; margin-bottom: 10px;">
                     <i class="fas fa-info-circle"></i> TK Coin is a Singapore-based digital finance platform offering fast, secure transactions and smart earning solutions for global users
                 </div>
                 <button class="btn" style="background: #333;" onclick="logout()">Logout</button>
             </section>
+
+            <!-- Savings View -->
+            <section id="view-savings" class="section hidden">
+                <h2 class="text-orange" style="margin-bottom: 15px;"><i class="fas fa-piggy-bank"></i> Savings Account</h2>
+                
+                <div class="balance-card" style="background: linear-gradient(135deg, #00c853, #00e676);">
+                    <div class="balance-title">Total Savings</div>
+                    <div class="balance-amount">Rs. <span id="total-savings-amount">0</span></div>
+                    <small style="opacity: 0.9;">Active Savings Plans</small>
+                </div>
+
+                <div class="balance-card" style="background: linear-gradient(135deg, #2979ff, #448aff); margin-top: -10px;">
+                    <div class="balance-title">Total Profit Earned</div>
+                    <div class="balance-amount">Rs. <span id="total-savings-profit">0</span></div>
+                    <small style="opacity: 0.9;">Lifetime</small>
+                </div>
+
+                <!-- Create New Savings -->
+                <div style="background: var(--bg-card); padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #333;">
+                    <h3 style="margin-bottom: 15px; color: var(--primary);">Create New Savings</h3>
+                    
+                    <div class="input-group">
+                        <label>Amount (PKR)</label>
+                        <input type="number" id="savings-amount" placeholder="Minimum 1000 PKR" oninput="calculateSavings()">
+                    </div>
+                    
+                    <div style="background: rgba(255,0,0,0.1); border: 1px solid var(--danger); color: var(--danger); padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 0.85rem; display: none;" id="savings-min-warning">
+                        <i class="fas fa-exclamation-triangle"></i> Minimum savings amount is <span id="savings-min-amount">1000</span> PKR
+                    </div>
+
+                    <label style="display: block; margin-bottom: 10px; color: var(--text-muted); font-size: 0.9rem;">Select Plan</label>
+                    <div class="savings-plan-selector">
+                        <div class="savings-plan-btn" onclick="selectSavingsPlan(30)" id="plan-30">
+                            <div class="plan-days">30</div>
+                            <div class="plan-label">Days</div>
+                            <div class="plan-profit"><span id="profit-30">2</span>%</div>
+                        </div>
+                        <div class="savings-plan-btn" onclick="selectSavingsPlan(60)" id="plan-60">
+                            <div class="plan-days">60</div>
+                            <div class="plan-label">Days</div>
+                            <div class="plan-profit"><span id="profit-60">3</span>%</div>
+                        </div>
+                        <div class="savings-plan-btn" onclick="selectSavingsPlan(90)" id="plan-90">
+                            <div class="plan-days">90</div>
+                            <div class="plan-label">Days</div>
+                            <div class="plan-profit"><span id="profit-90">4</span>%</div>
+                        </div>
+                    </div>
+
+                    <div class="deposit-info-box" style="margin-top: 15px;">
+                        <div class="deposit-info-row">
+                            <span>Daily Profit:</span>
+                            <span style="font-weight: bold; color: var(--success);">Rs. <span id="savings-daily-profit">0</span></span>
+                        </div>
+                        <div class="deposit-info-row">
+                            <span>Total Profit:</span>
+                            <span style="font-weight: bold; color: var(--success);">Rs. <span id="savings-total-profit">0</span></span>
+                        </div>
+                        <div class="deposit-info-row">
+                            <span>Maturity Amount:</span>
+                            <span style="font-weight: bold; color: var(--primary);">Rs. <span id="savings-maturity-amount">0</span></span>
+                        </div>
+                    </div>
+
+                    <button class="btn" onclick="createSavings()" style="margin-top: 15px;">
+                        <i class="fas fa-lock"></i> Lock Savings
+                    </button>
+                    <p style="color: #777; font-size: 0.8rem; margin-top: 10px; text-align: center;">
+                        <i class="fas fa-info-circle"></i> Money will be locked until maturity. Daily profit auto-credited.
+                    </p>
+                </div>
+
+                <!-- Active Savings List -->
+                <h3 style="margin-bottom: 15px;">My Savings Plans</h3>
+                <div id="savings-list" style="display: flex; flex-direction: column; gap: 10px;">
+                    <div style="text-align:center; color:#777; padding: 20px;">
+                        <i class="fas fa-piggy-bank" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                        No active savings plans.<br>
+                        <small>Create a savings plan to start earning daily profit!</small>
+                    </div>
+                </div>
+
+                <button class="btn btn-outline" style="margin-top: 20px;" onclick="showSection('profile')">Back to Profile</button>
+            </section>
+
         </main>
 
         <nav class="bottom-nav" id="user-nav">
@@ -1069,7 +1254,6 @@
         </nav>
     </div>
 
-    <!-- Scripts -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
@@ -1102,7 +1286,11 @@
             withdrawFee: 0.05,
             minTransfer: 10,
             transferTax: 0.02,
-            minDeposit: 500
+            minDeposit: 500,
+            savings30: 2.0,
+            savings60: 3.0,
+            savings90: 4.0,
+            minSavings: 1000
         };
         let chartPoints = [];
         let lastKnownBalance = 0; 
@@ -1119,6 +1307,8 @@
         let userInvestments = [];
         let todayPriceHistory = [];
         let lastManualPrice = null;
+        let selectedSavingsPlan = null;
+        let userSavings = [];
 
         window.playSound = (type) => {
             const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -1315,7 +1505,6 @@
             });
         };
 
-        // FIXED: Update Portfolio Price Display
         function updatePortfolioPriceDisplay() {
             const currentPrice = getCurrentPrice();
             const priceInPKR = currentPrice * marketData.usdtRate;
@@ -1326,9 +1515,6 @@
             }
         }
 
-        // ============================================
-        // TODAY'S CHART FUNCTIONS
-        // ============================================
         function loadTodayPriceHistory() {
             const today = new Date().toDateString();
             const historyRef = ref(db, 'priceHistory/' + today);
@@ -1351,15 +1537,12 @@
             const canvas = document.getElementById('todayChartCanvas');
             const ctx = canvas.getContext('2d');
             
-            // Set canvas size
             canvas.width = canvas.parentElement.offsetWidth;
             canvas.height = 250;
             
-            // Clear canvas
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
             if (todayPriceHistory.length === 0) {
-                // Draw empty state
                 ctx.fillStyle = '#555';
                 ctx.font = '14px Arial';
                 ctx.textAlign = 'center';
@@ -1367,7 +1550,6 @@
                 return;
             }
             
-            // Calculate stats
             const prices = todayPriceHistory.map(h => h.price);
             const high = Math.max(...prices);
             const low = Math.min(...prices);
@@ -1377,7 +1559,6 @@
             document.getElementById('today-low').innerText = low.toFixed(2);
             document.getElementById('today-changes').innerText = changes;
             
-            // Draw chart
             const padding = 40;
             const chartWidth = canvas.width - (padding * 2);
             const chartHeight = canvas.height - (padding * 2);
@@ -1385,7 +1566,6 @@
             const priceRange = high - low || 1;
             const stepX = chartWidth / (todayPriceHistory.length - 1 || 1);
             
-            // Draw grid lines
             ctx.strokeStyle = '#333';
             ctx.lineWidth = 1;
             for (let i = 0; i <= 4; i++) {
@@ -1396,7 +1576,6 @@
                 ctx.stroke();
             }
             
-            // Draw price line
             ctx.beginPath();
             ctx.strokeStyle = '#ff6600';
             ctx.lineWidth = 3;
@@ -1416,12 +1595,10 @@
             
             ctx.stroke();
             
-            // Draw points
             todayPriceHistory.forEach((point, index) => {
                 const x = padding + (index * stepX);
                 const y = padding + chartHeight - ((point.price - low) / priceRange) * chartHeight;
                 
-                // Determine color based on change
                 let color = '#ff6600';
                 if (index > 0) {
                     const prevPrice = todayPriceHistory[index - 1].price;
@@ -1429,18 +1606,15 @@
                     else if (point.price < prevPrice) color = '#ff3d00';
                 }
                 
-                // Draw point
                 ctx.beginPath();
                 ctx.fillStyle = color;
                 ctx.arc(x, y, 6, 0, Math.PI * 2);
                 ctx.fill();
                 
-                // Draw white border
                 ctx.strokeStyle = '#fff';
                 ctx.lineWidth = 2;
                 ctx.stroke();
                 
-                // Draw time label
                 if (index % Math.ceil(todayPriceHistory.length / 6) === 0 || index === todayPriceHistory.length - 1) {
                     ctx.fillStyle = '#aaa';
                     ctx.font = '10px Arial';
@@ -1450,7 +1624,6 @@
                 }
             });
             
-            // Draw Y-axis labels
             ctx.fillStyle = '#777';
             ctx.font = '11px Arial';
             ctx.textAlign = 'right';
@@ -1467,14 +1640,13 @@
             if (todayPriceHistory.length === 0) {
                 list.innerHTML = `
                     <div style="text-align: center; color: #777; padding: 20px;">
-                        <i class="fas fa-info-circle"></i> Price history will appear when admin changes price in manual mode
+                        <i class="fas fa-info-circle"></i> Price history will appear when admin changes price
                     </div>
                 `;
                 return;
             }
             
             let html = '';
-            // Show in reverse order (newest first)
             [...todayPriceHistory].reverse().forEach((item, index) => {
                 const time = new Date(item.timestamp).toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit', second:'2-digit'});
                 const date = new Date(item.timestamp).toLocaleDateString();
@@ -1518,9 +1690,6 @@
             list.innerHTML = html;
         }
 
-        // ============================================
-        // FIXED: Calculate Portfolio P/L based on AVAILABLE BALANCE only
-        // ============================================
         function calculatePortfolioPL() {
             if (!currentUserData || !marketData) return;
             
@@ -1528,16 +1697,12 @@
             const currentPricePKR = currentPrice * marketData.usdtRate;
             const availableBalance = parseFloat(currentUserData.balanceTK) || 0;
             
-            // Update current price display
             updatePortfolioPriceDisplay();
             
-            // CRITICAL FIX: Only calculate for coins you actually HOLD
-            // If balance is 0, portfolio shows 0
             let totalInvested = 0;
             let totalCurrentValue = 0;
             
             if (availableBalance > 0 && userInvestments.length > 0) {
-                // Calculate total historical investment
                 let totalHistoricalInvested = 0;
                 let totalHistoricalTK = 0;
                 
@@ -1546,13 +1711,10 @@
                     totalHistoricalTK += parseFloat(inv.amount) || 0;
                 });
                 
-                // Calculate average buy price per TK
                 const avgBuyPricePerTK = totalHistoricalTK > 0 ? totalHistoricalInvested / totalHistoricalTK : 0;
                 
-                // Current value of REMAINING coins only
                 totalCurrentValue = availableBalance * currentPricePKR;
                 
-                // Invested amount proportional to remaining coins
                 const retentionRatio = totalHistoricalTK > 0 ? availableBalance / totalHistoricalTK : 0;
                 totalInvested = totalHistoricalInvested * retentionRatio;
             }
@@ -1560,7 +1722,6 @@
             const netPL = totalCurrentValue - totalInvested;
             const plPercentage = totalInvested > 0 ? ((netPL / totalInvested) * 100) : 0;
             
-            // Update Portfolio View
             document.getElementById('portfolio-total-invested').innerText = totalInvested.toFixed(2) + ' PKR';
             document.getElementById('portfolio-total-value').innerText = totalCurrentValue.toFixed(2);
             
@@ -1575,29 +1736,22 @@
                 netPLElement.classList.add('loss');
             }
             
-            // Update price change (mock)
             const priceChangeElement = document.getElementById('portfolio-price-change');
             const changePercent = ((Math.random() * 4) - 2).toFixed(2);
             priceChangeElement.innerText = (changePercent >= 0 ? '+' : '') + changePercent + '%';
             priceChangeElement.style.color = changePercent >= 0 ? '#00ff88' : '#ff4757';
             
-            // Update Quick View in Wallet
             document.getElementById('quick-pl').innerText = (netPL >= 0 ? '+' : '') + netPL.toFixed(2) + ' PKR';
             document.getElementById('quick-pl').style.color = netPL >= 0 ? '#00c853' : '#ff3d00';
             document.getElementById('quick-pl-percent').innerText = (plPercentage >= 0 ? '+' : '') + plPercentage.toFixed(2) + '%';
             document.getElementById('quick-pl-percent').style.color = netPL >= 0 ? '#00c853' : '#ff3d00';
             
-            // Render Investments List - Only show proportional to remaining balance
             renderInvestmentsList(currentPricePKR, availableBalance);
         }
 
-        // ============================================
-        // FIXED: Render Investments - Show only if you have balance
-        // ============================================
         function renderInvestmentsList(currentPricePKR, availableBalance) {
             const listContainer = document.getElementById('investments-list');
             
-            // If no balance, show empty state
             if (availableBalance <= 0 || userInvestments.length === 0) {
                 listContainer.innerHTML = `
                     <div style="text-align:center; color:#777; padding: 20px;">
@@ -1609,7 +1763,6 @@
                 return;
             }
             
-            // Calculate total historical TK to find retention ratio
             let totalHistoricalTK = 0;
             userInvestments.forEach(inv => {
                 totalHistoricalTK += parseFloat(inv.amount) || 0;
@@ -1619,24 +1772,19 @@
             
             listContainer.innerHTML = '';
             
-            // Show investments proportionally
             userInvestments.forEach(inv => {
                 const originalTK = parseFloat(inv.amount) || 0;
                 const originalInvested = parseFloat(inv.rawAmount) || 0;
                 
-                // Proportional amounts based on remaining balance
                 const activeTK = originalTK * retentionRatio;
                 const activeInvested = originalInvested * retentionRatio;
                 
-                // Only show if there's something to show
                 if (activeTK <= 0.01) return;
                 
-                // Calculate buy price in PKR
                 const buyPriceTK = parseFloat(inv.tkPriceAtDeposit) || marketData.tkPrice;
                 const buyRate = parseFloat(inv.usdtRateAtDeposit) || marketData.usdtRate;
                 const buyPricePKR = buyPriceTK * buyRate;
                 
-                // Current calculations for ACTIVE (remaining) amount only
                 const currentValue = activeTK * currentPricePKR;
                 const pl = currentValue - activeInvested;
                 const plPercent = activeInvested > 0 ? ((pl / activeInvested) * 100) : 0;
@@ -1722,7 +1870,6 @@
                 }
             });
 
-            // FIXED: Market listener with portfolio update
             onValue(ref(db, 'market'), (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
@@ -1734,7 +1881,6 @@
                     autoFluctuationRange = data.autoRange || 100;
                     autoUpdateInterval = data.autoInterval || 30;
                     
-                    // Show/hide manual badge
                     const badge = document.getElementById('manual-mode-badge');
                     if (marketMode === 'manual') {
                         badge.classList.remove('hidden');
@@ -1742,9 +1888,7 @@
                         badge.classList.add('hidden');
                     }
                     
-                    // Check if manual price changed
                     if (marketMode === 'manual' && oldMode === 'manual' && oldPrice !== data.tkPrice) {
-                        // Save price change to history
                         savePriceChangeToHistory(data.tkPrice * data.usdtRate);
                     }
                     
@@ -1761,16 +1905,12 @@
                     }
                     
                     updateMarketUI();
-                    
-                    // FIXED: Update portfolio price when market changes
                     updatePortfolioPriceDisplay();
                     
                     if (chartPoints.length === 0) {
                         for(let i=0; i<20; i++) chartPoints.push(marketData.tkPrice);
                     }
                     updateUI();
-                    
-                    // FIXED: Recalculate P/L with new price
                     calculatePortfolioPL();
                 }
             });
@@ -1786,6 +1926,10 @@
                     appSettings.minTransfer = data.minTransfer || 10;
                     appSettings.transferTax = data.transferTax || 0.02;
                     appSettings.minDeposit = data.minDeposit || 500;
+                    appSettings.savings30 = data.savings30 || 2.0;
+                    appSettings.savings60 = data.savings60 || 3.0;
+                    appSettings.savings90 = data.savings90 || 4.0;
+                    appSettings.minSavings = data.minSavings || 1000;
                     
                     if (data.qrUrl) {
                         const qrImg = document.getElementById('deposit-qr-image');
@@ -1793,6 +1937,7 @@
                     }
                     updateDepositDetails();
                     updateTransferInfo();
+                    updateSavingsSettings();
                 }
             });
 
@@ -1818,15 +1963,12 @@
 
             loadUserInvestments(user.uid);
             loadReferralStats(user.uid);
+            loadUserSavings(user.uid);
             monitorIncomingTransfers(user.uid); 
             startZigzagAnimation();
-            
-            // Load today's price history
             loadTodayPriceHistory();
-
             updateMarketPressure();
             pressureInterval = setInterval(updateMarketPressure, 600000);
-
             monitorUnreadChat(user.uid);
 
             if (user.role === 'admin') {
@@ -1993,13 +2135,9 @@
                 loadUserChat();
                 resetUnreadChatCount();
             }
-            if (sectionId === 'portfolio') {
-                calculatePortfolioPL();
-            }
-            
-            if(sectionId === 'transfer') {
-                checkTransferCooldown();
-            }
+            if (sectionId === 'portfolio') calculatePortfolioPL();
+            if (sectionId === 'transfer') checkTransferCooldown();
+            if (sectionId === 'savings') loadUserSavings(currentUserData.uid);
         };
 
         function updateUI() {
@@ -2130,7 +2268,6 @@
             document.getElementById('deposit-calc-receive').innerText = receive.toFixed(2);
             document.getElementById('deposit-invest-value').innerText = amount.toFixed(2);
             
-            // Check minimum deposit
             const minDeposit = appSettings.minDeposit || 500;
             const warningEl = document.getElementById('min-deposit-warning');
             const amountEl = document.getElementById('min-deposit-amount');
@@ -2153,7 +2290,6 @@
             const refId = document.getElementById('deposit-ref').value;
             const method = document.getElementById('deposit-method').value;
             
-            // Check minimum deposit
             const minDeposit = appSettings.minDeposit || 500;
             if (amountInput < minDeposit) {
                 return showToast(`Minimum deposit is ${minDeposit} PKR`, "error");
@@ -2332,7 +2468,6 @@
             });
         };
 
-        // Update transfer input validation
         document.getElementById('transfer-amount')?.addEventListener('input', (e) => {
             const amount = parseFloat(e.target.value) || 0;
             const minTransfer = appSettings.minTransfer || 10;
@@ -2480,6 +2615,10 @@
                          title = 'TRANSFER';
                          subtitle = item.direction === 'Sent' ? `Sent to: ${item.peerName}` : `Received from: ${item.peerName}`;
                          amountColor = item.direction === 'Sent' ? 'var(--danger)' : 'var(--success)';
+                    } else if (item.type === 'SavingsProfit') {
+                        title = 'SAVINGS PROFIT';
+                        subtitle = 'Daily profit credited';
+                        amountColor = 'var(--success)';
                     }
 
                     list.innerHTML += `
@@ -2490,7 +2629,7 @@
                             </div>
                             <div style="display:flex; justify-content:space-between; align-items:center;">
                                 <div>
-                                    <div style="color:${amountColor}; font-weight:bold;">${item.amount} TK</div>
+                                    <div style="color:${amountColor}; font-weight:bold;">${item.amount} ${item.type === 'SavingsProfit' ? 'PKR' : 'TK'}</div>
                                     <div style="font-size:0.8rem; color:#777;">${subtitle}</div>
                                 </div>
                                 ${item.status ? `<div class="status-badge" style="background:${statusColor}; color:${item.status==='pending'?'black':'white'}">${item.status}</div>` : ''}
@@ -2548,7 +2687,297 @@
             });
         }
         
+        // ======== SAVINGS SYSTEM ========
+        function updateSavingsSettings() {
+            document.getElementById('profit-30').innerText = appSettings.savings30;
+            document.getElementById('profit-60').innerText = appSettings.savings60;
+            document.getElementById('profit-90').innerText = appSettings.savings90;
+            document.getElementById('savings-min-amount').innerText = appSettings.minSavings;
+        }
+
+        window.selectSavingsPlan = (days) => {
+            selectedSavingsPlan = days;
+            
+            document.querySelectorAll('.savings-plan-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            document.getElementById(`plan-${days}`).classList.add('selected');
+            
+            calculateSavings();
+        };
+
+        window.calculateSavings = () => {
+            const amount = parseFloat(document.getElementById('savings-amount').value) || 0;
+            
+            if (!selectedSavingsPlan) return;
+            
+            const minSavings = appSettings.minSavings || 1000;
+            const warningEl = document.getElementById('savings-min-warning');
+            
+            if (amount > 0 && amount < minSavings) {
+                warningEl.style.display = 'block';
+            } else {
+                warningEl.style.display = 'none';
+            }
+            
+            let profitPercent = 0;
+            if (selectedSavingsPlan === 30) profitPercent = appSettings.savings30;
+            else if (selectedSavingsPlan === 60) profitPercent = appSettings.savings60;
+            else if (selectedSavingsPlan === 90) profitPercent = appSettings.savings90;
+            
+            const totalProfit = (amount * profitPercent) / 100;
+            const dailyProfit = totalProfit / selectedSavingsPlan;
+            const maturityAmount = amount + totalProfit;
+            
+            document.getElementById('savings-daily-profit').innerText = dailyProfit.toFixed(2);
+            document.getElementById('savings-total-profit').innerText = totalProfit.toFixed(2);
+            document.getElementById('savings-maturity-amount').innerText = maturityAmount.toFixed(2);
+        };
+
+        window.createSavings = () => {
+            const amount = parseFloat(document.getElementById('savings-amount').value);
+            
+            if (!amount || amount <= 0) return showToast("Enter valid amount", "error");
+            if (!selectedSavingsPlan) return showToast("Select a savings plan", "error");
+            
+            const minSavings = appSettings.minSavings || 1000;
+            if (amount < minSavings) return showToast(`Minimum savings amount is ${minSavings} PKR`, "error");
+            
+            const currentBal = parseFloat(currentUserData.balanceTK || 0);
+            const requiredTK = amount / (marketData.tkPrice * marketData.usdtRate);
+            
+            if (requiredTK > currentBal) return showToast("Insufficient TK balance", "error");
+            
+            let profitPercent = 0;
+            if (selectedSavingsPlan === 30) profitPercent = appSettings.savings30;
+            else if (selectedSavingsPlan === 60) profitPercent = appSettings.savings60;
+            else if (selectedSavingsPlan === 90) profitPercent = appSettings.savings90;
+            
+            const totalProfit = (amount * profitPercent) / 100;
+            const dailyProfit = totalProfit / selectedSavingsPlan;
+            
+            const startDate = new Date();
+            const maturityDate = new Date();
+            maturityDate.setDate(maturityDate.getDate() + selectedSavingsPlan);
+            
+            const savingsData = {
+                userId: currentUserData.uid,
+                userName: currentUserData.name,
+                userEmail: currentUserData.email,
+                amountPKR: amount,
+                amountTK: requiredTK,
+                plan: selectedSavingsPlan,
+                profitPercent: profitPercent,
+                dailyProfit: dailyProfit,
+                totalProfit: totalProfit,
+                totalProfitEarned: 0,
+                startDate: startDate.toISOString(),
+                maturityDate: maturityDate.toISOString(),
+                lastProfitDate: startDate.toISOString(),
+                status: 'active',
+                createdAt: Date.now()
+            };
+            
+            const updates = {};
+            updates['users/' + currentUserData.uid + '/balanceTK'] = currentBal - requiredTK;
+            
+            const newSavingsRef = push(ref(db, 'savings'));
+            updates['savings/' + newSavingsRef.key] = savingsData;
+            
+            update(ref(db), updates).then(() => {
+                showToast(`Savings plan created! ${selectedSavingsPlan} days locked.`);
+                document.getElementById('savings-amount').value = '';
+                selectedSavingsPlan = null;
+                document.querySelectorAll('.savings-plan-btn').forEach(btn => {
+                    btn.classList.remove('selected');
+                });
+                calculateSavings();
+            });
+        };
+
+        function loadUserSavings(uid) {
+            const savingsRef = ref(db, 'savings');
+            onValue(savingsRef, (snapshot) => {
+                const data = snapshot.val();
+                userSavings = [];
+                let totalSavings = 0;
+                let totalProfit = 0;
+                
+                const listContainer = document.getElementById('savings-list');
+                listContainer.innerHTML = '';
+                
+                if (data) {
+                    Object.entries(data).forEach(([key, saving]) => {
+                        if (saving.userId === uid) {
+                            userSavings.push({ id: key, ...saving });
+                            
+                            if (saving.status === 'active') {
+                                totalSavings += parseFloat(saving.amountPKR);
+                            }
+                            totalProfit += parseFloat(saving.totalProfitEarned || 0);
+                            
+                            const startDate = new Date(saving.startDate);
+                            const maturityDate = new Date(saving.maturityDate);
+                            const now = new Date();
+                            
+                            const isMatured = now >= maturityDate || saving.status === 'matured';
+                            
+                            const card = document.createElement('div');
+                            card.className = `savings-card ${isMatured ? 'matured' : 'active'}`;
+                            
+                            const daysLeft = Math.ceil((maturityDate - now) / (1000 * 60 * 60 * 24));
+                            
+                            let statusHtml = '';
+                            if (isMatured) {
+                                statusHtml = `
+                                    <div class="matured-notice">
+                                        <i class="fas fa-check-circle"></i> Matured! Transfer to wallet available.
+                                    </div>
+                                    <button class="btn" style="margin-top: 10px; background: var(--success);" onclick="transferMaturedSavings('${key}')">
+                                        <i class="fas fa-wallet"></i> Transfer to Wallet
+                                    </button>
+                                `;
+                            } else {
+                                statusHtml = `
+                                    <div class="locked-notice">
+                                        <i class="fas fa-lock"></i> Locked for ${daysLeft} more days
+                                    </div>
+                                `;
+                            }
+                            
+                            card.innerHTML = `
+                                <div class="savings-header">
+                                    <div>
+                                        <div class="savings-amount">Rs. ${parseFloat(saving.amountPKR).toLocaleString()}</div>
+                                        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
+                                            <i class="fas fa-calendar-alt"></i> ${startDate.toLocaleDateString()} - ${maturityDate.toLocaleDateString()}
+                                        </div>
+                                    </div>
+                                    <div class="savings-status ${isMatured ? 'matured' : ''}">
+                                        ${isMatured ? 'Matured' : 'Active'}
+                                    </div>
+                                </div>
+                                
+                                <div class="savings-details">
+                                    <div class="savings-detail-item">
+                                        <span class="savings-detail-label">Plan</span>
+                                        <span class="savings-detail-value">${saving.plan} Days @ ${saving.profitPercent}%</span>
+                                    </div>
+                                    <div class="savings-detail-item">
+                                        <span class="savings-detail-label">Daily Profit</span>
+                                        <span class="savings-detail-value" style="color: var(--success);">Rs. ${parseFloat(saving.dailyProfit).toFixed(2)}</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="profit-display">
+                                    <div>
+                                        <div style="font-size: 0.8rem; color: var(--text-muted);">Profit Earned</div>
+                                        <div class="profit-amount">Rs. ${(saving.totalProfitEarned || 0).toFixed(2)}</div>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div style="font-size: 0.8rem; color: var(--text-muted);">Total Expected</div>
+                                        <div style="font-weight: bold; color: white;">Rs. ${(parseFloat(saving.amountPKR) + parseFloat(saving.totalProfit)).toFixed(2)}</div>
+                                    </div>
+                                </div>
+                                
+                                ${statusHtml}
+                            `;
+                            
+                            listContainer.appendChild(card);
+                        }
+                    });
+                }
+                
+                document.getElementById('total-savings-amount').innerText = totalSavings.toLocaleString();
+                document.getElementById('total-savings-profit').innerText = totalProfit.toFixed(2);
+                document.getElementById('savings-preview-amount').innerText = 'Rs. ' + totalSavings.toLocaleString();
+                
+                if (listContainer.innerHTML === '') {
+                    listContainer.innerHTML = `
+                        <div style="text-align:center; color:#777; padding: 20px;">
+                            <i class="fas fa-piggy-bank" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                            No active savings plans.<br>
+                            <small>Create a savings plan to start earning daily profit!</small>
+                        </div>
+                    `;
+                }
+            });
+        }
+
+        window.transferMaturedSavings = (savingsId) => {
+            const saving = userSavings.find(s => s.id === savingsId);
+            if (!saving) return;
+            
+            const maturityDate = new Date(saving.maturityDate);
+            const now = new Date();
+            
+            if (now < maturityDate && saving.status !== 'matured') {
+                return showToast("Savings plan is not yet matured", "error");
+            }
+            
+            const totalAmount = parseFloat(saving.amountPKR) + parseFloat(saving.totalProfitEarned || 0);
+            const tkAmount = totalAmount / (marketData.tkPrice * marketData.usdtRate);
+            
+            const updates = {};
+            updates['users/' + currentUserData.uid + '/balanceTK'] = parseFloat(currentUserData.balanceTK || 0) + tkAmount;
+            updates['savings/' + savingsId + '/status'] = 'completed';
+            updates['savings/' + savingsId + '/completedAt'] = new Date().toISOString();
+            
+            update(ref(db), updates).then(() => {
+                showToast(`Rs. ${totalAmount.toFixed(2)} transferred to your wallet!`);
+            });
+        };
+
+        function processDailySavingsProfit() {
+            const now = new Date();
+            const today = now.toDateString();
+            
+            get(ref(db, 'savings')).then((snapshot) => {
+                const data = snapshot.val();
+                if (!data) return;
+                
+                Object.entries(data).forEach(([key, saving]) => {
+                    if (saving.status !== 'active') return;
+                    
+                    const maturityDate = new Date(saving.maturityDate);
+                    if (now >= maturityDate) {
+                        update(ref(db, 'savings/' + key), { status: 'matured' });
+                        return;
+                    }
+                    
+                    const lastProfitDate = new Date(saving.lastProfitDate);
+                    const daysSinceLastProfit = Math.floor((now - lastProfitDate) / (1000 * 60 * 60 * 24));
+                    
+                    if (daysSinceLastProfit >= 1) {
+                        const dailyProfit = parseFloat(saving.dailyProfit);
+                        const currentTotalProfit = parseFloat(saving.totalProfitEarned || 0);
+                        const newTotalProfit = currentTotalProfit + dailyProfit;
+                        
+                        const updates = {};
+                        updates['savings/' + key + '/totalProfitEarned'] = newTotalProfit;
+                        updates['savings/' + key + '/lastProfitDate'] = now.toISOString();
+                        
+                        const profitEntry = {
+                            userId: saving.userId,
+                            savingsId: key,
+                            amount: dailyProfit.toFixed(2),
+                            date: now.toLocaleString(),
+                            timestamp: Date.now(),
+                            type: 'SavingsProfit'
+                        };
+                        
+                        const newProfitRef = push(ref(db, 'savingsProfits'));
+                        updates['savingsProfits/' + newProfitRef.key] = profitEntry;
+                        
+                        update(ref(db), updates);
+                    }
+                });
+            });
+        }
+        
         initApp();
+        
+        setInterval(processDailySavingsProfit, 60000);
 
         document.addEventListener('click', () => {
             if(currentUserData && currentUserData.uid) {
