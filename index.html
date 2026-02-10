@@ -1517,13 +1517,13 @@
             const prices = todayPriceHistory.map(h => h.price);
             const high = Math.max(...prices);
             const low = Math.min(...prices);
-            const changes = todayPriceHistory.length - 1; // Changes = points - 1
+            const changes = todayPriceHistory.length - 1;
             
             document.getElementById('today-high').innerText = high.toFixed(2);
             document.getElementById('today-low').innerText = low.toFixed(2);
             document.getElementById('today-changes').innerText = changes;
             
-            const padding = 40;
+            const padding = 60;
             const chartWidth = canvas.width - (padding * 2);
             const chartHeight = canvas.height - (padding * 2);
             
@@ -1561,25 +1561,52 @@
             
             ctx.stroke();
             
-            // Draw ONLY change points (skip if same as previous)
+            // Draw points with price labels
             todayPriceHistory.forEach((point, index) => {
                 const x = padding + (index * stepX);
                 const y = padding + chartHeight - ((point.price - low) / priceRange) * chartHeight;
                 
-                // Determine color based on change direction
-                let color = '#ff6600'; // Default orange for first point
+                let color = '#ff6600';
+                let priceText = '';
+                let textColor = '#fff';
+                let textY = y - 20;
                 
-                if (index > 0) {
+                if (index === 0) {
+                    // First point - just show price
+                    color = '#ff6600';
+                    priceText = point.price.toFixed(0);
+                    textColor = '#ff6600';
+                } else {
                     const prevPrice = todayPriceHistory[index - 1].price;
-                    if (point.price > prevPrice) {
-                        color = '#00c853'; // Green for UP
-                    } else if (point.price < prevPrice) {
-                        color = '#ff3d00'; // Red for DOWN
+                    const diff = point.price - prevPrice;
+                    
+                    if (diff > 0) {
+                        // Price went UP - Green with +value
+                        color = '#00c853';
+                        priceText = '+' + diff.toFixed(0);
+                        textColor = '#00c853';
+                        textY = y - 20; // Above the dot
+                    } else if (diff < 0) {
+                        // Price went DOWN - Red with -value
+                        color = '#ff3d00';
+                        priceText = diff.toFixed(0); // Already negative
+                        textColor = '#ff3d00';
+                        textY = y + 30; // Below the dot
                     } else {
-                        // Skip drawing dot if no change
+                        // No change - skip drawing
                         return;
                     }
                 }
+                
+                // Draw connecting line to text
+                ctx.beginPath();
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 1;
+                ctx.setLineDash([2, 2]);
+                ctx.moveTo(x, y);
+                ctx.lineTo(x, textY + (textY < y ? 15 : -5));
+                ctx.stroke();
+                ctx.setLineDash([]);
                 
                 // Draw point
                 ctx.beginPath();
@@ -1592,14 +1619,25 @@
                 ctx.lineWidth = 2;
                 ctx.stroke();
                 
-                // Draw time label for first, last and every 3rd point
-                if (index === 0 || index === todayPriceHistory.length - 1 || index % 3 === 0) {
-                    ctx.fillStyle = '#aaa';
-                    ctx.font = '10px Arial';
-                    ctx.textAlign = 'center';
-                    const time = new Date(point.timestamp).toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'});
-                    ctx.fillText(time, x, canvas.height - 10);
-                }
+                // Draw price label with background
+                ctx.font = 'bold 12px Arial';
+                const textWidth = ctx.measureText(priceText).width;
+                const paddingBox = 4;
+                
+                // Draw background for text
+                ctx.fillStyle = 'rgba(0,0,0,0.8)';
+                ctx.fillRect(x - (textWidth/2) - paddingBox, textY - 12, textWidth + (paddingBox*2), 18);
+                
+                // Draw text
+                ctx.fillStyle = textColor;
+                ctx.textAlign = 'center';
+                ctx.fillText(priceText, x, textY);
+                
+                // Draw time label below
+                ctx.fillStyle = '#aaa';
+                ctx.font = '10px Arial';
+                const time = new Date(point.timestamp).toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'});
+                ctx.fillText(time, x, canvas.height - 10);
             });
             
             // Draw Y-axis labels
