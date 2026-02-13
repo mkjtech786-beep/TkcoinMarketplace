@@ -672,6 +672,10 @@
             font-size: 0.85rem;
             text-align: center;
         }
+
+        .mode-indicator {
+            display: none; /* HIDDEN as requested */
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -704,7 +708,7 @@
                 </div>
                 <button type="submit" class="btn" id="auth-btn">Login</button>
             </form>
-            <div class="auth-toggle" onclick="toggleAuthMode()">Don't have an account? Signup</div>
+            <div class="auth-toggle" onclick="window.toggleAuthMode()">Don't have an account? Signup</div>
             <div style="margin-top: 15px; font-size: 0.8rem; color: #666; text-align: center;">
                 For your security, make sure your login details are correct. Never share your password with anyone..
             </div>
@@ -721,7 +725,7 @@
                 <i class="fas fa-coins"></i> TK Coin
                 <span id="header-premium-badge" class="hidden blue-tick"><i class="fas fa-check-circle"></i></span>
             </div>
-            <div class="user-info" onclick="showSection('profile')">
+            <div class="user-info" onclick="window.showSection('profile')">
                 <div style="text-align: right;">
                     <div id="header-name">User</div>
                     <div id="header-balance" style="color: var(--primary);">0 TK</div>
@@ -752,12 +756,13 @@
                     </div>
                 </div>
 
-                <!-- TODAY'S CHART SECTION - CLEAN VERSION -->
+                <!-- TODAY'S CHART SECTION - AUTO/MANUAL BADGE HIDDEN -->
                 <div class="today-chart-container">
                     <div class="today-chart-header">
                         <div class="today-chart-title">
                             <i class="fas fa-chart-line"></i> Today's Price Movement
-                            <span id="manual-mode-badge" class="hidden" style="background: var(--primary); color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; margin-left: 10px;">Updated</span>
+                            <!-- BADGE HIDDEN - empty span to maintain layout -->
+                            <span id="price-mode-badge" class="mode-indicator"></span>
                         </div>
                         <div class="today-stats">
                             <div class="stat-item">
@@ -776,8 +781,6 @@
                     </div>
                     
                     <canvas id="todayChartCanvas"></canvas>
-                    
-                    <!-- NO HISTORY LIST - ONLY CHART -->
                 </div>
 
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
@@ -839,25 +842,25 @@
                 </div>
 
                 <div class="menu-grid">
-                    <div class="menu-card" onclick="showSection('deposit')">
+                    <div class="menu-card" onclick="window.showSection('deposit')">
                         <span class="menu-icon text-orange"><i class="fas fa-wallet"></i></span>
                         <div>Deposit</div>
                     </div>
-                    <div class="menu-card" onclick="showSection('withdraw')">
+                    <div class="menu-card" onclick="window.showSection('withdraw')">
                         <span class="menu-icon text-green"><i class="fas fa-money-bill-wave"></i></span>
                         <div>Withdraw</div>
                     </div>
-                    <div class="menu-card" onclick="showSection('transfer')">
+                    <div class="menu-card" onclick="window.showSection('transfer')">
                         <span class="menu-icon text-blue"><i class="fas fa-exchange-alt"></i></span>
                         <div>Transfer</div>
                     </div>
-                    <div class="menu-card" onclick="showSection('premium')">
+                    <div class="menu-card" onclick="window.showSection('premium')">
                         <span class="menu-icon" style="color: gold;"><i class="fas fa-crown"></i></span>
                         <div>Pro</div>
                     </div>
                 </div>
 
-                <div style="background: var(--bg-card); padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #333; cursor: pointer;" onclick="showSection('portfolio')">
+                <div style="background: var(--bg-card); padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #333; cursor: pointer;" onclick="window.showSection('portfolio')">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
                             <div style="font-weight: bold; margin-bottom: 5px;"><i class="fas fa-chart-line text-orange"></i> Portfolio</div>
@@ -889,14 +892,14 @@
                     <input type="number" id="futures-amount" placeholder="e.g. 10 TK">
                 </div>
                 <div class="trade-buttons">
-                    <button class="btn btn-long" onclick="openFutures('long')">Buy / Long</button>
-                    <button class="btn btn-short" onclick="openFutures('short')">Sell / Short</button>
+                    <button class="btn btn-long" onclick="window.openFutures('long')">Buy / Long</button>
+                    <button class="btn btn-short" onclick="window.openFutures('short')">Sell / Short</button>
                 </div>
                 <h3 style="margin-top: 20px;">Your Positions</h3>
                 <div id="futures-positions" style="margin-top: 10px; display: flex; flex-direction: column; gap: 10px;">
                     <div style="text-align:center; color:#555;">No open positions</div>
                 </div>
-                <button class="btn btn-outline" style="margin-top: 20px;" onclick="showSection('wallet')">Back</button>
+                <button class="btn btn-outline" style="margin-top: 20px;" onclick="window.showSection('wallet')">Back</button>
             </section>
 
             <!-- Deposit -->
@@ -905,7 +908,7 @@
                 <p style="color: #aaa; margin-bottom: 20px;">Select payment method below.</p>
                 <div class="input-group">
                     <label>Method</label>
-                    <select id="deposit-method" onchange="updateDepositDetails()">
+                    <select id="deposit-method" onchange="window.updateDepositDetails()">
                         <option value="easypaisa">Easypaisa</option>
                         <option value="jazzcash">JazzCash</option>
                         <option value="tillid">Till Id - (Raast)</option>
@@ -919,11 +922,11 @@
                         <div style="font-size: 0.8rem; color: var(--primary);" id="deposit-name">---</div>
                     </div>
                     <img id="deposit-qr-image" src="./qr.png" style="display:none; max-width: 150px; height: auto; border-radius: 8px;" alt="QR Code">
-                    <button id="copy-btn" class="btn btn-sm btn-outline" onclick="copyDepositNumber()"><i class="fas fa-copy"></i></button>
+                    <button id="copy-btn" class="btn btn-sm btn-outline" onclick="window.copyDepositNumber()"><i class="fas fa-copy"></i></button>
                 </div>
                 <div class="input-group">
                     <label>Amount Sent (PKR)</label>
-                    <input type="number" id="deposit-amount" oninput="calculateDeposit()" placeholder="e.g. 500 PKR">
+                    <input type="number" id="deposit-amount" oninput="window.calculateDeposit()" placeholder="e.g. 500 PKR">
                 </div>
                 <div class="input-group">
                     <label>Reference No / Transaction ID</label>
@@ -946,8 +949,8 @@
                         <span style="font-weight: bold;"><span id="deposit-invest-value">0</span> PKR</span>
                     </div>
                 </div>
-                <button class="btn" onclick="submitDeposit()">Submit Deposit Request</button>
-                <button class="btn btn-outline" style="margin-top: 10px;" onclick="showSection('wallet')">Back</button>
+                <button class="btn" onclick="window.submitDeposit()">Submit Deposit Request</button>
+                <button class="btn btn-outline" style="margin-top: 10px;" onclick="window.showSection('wallet')">Back</button>
             </section>
 
             <!-- Withdraw -->
@@ -971,13 +974,13 @@
                 </div>
                 <div class="input-group">
                     <label>Amount (TK)</label>
-                    <input type="number" id="withdraw-amount" placeholder="Tk coin" oninput="calculateWithdraw()">
+                    <input type="number" id="withdraw-amount" placeholder="Tk coin" oninput="window.calculateWithdraw()">
                 </div>
                 <div style="background: #222; padding: 10px; border-radius: 6px; margin-bottom: 20px; color: #aaa;">
                     <small>Estimated Receive: <strong style="color: white; font-size: 1.1rem;"><span id="withdraw-calc-usdt">0.00</span> PKR</strong></small>
                 </div>
-                <button class="btn" onclick="submitWithdraw()">Request Withdrawal</button>
-                <button class="btn btn-outline" style="margin-top: 10px;" onclick="showSection('wallet')">Back</button>
+                <button class="btn" onclick="window.submitWithdraw()">Request Withdrawal</button>
+                <button class="btn btn-outline" style="margin-top: 10px;" onclick="window.showSection('wallet')">Back</button>
             </section>
 
             <!-- Transfer -->
@@ -998,12 +1001,12 @@
                 <div id="transfer-tax-info" class="hidden" style="background: rgba(255,102,0,0.1); border: 1px solid var(--primary); padding: 10px; border-radius: 6px; margin-bottom: 15px; color: var(--primary); font-size: 0.85rem;">
                     <i class="fas fa-info-circle"></i> Transfer Tax: <span id="transfer-tax-percent">2</span>% (<span id="transfer-tax-amount">0</span> TK will be deducted)
                 </div>
-                <button id="btn-transfer-send" class="btn" onclick="submitTransfer()">Send Now</button>
+                <button id="btn-transfer-send" class="btn" onclick="window.submitTransfer()">Send Now</button>
                 <div id="transfer-wait-msg" class="hidden" style="margin-top: 15px; text-align: center; background: #333; padding: 15px; border-radius: 8px; border: 1px solid var(--primary);">
                     <p class="text-orange" style="font-weight: bold;">Wait <span id="timer-count">02:00</span> minutes</p>
                     <small style="color:#aaa;">Next transfer available soon</small>
                 </div>
-                <button class="btn btn-outline" style="margin-top: 10px;" onclick="showSection('wallet')">Back</button>
+                <button class="btn btn-outline" style="margin-top: 10px;" onclick="window.showSection('wallet')">Back</button>
             </section>
 
             <!-- Premium -->
@@ -1022,8 +1025,8 @@
                         <i class="fas fa-check-circle"></i> Special Access
                     </div>
                 </div>
-                <button class="btn" id="btn-upgrade" onclick="upgradePremium()">Upgrade Now</button>
-                <button class="btn btn-outline" style="margin-top: 10px;" onclick="showSection('wallet')">Back</button>
+                <button class="btn" id="btn-upgrade" onclick="window.upgradePremium()">Upgrade Now</button>
+                <button class="btn btn-outline" style="margin-top: 10px;" onclick="window.showSection('wallet')">Back</button>
             </section>
 
             <!-- Chat -->
@@ -1033,7 +1036,7 @@
                     <div class="chat-messages" id="chat-messages"></div>
                     <div class="chat-input-area">
                         <input type="text" id="chat-input" placeholder="Type a message..." style="flex: 1; padding: 8px; border-radius: 4px; border: none; background: #333; color: white;">
-                        <button class="btn btn-sm" onclick="sendChatMessage()"><i class="fas fa-paper-plane"></i></button>
+                        <button class="btn btn-sm" onclick="window.sendChatMessage()"><i class="fas fa-paper-plane"></i></button>
                     </div>
                 </div>
             </section>
@@ -1047,13 +1050,13 @@
                     <div id="profile-status" style="margin-top: 5px; font-size: 0.9rem; color: var(--primary);">Normal User</div>
                 </div>
 
-                <div class="menu-card" onclick="downloadApp()" style="margin-bottom: 15px;">
+                <div class="menu-card" onclick="window.downloadApp()" style="margin-bottom: 15px;">
                     <i class="fab fa-android" style="color: #a4c639; font-size: 2rem; margin-bottom: 5px;"></i>
                     <div style="font-weight: bold;">Download App</div>
                     <small style="color:#888;">For better experience</small>
                 </div>
 
-                <div class="menu-card" onclick="copyReferralLink()" style="margin-bottom: 15px; text-align: left; flex-direction: row; justify-content: space-between; padding: 15px;">
+                <div class="menu-card" onclick="window.copyReferralLink()" style="margin-bottom: 15px; text-align: left; flex-direction: row; justify-content: space-between; padding: 15px;">
                     <div>
                         <div style="font-weight: bold; font-size: 0.9rem; color: #fff;">Invite & Earn</div>
                         <small style="color: var(--text-muted); display: block; margin-top: 2px;">Share your ID to get 3% bonus</small>
@@ -1075,7 +1078,7 @@
                 </div>
 
                 <!-- Savings Section -->
-                <div class="menu-card" onclick="showSection('savings')" style="margin-bottom: 15px; text-align: left; flex-direction: row; justify-content: space-between; padding: 15px; background: linear-gradient(135deg, rgba(0,200,83,0.2), rgba(0,200,83,0.05)); border-color: var(--success);">
+                <div class="menu-card" onclick="window.showSection('savings')" style="margin-bottom: 15px; text-align: left; flex-direction: row; justify-content: space-between; padding: 15px; background: linear-gradient(135deg, rgba(0,200,83,0.2), rgba(0,200,83,0.05)); border-color: var(--success);">
                     <div>
                         <div style="font-weight: bold; font-size: 1rem; color: var(--success);"><i class="fas fa-piggy-bank"></i> Savings Account</div>
                         <small style="color: var(--text-muted); display: block; margin-top: 2px;">Earn daily profit on locked savings</small>
@@ -1087,10 +1090,10 @@
                 </div>
 
                 <h3>About</h3>
-                <div class="menu-card" onclick="showAboutModal()" style="text-align: left; margin-bottom: 10px;">
+                <div class="menu-card" onclick="window.showAboutModal()" style="text-align: left; margin-bottom: 10px;">
                     <i class="fas fa-info-circle"></i> TK Coin is a Singapore-based digital finance platform offering fast, secure transactions and smart earning solutions for global users
                 </div>
-                <button class="btn" style="background: #333;" onclick="logout()">Logout</button>
+                <button class="btn" style="background: #333;" onclick="window.logout()">Logout</button>
             </section>
 
             <!-- Savings View -->
@@ -1115,7 +1118,7 @@
                     
                     <div class="input-group">
                         <label>Amount (PKR)</label>
-                        <input type="number" id="savings-amount" placeholder="Minimum 1000 PKR" oninput="calculateSavings()">
+                        <input type="number" id="savings-amount" placeholder="Minimum 1000 PKR" oninput="window.calculateSavings()">
                     </div>
                     
                     <div style="background: rgba(255,0,0,0.1); border: 1px solid var(--danger); color: var(--danger); padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 0.85rem; display: none;" id="savings-min-warning">
@@ -1124,17 +1127,17 @@
 
                     <label style="display: block; margin-bottom: 10px; color: var(--text-muted); font-size: 0.9rem;">Select Plan</label>
                     <div class="savings-plan-selector">
-                        <div class="savings-plan-btn" onclick="selectSavingsPlan(30)" id="plan-30">
+                        <div class="savings-plan-btn" onclick="window.selectSavingsPlan(30)" id="plan-30">
                             <div class="plan-days">30</div>
                             <div class="plan-label">Days</div>
                             <div class="plan-profit"><span id="profit-30">2</span>%</div>
                         </div>
-                        <div class="savings-plan-btn" onclick="selectSavingsPlan(60)" id="plan-60">
+                        <div class="savings-plan-btn" onclick="window.selectSavingsPlan(60)" id="plan-60">
                             <div class="plan-days">60</div>
                             <div class="plan-label">Days</div>
                             <div class="plan-profit"><span id="profit-60">3</span>%</div>
                         </div>
-                        <div class="savings-plan-btn" onclick="selectSavingsPlan(90)" id="plan-90">
+                        <div class="savings-plan-btn" onclick="window.selectSavingsPlan(90)" id="plan-90">
                             <div class="plan-days">90</div>
                             <div class="plan-label">Days</div>
                             <div class="plan-profit"><span id="profit-90">4</span>%</div>
@@ -1156,7 +1159,7 @@
                         </div>
                     </div>
 
-                    <button class="btn" onclick="createSavings()" style="margin-top: 15px;">
+                    <button class="btn" onclick="window.createSavings()" style="margin-top: 15px;">
                         <i class="fas fa-lock"></i> Lock Savings
                     </button>
                     <p style="color: #777; font-size: 0.8rem; margin-top: 10px; text-align: center;">
@@ -1174,26 +1177,26 @@
                     </div>
                 </div>
 
-                <button class="btn btn-outline" style="margin-top: 20px;" onclick="showSection('profile')">Back to Profile</button>
+                <button class="btn btn-outline" style="margin-top: 20px;" onclick="window.showSection('profile')">Back to Profile</button>
             </section>
 
         </main>
 
         <nav class="bottom-nav" id="user-nav">
-            <a class="nav-item active" onclick="showSection('market')">
+            <a class="nav-item active" onclick="window.showSection('market')">
                 <i class="fas fa-chart-line"></i>
                 <span>Market</span>
             </a>
-            <a class="nav-item" onclick="showSection('wallet')">
+            <a class="nav-item" onclick="window.showSection('wallet')">
                 <i class="fas fa-wallet"></i>
                 <span>Wallet</span>
             </a>
-            <a class="nav-item" onclick="showSection('chat')" id="chat-nav-item">
+            <a class="nav-item" onclick="window.showSection('chat')" id="chat-nav-item">
                 <i class="fas fa-comment-dots"></i>
                 <span>Live Chat</span>
                 <span id="chat-badge" class="nav-badge hidden">0</span>
             </a>
-            <a class="nav-item" onclick="showSection('profile')">
+            <a class="nav-item" onclick="window.showSection('profile')">
                 <i class="fas fa-user"></i>
                 <span>Profile</span>
             </a>
@@ -1223,7 +1226,7 @@
         const db = getDatabase(app);
 
         let currentUserData = null; 
-        let marketData = { tkPrice: 1.50, usdtRate: 280 };
+        let marketData = { tkPrice: 1.50, usdtRate: 280, mode: 'manual', basePrice: 280, autoRange: 50, autoInterval: 30 };
         let appSettings = {
             easypaisa: '0300-1234567',
             jazzcash: '0321-7654321',
@@ -1246,7 +1249,7 @@
         let pressureInterval = null;
         let lastReadTimestamp = 0;
         let marketMode = 'manual';
-        let autoFluctuationRange = 100;
+        let autoFluctuationRange = 50;
         let autoUpdateInterval = 30;
         let currentFluctuatedPrice = null;
         let autoRateTimer = null;
@@ -1255,6 +1258,9 @@
         let lastManualPrice = null;
         let selectedSavingsPlan = null;
         let userSavings = [];
+        let serverTimeOffset = 0;
+        let priceUpdateInterval = null;
+        let zigzagInterval = null;
 
         window.playSound = (type) => {
             const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -1305,12 +1311,18 @@
             const refCode = urlParams.get('ref');
             if (refCode) {
                 document.getElementById('auth-ref').value = refCode;
-                if (!isSignup) toggleAuthMode();
+                if (!isSignup) window.toggleAuthMode();
             }
         }
 
         function initApp() {
             checkUrlParams();
+            
+            // Get server time offset for synchronization
+            const offsetRef = ref(db, '.info/serverTimeOffset');
+            onValue(offsetRef, (snap) => {
+                serverTimeOffset = snap.val() || 0;
+            });
             
             onAuthStateChanged(auth, (user) => {
                 if (user) {
@@ -1323,15 +1335,35 @@
             });
         }
 
+        function getServerTime() {
+            return Date.now() + serverTimeOffset;
+        }
+
+        // ======== ZIGZAG CHART ANIMATION - ALWAYS RUNNING ========
         function startZigzagAnimation() {
-            setInterval(() => {
+            // Clear any existing interval
+            if (zigzagInterval) clearInterval(zigzagInterval);
+            
+            // Start fresh zigzag animation
+            zigzagInterval = setInterval(() => {
                 if(!marketData) return;
-                const lastPrice = chartPoints.length > 0 ? chartPoints[chartPoints.length - 1] : marketData.tkPrice;
-                const change = (Math.random() - 0.5) * 0.05; 
-                let newPrice = lastPrice + change;
+                
+                // Get current displayed price
+                let currentPrice;
+                if (marketMode === 'auto' && currentFluctuatedPrice !== null) {
+                    currentPrice = currentFluctuatedPrice / marketData.usdtRate;
+                } else {
+                    currentPrice = marketData.tkPrice;
+                }
+                
+                // Add small random fluctuation for zigzag effect
+                const change = (Math.random() - 0.5) * 0.02; 
+                let newPrice = currentPrice + change;
                 if(newPrice < 0.1) newPrice = 0.1;
+                
                 chartPoints.push(newPrice);
                 if (chartPoints.length > 20) chartPoints.shift();
+                
                 drawChart();
             }, 1000); 
         }
@@ -1353,24 +1385,79 @@
             }, 60000);
         }
 
-        function startAutoPriceFluctuation() {
-            const basePKR = marketData.tkPrice * marketData.usdtRate;
-            currentFluctuatedPrice = basePKR + (Math.random() * autoFluctuationRange);
+        // ======== TIME-BASED AUTO PRICE SYSTEM ========
+        function calculateTimeBasedPrice() {
+            const serverTime = getServerTime();
             
+            // Use basePrice from market data (set by admin)
+            const basePrice = marketData.basePrice || (marketData.tkPrice * marketData.usdtRate) || 280;
+            const range = marketData.autoRange || autoFluctuationRange || 50;
+            const intervalSeconds = marketData.autoInterval || autoUpdateInterval || 30;
+            
+            // Create a deterministic price based on server time
+            const intervalMs = intervalSeconds * 1000;
+            const timeSlot = Math.floor(serverTime / intervalMs);
+            
+            // Use sine wave for smooth up/down movement based on time
+            const cycleDuration = 10; // Number of intervals per full cycle
+            const positionInCycle = (timeSlot % cycleDuration) / cycleDuration;
+            
+            // Generate price fluctuation using sine wave (-1 to 1 range)
+            const sineValue = Math.sin(positionInCycle * Math.PI * 2);
+            
+            // Map sine (-1 to 1) to price range (-range to +range)
+            const fluctuation = sineValue * range;
+            
+            const finalPrice = basePrice + fluctuation;
+            
+            // Ensure price doesn't go negative
+            return Math.max(finalPrice, 1);
+        }
+
+        function updateAutoPrice() {
+            if (marketMode !== 'auto') return;
+            
+            const newPrice = calculateTimeBasedPrice();
+            currentFluctuatedPrice = newPrice;
+            
+            // Update UI
             updateMarketUI();
             
-            autoRateTimer = setInterval(() => {
-                if (marketMode !== 'auto') {
-                    clearInterval(autoRateTimer);
-                    autoRateTimer = null;
-                    return;
+            // Save to history if significantly different (more than 1 PKR)
+            if (todayPriceHistory.length > 0) {
+                const lastPrice = todayPriceHistory[todayPriceHistory.length - 1].price;
+                if (Math.abs(newPrice - lastPrice) > 1) {
+                    savePriceChangeToHistory(newPrice);
                 }
-                
-                const basePKR = marketData.tkPrice * marketData.usdtRate;
-                currentFluctuatedPrice = basePKR + (Math.random() * autoFluctuationRange);
-                
-                updateMarketUI();
-            }, autoUpdateInterval * 1000);
+            } else {
+                // First entry
+                savePriceChangeToHistory(newPrice);
+            }
+        }
+
+        function startAutoPriceFluctuation() {
+            // Clear any existing interval
+            if (priceUpdateInterval) {
+                clearInterval(priceUpdateInterval);
+            }
+            
+            // Immediate first calculation
+            updateAutoPrice();
+            
+            // Set up interval based on admin settings
+            const intervalMs = (marketData.autoInterval || autoUpdateInterval || 30) * 1000;
+            priceUpdateInterval = setInterval(updateAutoPrice, intervalMs);
+            
+            console.log('Auto price started, interval:', intervalMs, 'ms');
+        }
+
+        function stopAutoPriceFluctuation() {
+            if (priceUpdateInterval) {
+                clearInterval(priceUpdateInterval);
+                priceUpdateInterval = null;
+            }
+            currentFluctuatedPrice = null;
+            console.log('Auto price stopped');
         }
 
         function checkAndCreateUserInDB(firebaseUser) {
@@ -1437,7 +1524,7 @@
                 if (isSignup) await createUserWithEmailAndPassword(auth, email, pass);
                 else await signInWithEmailAndPassword(auth, email, pass);
             } catch (error) {
-                showToast(error.message, "error");
+                window.showToast(error.message, "error");
                 btn.innerText = isSignup ? "Signup" : "Login";
                 btn.disabled = false;
             }
@@ -1446,7 +1533,7 @@
         window.logout = () => {
             signOut(auth).then(() => {
                 lastKnownBalance = 0;
-                showToast("Logged out");
+                window.showToast("Logged out");
                 window.location.reload();
             });
         };
@@ -1461,7 +1548,6 @@
             }
         }
 
-        // ======== CLEAN PRICE HISTORY - ONLY SHOW ACTUAL CHANGES ========
         function loadTodayPriceHistory() {
             const today = new Date().toDateString();
             const historyRef = ref(db, 'priceHistory/' + today);
@@ -1651,6 +1737,7 @@
             }
         }
 
+        // ======== UPDATED PORTFOLIO CALCULATION - SHOW ONLY 1 ACTIVE INVESTMENT ========
         function calculatePortfolioPL() {
             if (!currentUserData || !marketData) return;
             
@@ -1662,22 +1749,41 @@
             
             let totalInvested = 0;
             let totalCurrentValue = 0;
+            let activeInvestment = null;
             
-            if (availableBalance > 0 && userInvestments.length > 0) {
-                let totalHistoricalInvested = 0;
-                let totalHistoricalTK = 0;
+            // Sort investments by date (newest first) and get only the latest one
+            const sortedInvestments = [...userInvestments].sort((a, b) => {
+                return new Date(b.date) - new Date(a.date);
+            });
+            
+            // Find the first (latest) investment that still has balance
+            for (let inv of sortedInvestments) {
+                const originalTK = parseFloat(inv.amount) || 0;
+                const originalInvested = parseFloat(inv.rawAmount) || 0;
                 
-                userInvestments.forEach(inv => {
-                    totalHistoricalInvested += parseFloat(inv.rawAmount) || 0;
-                    totalHistoricalTK += parseFloat(inv.amount) || 0;
-                });
+                if (originalTK > 0) {
+                    activeInvestment = inv;
+                    break;
+                }
+            }
+            
+            // Calculate based on available balance and the active investment
+            if (availableBalance > 0 && activeInvestment) {
+                const originalTK = parseFloat(activeInvestment.amount) || 0;
+                const originalInvested = parseFloat(activeInvestment.rawAmount) || 0;
                 
-                const avgBuyPricePerTK = totalHistoricalTK > 0 ? totalHistoricalInvested / totalHistoricalTK : 0;
+                // Calculate retention ratio based on available balance vs original TK
+                const retentionRatio = originalTK > 0 ? Math.min(availableBalance / originalTK, 1) : 0;
+                
+                const activeTK = originalTK * retentionRatio;
+                const activeInvested = originalInvested * retentionRatio;
                 
                 totalCurrentValue = availableBalance * currentPricePKR;
-                
-                const retentionRatio = totalHistoricalTK > 0 ? availableBalance / totalHistoricalTK : 0;
-                totalInvested = totalHistoricalInvested * retentionRatio;
+                totalInvested = activeInvested;
+            } else if (availableBalance > 0) {
+                // If no active investment but has balance, show current value only
+                totalCurrentValue = availableBalance * currentPricePKR;
+                totalInvested = 0;
             }
             
             const netPL = totalCurrentValue - totalInvested;
@@ -1707,13 +1813,14 @@
             document.getElementById('quick-pl-percent').innerText = (plPercentage >= 0 ? '+' : '') + plPercentage.toFixed(2) + '%';
             document.getElementById('quick-pl-percent').style.color = netPL >= 0 ? '#00c853' : '#ff3d00';
             
-            renderInvestmentsList(currentPricePKR, availableBalance);
+            // Render only the active/latest investment
+            renderInvestmentsList(currentPricePKR, availableBalance, activeInvestment);
         }
 
-        function renderInvestmentsList(currentPricePKR, availableBalance) {
+        function renderInvestmentsList(currentPricePKR, availableBalance, activeInvestment) {
             const listContainer = document.getElementById('investments-list');
             
-            if (availableBalance <= 0 || userInvestments.length === 0) {
+            if (availableBalance <= 0 || !activeInvestment) {
                 listContainer.innerHTML = `
                     <div style="text-align:center; color:#777; padding: 20px;">
                         <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
@@ -1724,80 +1831,66 @@
                 return;
             }
             
-            let totalHistoricalTK = 0;
-            userInvestments.forEach(inv => {
-                totalHistoricalTK += parseFloat(inv.amount) || 0;
-            });
+            // Show only the active (latest) investment
+            const originalTK = parseFloat(activeInvestment.amount) || 0;
+            const originalInvested = parseFloat(activeInvestment.rawAmount) || 0;
             
-            const retentionRatio = totalHistoricalTK > 0 ? availableBalance / totalHistoricalTK : 0;
+            const buyPriceTK = parseFloat(activeInvestment.tkPriceAtDeposit) || marketData.tkPrice;
+            const buyRate = parseFloat(activeInvestment.usdtRateAtDeposit) || marketData.usdtRate;
+            const buyPricePKR = buyPriceTK * buyRate;
+            
+            const currentValue = availableBalance * currentPricePKR;
+            const pl = currentValue - originalInvested;
+            const plPercent = originalInvested > 0 ? ((pl / originalInvested) * 100) : 0;
+            const isProfit = pl >= 0;
+            
+            const card = document.createElement('div');
+            card.className = `investment-card ${isProfit ? 'profit' : 'loss'}`;
+            
+            card.innerHTML = `
+                <div class="investment-header">
+                    <div>
+                        <div class="investment-amount">${availableBalance.toFixed(2)} TK</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
+                            <i class="fas fa-calendar-alt"></i> ${activeInvestment.date}
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">Invested</div>
+                        <div style="font-weight: bold;">${originalInvested.toFixed(2)} PKR</div>
+                    </div>
+                </div>
+                
+                <div class="investment-details">
+                    <div class="investment-detail-item">
+                        <span class="investment-detail-label">Buy Price</span>
+                        <span class="investment-detail-value">${buyPricePKR.toFixed(2)} <span class="rate-badge">PKR</span></span>
+                    </div>
+                    <div class="investment-detail-item">
+                        <span class="investment-detail-label">Current Price</span>
+                        <span class="investment-detail-value">${currentPricePKR.toFixed(2)} <span class="rate-badge">PKR</span></span>
+                    </div>
+                </div>
+                
+                <div class="pl-display">
+                    <div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">Current Value</div>
+                        <div style="font-weight: bold; font-size: 1.1rem;">${currentValue.toFixed(2)} PKR</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="pl-amount ${isProfit ? 'text-green' : 'text-red'}">
+                            ${isProfit ? '+' : ''}${pl.toFixed(2)} PKR
+                        </div>
+                        <div class="pl-percentage ${isProfit ? 'text-green' : 'text-red'}">
+                            ${isProfit ? '<i class="fas fa-arrow-up"></i>' : '<i class="fas fa-arrow-down"></i>'} 
+                            ${Math.abs(plPercent).toFixed(2)}%
+                        </div>
+                    </div>
+                </div>
+            `;
             
             listContainer.innerHTML = '';
-            
-            userInvestments.forEach(inv => {
-                const originalTK = parseFloat(inv.amount) || 0;
-                const originalInvested = parseFloat(inv.rawAmount) || 0;
-                
-                const activeTK = originalTK * retentionRatio;
-                const activeInvested = originalInvested * retentionRatio;
-                
-                if (activeTK <= 0.01) return;
-                
-                const buyPriceTK = parseFloat(inv.tkPriceAtDeposit) || marketData.tkPrice;
-                const buyRate = parseFloat(inv.usdtRateAtDeposit) || marketData.usdtRate;
-                const buyPricePKR = buyPriceTK * buyRate;
-                
-                const currentValue = activeTK * currentPricePKR;
-                const pl = currentValue - activeInvested;
-                const plPercent = activeInvested > 0 ? ((pl / activeInvested) * 100) : 0;
-                const isProfit = pl >= 0;
-                
-                const card = document.createElement('div');
-                card.className = `investment-card ${isProfit ? 'profit' : 'loss'}`;
-                
-                card.innerHTML = `
-                    <div class="investment-header">
-                        <div>
-                            <div class="investment-amount">${activeTK.toFixed(2)} TK <small style="font-size:0.7rem; color:#777;">(of ${originalTK.toFixed(2)})</small></div>
-                            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
-                                <i class="fas fa-calendar-alt"></i> ${inv.date}
-                            </div>
-                        </div>
-                        <div style="text-align: right;">
-                            <div style="font-size: 0.8rem; color: var(--text-muted);">Invested</div>
-                            <div style="font-weight: bold;">${activeInvested.toFixed(2)} PKR</div>
-                        </div>
-                    </div>
-                    
-                    <div class="investment-details">
-                        <div class="investment-detail-item">
-                            <span class="investment-detail-label">Buy Price</span>
-                            <span class="investment-detail-value">${buyPricePKR.toFixed(2)} <span class="rate-badge">PKR</span></span>
-                        </div>
-                        <div class="investment-detail-item">
-                            <span class="investment-detail-label">Current Price</span>
-                            <span class="investment-detail-value">${currentPricePKR.toFixed(2)} <span class="rate-badge">PKR</span></span>
-                        </div>
-                    </div>
-                    
-                    <div class="pl-display">
-                        <div>
-                            <div style="font-size: 0.8rem; color: var(--text-muted);">Current Value</div>
-                            <div style="font-weight: bold; font-size: 1.1rem;">${currentValue.toFixed(2)} PKR</div>
-                        </div>
-                        <div style="text-align: right;">
-                            <div class="pl-amount ${isProfit ? 'text-green' : 'text-red'}">
-                                ${isProfit ? '+' : ''}${pl.toFixed(2)} PKR
-                            </div>
-                            <div class="pl-percentage ${isProfit ? 'text-green' : 'text-red'}">
-                                ${isProfit ? '<i class="fas fa-arrow-up"></i>' : '<i class="fas fa-arrow-down"></i>'} 
-                                ${Math.abs(plPercent).toFixed(2)}%
-                            </div>
-                        </div>
-                    </div>
-                `;
-                
-                listContainer.appendChild(card);
-            });
+            listContainer.appendChild(card);
         }
 
         function loginSuccess(user) {
@@ -1817,7 +1910,7 @@
                 if (data) {
                     const newBal = data.balanceTK;
                     if (newBal > lastKnownBalance && lastKnownBalance > 0) {
-                        showToast("Coins Received!", "success");
+                        window.showToast("Coins Received!", "success");
                         playSound('success');
                     }
                     currentUserData = data;
@@ -1835,42 +1928,40 @@
                 const data = snapshot.val();
                 if (data) {
                     const oldMode = marketMode;
-                    const oldPrice = marketData.tkPrice;
                     
                     marketData = data;
                     marketMode = data.mode || 'manual';
-                    autoFluctuationRange = data.autoRange || 100;
+                    autoFluctuationRange = data.autoRange || 50;
                     autoUpdateInterval = data.autoInterval || 30;
                     
-                    const badge = document.getElementById('manual-mode-badge');
-                    if (marketMode === 'manual') {
-                        badge.classList.remove('hidden');
-                    } else {
-                        badge.classList.add('hidden');
+                    // Update mode badge - HIDDEN as requested
+                    const modeBadge = document.getElementById('price-mode-badge');
+                    if (modeBadge) {
+                        modeBadge.innerText = ''; // Empty text
+                        modeBadge.className = 'mode-indicator'; // Remove color classes
                     }
                     
-                    if (marketMode === 'manual' && oldMode === 'manual' && oldPrice !== data.tkPrice) {
-                        savePriceChangeToHistory(data.tkPrice * data.usdtRate);
-                    }
-                    
-                    if (autoRateTimer) {
-                        clearInterval(autoRateTimer);
-                        autoRateTimer = null;
-                    }
-                    
+                    // Handle mode switch
                     if (marketMode === 'auto') {
-                        startAutoPriceFluctuation();
+                        if (oldMode !== 'auto' || !priceUpdateInterval) {
+                            startAutoPriceFluctuation();
+                        }
                     } else {
-                        currentFluctuatedPrice = null;
+                        stopAutoPriceFluctuation();
                         lastManualPrice = data.tkPrice * data.usdtRate;
                     }
                     
                     updateMarketUI();
                     updatePortfolioPriceDisplay();
                     
+                    // Initialize chart points if empty
                     if (chartPoints.length === 0) {
-                        for(let i=0; i<20; i++) chartPoints.push(marketData.tkPrice);
+                        const initialPrice = marketMode === 'auto' ? 
+                            (currentFluctuatedPrice || data.basePrice || data.tkPrice * data.usdtRate) : 
+                            data.tkPrice;
+                        for(let i=0; i<20; i++) chartPoints.push(initialPrice);
                     }
+                    
                     updateUI();
                     calculatePortfolioPL();
                 }
@@ -1896,9 +1987,9 @@
                         const qrImg = document.getElementById('deposit-qr-image');
                         if(qrImg) qrImg.src = data.qrUrl;
                     }
-                    updateDepositDetails();
-                    updateTransferInfo();
-                    updateSavingsSettings();
+                    window.updateDepositDetails();
+                    window.updateTransferInfo();
+                    window.updateSavingsSettings();
                 }
             });
 
@@ -1924,20 +2015,23 @@
 
             loadUserInvestments(user.uid);
             loadReferralStats(user.uid);
-            loadUserSavings(user.uid);
+            window.loadUserSavings(user.uid);
             monitorIncomingTransfers(user.uid); 
+            
+            // Start zigzag animation immediately and keep it running
             startZigzagAnimation();
+            
             loadTodayPriceHistory();
             updateMarketPressure();
             pressureInterval = setInterval(updateMarketPressure, 600000);
             monitorUnreadChat(user.uid);
 
             if (user.role === 'admin') {
-                showToast("Admin detected...", "info");
+                window.showToast("Admin detected...", "info");
                 setTimeout(() => window.location.href = 'admin.html', 1500);
                 return;
             } else {
-                showSection('market');
+                window.showSection('market');
             }
         }
 
@@ -2098,7 +2192,7 @@
             }
             if (sectionId === 'portfolio') calculatePortfolioPL();
             if (sectionId === 'transfer') checkTransferCooldown();
-            if (sectionId === 'savings') loadUserSavings(currentUserData.uid);
+            if (sectionId === 'savings') window.loadUserSavings(currentUserData.uid);
         };
 
         function updateUI() {
@@ -2143,7 +2237,7 @@
             document.getElementById('market-price').innerText = priceInPKR.toFixed(2);
             
             if (!document.getElementById('view-deposit').classList.contains('hidden')) {
-                calculateDeposit();
+                window.calculateDeposit();
             }
         }
 
@@ -2180,9 +2274,9 @@
             const link = baseUrl + "?ref=" + uid;
             
             navigator.clipboard.writeText(link).then(() => {
-                showToast("Referral Link Copied!", "success");
+                window.showToast("Referral Link Copied!", "success");
             }).catch(() => {
-                showToast("Failed to copy", "error");
+                window.showToast("Failed to copy", "error");
             });
         };
 
@@ -2216,16 +2310,23 @@
                 qrImg.style.display = 'block';
                 qrImg.src = "./qr.png"; 
             }
-            calculateDeposit();
+            window.calculateDeposit();
         };
 
+        // ======== FIXED DEPOSIT CALCULATION - USES CURRENT PRICE ========
         window.calculateDeposit = () => {
             const amount = parseFloat(document.getElementById('deposit-amount').value) || 0;
+            
+            // FIX: Use getCurrentPrice() to get the correct price based on mode (auto/manual)
+            const currentPrice = getCurrentPrice();
+            const currentPricePKR = currentPrice * marketData.usdtRate;
+            
+            // Calculate: PKR → USDT → TK
             const usdtValue = amount / marketData.usdtRate;
-            const receive = usdtValue / marketData.tkPrice;
+            const receive = usdtValue / currentPrice;  // Use currentPrice instead of marketData.tkPrice
             
             document.getElementById('deposit-rate').innerText = '1';
-            document.getElementById('deposit-price').innerText = (marketData.tkPrice * marketData.usdtRate).toFixed(2);
+            document.getElementById('deposit-price').innerText = currentPricePKR.toFixed(2);  // Show current rate
             document.getElementById('deposit-calc-receive').innerText = receive.toFixed(2);
             document.getElementById('deposit-invest-value').innerText = amount.toFixed(2);
             
@@ -2243,9 +2344,10 @@
 
         window.copyDepositNumber = () => {
             navigator.clipboard.writeText(document.getElementById('deposit-number').innerText);
-            showToast("Copied!");
+            window.showToast("Copied!");
         };
 
+        // ======== FIXED SUBMIT DEPOSIT - USES CURRENT PRICE ========
         window.submitDeposit = () => {
             const amountInput = parseFloat(document.getElementById('deposit-amount').value);
             const refId = document.getElementById('deposit-ref').value;
@@ -2253,15 +2355,19 @@
             
             const minDeposit = appSettings.minDeposit || 500;
             if (amountInput < minDeposit) {
-                return showToast(`Minimum deposit is ${minDeposit} PKR`, "error");
+                return window.showToast(`Minimum deposit is ${minDeposit} PKR`, "error");
             }
             
-            if (!amountInput || amountInput <= 0) return showToast("Enter valid amount", "error");
-            if (!refId) return showToast("Enter Transaction ID", "error");
+            if (!amountInput || amountInput <= 0) return window.showToast("Enter valid amount", "error");
+            if (!refId) return window.showToast("Enter Transaction ID", "error");
+            
+            // FIX: Use getCurrentPrice() to get the correct current rate
+            const currentPrice = getCurrentPrice();
+            const currentPricePKR = currentPrice * marketData.usdtRate;
             
             const pkrAmount = amountInput;
             const usdtValue = pkrAmount / marketData.usdtRate;
-            const receiveTk = usdtValue / marketData.tkPrice;
+            const receiveTk = usdtValue / currentPrice;  // Use currentPrice
             
             const depositData = {
                 userId: currentUserData.uid,
@@ -2269,7 +2375,7 @@
                 method: method,
                 amount: receiveTk,
                 rawAmount: pkrAmount,
-                tkPriceAtDeposit: marketData.tkPrice,
+                tkPriceAtDeposit: currentPrice,  // FIX: Save current price, not marketData.tkPrice
                 usdtRateAtDeposit: marketData.usdtRate,
                 ref: refId,
                 date: new Date().toLocaleString(),
@@ -2277,7 +2383,7 @@
             };
             
             push(ref(db, 'deposits'), depositData).then(() => {
-                showToast("Request Submitted!");
+                window.showToast("Request Submitted!");
                 
                 if (currentUserData.referredBy) {
                     const referrerUid = currentUserData.referredBy;
@@ -2297,14 +2403,21 @@
 
                 document.getElementById('deposit-amount').value = '';
                 document.getElementById('deposit-ref').value = '';
-                showSection('wallet');
+                window.showSection('wallet');
             });
         };
 
+        // ======== FIXED WITHDRAW CALCULATION - USES CURRENT PRICE ========
         window.calculateWithdraw = () => {
             const tk = parseFloat(document.getElementById('withdraw-amount').value) || 0;
-            const usdtVal = tk * marketData.tkPrice;
-            const pkrVal = usdtVal * marketData.usdtRate;
+            
+            // FIX: Use getCurrentPrice() to get the correct price based on mode (auto/manual)
+            const currentPrice = getCurrentPrice();
+            const currentPricePKR = currentPrice * marketData.usdtRate;
+            
+            // Calculate: TK → PKR directly using current rate
+            const pkrVal = tk * currentPricePKR;
+            
             document.getElementById('withdraw-calc-usdt').innerText = pkrVal.toFixed(2);
         }
 
@@ -2313,17 +2426,19 @@
             const method = document.getElementById('withdraw-method').value;
             const account = document.getElementById('withdraw-account').value;
 
-            if (!amount || amount < appSettings.minWithdraw) return showToast("Min withdraw " + appSettings.minWithdraw, "error");
-            if (!account) return showToast("Enter details", "error");
+            if (!amount || amount < appSettings.minWithdraw) return window.showToast("Min withdraw " + appSettings.minWithdraw, "error");
+            if (!account) return window.showToast("Enter details", "error");
 
             const feeRate = currentUserData.isPremium ? 0 : appSettings.withdrawFee;
             const fee = amount * feeRate;
             const total = amount + fee;
 
-            if (total > currentUserData.balanceTK) return showToast("Insufficient balance", "error");
+            if (total > currentUserData.balanceTK) return window.showToast("Insufficient balance", "error");
 
-            const usdtVal = amount * marketData.tkPrice;
-            const pkrVal = usdtVal * marketData.usdtRate;
+            // FIX: Use getCurrentPrice() to get the correct current rate
+            const currentPrice = getCurrentPrice();
+            const currentPricePKR = currentPrice * marketData.usdtRate;
+            const pkrVal = amount * currentPricePKR;  // Use current rate
 
             const newWithdrawKey = push(ref(db, 'withdrawals')).key;
 
@@ -2333,7 +2448,7 @@
                 method: method,
                 account: account,
                 amount: amount, 
-                pkrAmount: pkrVal, 
+                pkrAmount: pkrVal,  // FIX: Use calculated PKR value with current rate
                 fee: fee,
                 total: total, 
                 date: new Date().toLocaleString(),
@@ -2345,17 +2460,17 @@
             updates['withdrawals/' + newWithdrawKey] = withdrawData;
 
             update(ref(db), updates).then(() => {
-                showToast("Withdrawal Requested. Balance Deducted.");
+                window.showToast("Withdrawal Requested. Balance Deducted.");
                 document.getElementById('withdraw-amount').value = '';
                 document.getElementById('withdraw-account').value = '';
-                showSection('wallet');
+                window.showSection('wallet');
             }).catch((error) => {
                 console.error("Withdraw Error:", error);
-                showToast("Failed to submit request. Try again.", "error");
+                window.showToast("Failed to submit request. Try again.", "error");
             });
         };
 
-        function updateTransferInfo() {
+        window.updateTransferInfo = () => {
             const minTransfer = appSettings.minTransfer || 10;
             const transferTax = appSettings.transferTax || 0.02;
             
@@ -2370,18 +2485,18 @@
             const minTransfer = appSettings.minTransfer || 10;
             const transferTax = appSettings.transferTax || 0.02;
 
-            if (!email) return showToast("Enter email", "error");
-            if (email === currentUserData.email) return showToast("Cannot send to yourself", "error");
-            if (!amount || amount <= 0) return showToast("Invalid amount", "error");
-            if (amount < minTransfer) return showToast(`Minimum transfer is ${minTransfer} TK`, "error");
+            if (!email) return window.showToast("Enter email", "error");
+            if (email === currentUserData.email) return window.showToast("Cannot send to yourself", "error");
+            if (!amount || amount <= 0) return window.showToast("Invalid amount", "error");
+            if (amount < minTransfer) return window.showToast(`Minimum transfer is ${minTransfer} TK`, "error");
             
             const taxAmount = amount * transferTax;
             const totalDeduction = amount + taxAmount;
             
             const currentBal = parseFloat(currentUserData.balanceTK || 0);
-            if (totalDeduction > currentBal) return showToast(`Insufficient balance (need ${totalDeduction.toFixed(2)} TK including tax)`, "error");
+            if (totalDeduction > currentBal) return window.showToast(`Insufficient balance (need ${totalDeduction.toFixed(2)} TK including tax)`, "error");
 
-            showToast("Checking user...", "info");
+            window.showToast("Checking user...", "info");
 
             get(ref(db, 'users')).then((snapshot) => {
                 let receiverUid = null;
@@ -2394,7 +2509,7 @@
                 }
 
                 if (receiverUid) {
-                    showToast("User Found! Transferring...", "success");
+                    window.showToast("User Found! Transferring...", "success");
                     
                     const updates = {};
                     updates['users/' + currentUserData.uid + '/balanceTK'] = currentBal - totalDeduction;
@@ -2418,13 +2533,13 @@
                     updates['users/' + currentUserData.uid + '/lastTransferAt'] = Date.now();
 
                     update(ref(db), updates).then(() => {
-                        showToast(`Transfer Successful! Tax: ${taxAmount.toFixed(2)} TK`);
+                        window.showToast(`Transfer Successful! Tax: ${taxAmount.toFixed(2)} TK`);
                         startTransferTimer(120000);
                         document.getElementById('transfer-amount').value = '';
                         document.getElementById('transfer-email').value = '';
                     });
                 } else {
-                    showToast("User Not Found", "error");
+                    window.showToast("User Not Found", "error");
                 }
             });
         };
@@ -2457,17 +2572,17 @@
                 update(ref(db, 'users/' + currentUserData.uid), {
                     balanceTK: currentUserData.balanceTK - 100,
                     isPremium: true
-                }).then(() => showToast("Upgraded!"));
+                }).then(() => window.showToast("Upgraded!"));
             } else {
-                showToast("Need 100 TK", "error");
+                window.showToast("Need 100 TK", "error");
             }
         };
 
         window.openFutures = (type) => {
             const amount = parseFloat(document.getElementById('futures-amount').value);
-            if(!amount || amount > currentUserData.balanceTK) return showToast("Insufficient Balance", "error");
+            if(!amount || amount > currentUserData.balanceTK) return window.showToast("Insufficient Balance", "error");
             update(ref(db, 'users/' + currentUserData.uid + '/balanceTK'), currentUserData.balanceTK - amount);
-            showToast(`Opened ${type} Position with ${amount} TK`);
+            window.showToast(`Opened ${type} Position with ${amount} TK`);
             document.getElementById('futures-amount').value = '';
         }
 
@@ -2649,7 +2764,7 @@
         }
         
         // ======== SAVINGS SYSTEM ========
-        function updateSavingsSettings() {
+        window.updateSavingsSettings = () => {
             document.getElementById('profit-30').innerText = appSettings.savings30;
             document.getElementById('profit-60').innerText = appSettings.savings60;
             document.getElementById('profit-90').innerText = appSettings.savings90;
@@ -2664,7 +2779,7 @@
             });
             document.getElementById(`plan-${days}`).classList.add('selected');
             
-            calculateSavings();
+            window.calculateSavings();
         };
 
         window.calculateSavings = () => {
@@ -2698,16 +2813,20 @@
         window.createSavings = () => {
             const amount = parseFloat(document.getElementById('savings-amount').value);
             
-            if (!amount || amount <= 0) return showToast("Enter valid amount", "error");
-            if (!selectedSavingsPlan) return showToast("Select a savings plan", "error");
+            if (!amount || amount <= 0) return window.showToast("Enter valid amount", "error");
+            if (!selectedSavingsPlan) return window.showToast("Select a savings plan", "error");
             
             const minSavings = appSettings.minSavings || 1000;
-            if (amount < minSavings) return showToast(`Minimum savings amount is ${minSavings} PKR`, "error");
+            if (amount < minSavings) return window.showToast(`Minimum savings amount is ${minSavings} PKR`, "error");
             
             const currentBal = parseFloat(currentUserData.balanceTK || 0);
-            const requiredTK = amount / (marketData.tkPrice * marketData.usdtRate);
             
-            if (requiredTK > currentBal) return showToast("Insufficient TK balance", "error");
+            // FIX: Use getCurrentPrice() for savings calculation too
+            const currentPrice = getCurrentPrice();
+            const currentPricePKR = currentPrice * marketData.usdtRate;
+            const requiredTK = amount / currentPricePKR;
+            
+            if (requiredTK > currentBal) return window.showToast("Insufficient TK balance", "error");
             
             let profitPercent = 0;
             if (selectedSavingsPlan === 30) profitPercent = appSettings.savings30;
@@ -2746,17 +2865,17 @@
             updates['savings/' + newSavingsRef.key] = savingsData;
             
             update(ref(db), updates).then(() => {
-                showToast(`Savings plan created! ${selectedSavingsPlan} days locked.`);
+                window.showToast(`Savings plan created! ${selectedSavingsPlan} days locked.`);
                 document.getElementById('savings-amount').value = '';
                 selectedSavingsPlan = null;
                 document.querySelectorAll('.savings-plan-btn').forEach(btn => {
                     btn.classList.remove('selected');
                 });
-                calculateSavings();
+                window.calculateSavings();
             });
         };
 
-        function loadUserSavings(uid) {
+        window.loadUserSavings = (uid) => {
             const savingsRef = ref(db, 'savings');
             onValue(savingsRef, (snapshot) => {
                 const data = snapshot.val();
@@ -2794,7 +2913,7 @@
                                     <div class="matured-notice">
                                         <i class="fas fa-check-circle"></i> Matured! Transfer to wallet available.
                                     </div>
-                                    <button class="btn" style="margin-top: 10px; background: var(--success);" onclick="transferMaturedSavings('${key}')">
+                                    <button class="btn" style="margin-top: 10px; background: var(--success);" onclick="window.transferMaturedSavings('${key}')">
                                         <i class="fas fa-wallet"></i> Transfer to Wallet
                                     </button>
                                 `;
@@ -2873,11 +2992,15 @@
             const now = new Date();
             
             if (now < maturityDate && saving.status !== 'matured') {
-                return showToast("Savings plan is not yet matured", "error");
+                return window.showToast("Savings plan is not yet matured", "error");
             }
             
             const totalAmount = parseFloat(saving.amountPKR) + parseFloat(saving.totalProfitEarned || 0);
-            const tkAmount = totalAmount / (marketData.tkPrice * marketData.usdtRate);
+            
+            // FIX: Use getCurrentPrice() for transfer calculation
+            const currentPrice = getCurrentPrice();
+            const currentPricePKR = currentPrice * marketData.usdtRate;
+            const tkAmount = totalAmount / currentPricePKR;
             
             const updates = {};
             updates['users/' + currentUserData.uid + '/balanceTK'] = parseFloat(currentUserData.balanceTK || 0) + tkAmount;
@@ -2885,7 +3008,7 @@
             updates['savings/' + savingsId + '/completedAt'] = new Date().toISOString();
             
             update(ref(db), updates).then(() => {
-                showToast(`Rs. ${totalAmount.toFixed(2)} transferred to your wallet!`);
+                window.showToast(`Rs. ${totalAmount.toFixed(2)} transferred to your wallet!`);
             });
         };
 
