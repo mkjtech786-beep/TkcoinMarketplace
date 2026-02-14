@@ -812,6 +812,14 @@
                             <div class="portfolio-label">Net P/L</div>
                             <div class="portfolio-value" id="portfolio-net-pl">0 PKR</div>
                         </div>
+                        <div class="portfolio-item">
+                            <div class="portfolio-label">Total Balance (TK)</div>
+                            <div class="portfolio-value" id="portfolio-total-balance">0 TK</div>
+                        </div>
+                        <div class="portfolio-item">
+                            <div class="portfolio-label">Current Price</div>
+                            <div class="portfolio-value" id="portfolio-current-price-display">0 PKR</div>
+                        </div>
                     </div>
                 </div>
                 <div class="deposit-info-box">
@@ -1592,7 +1600,7 @@
                 ctx.fillStyle = '#555';
                 ctx.font = '14px Arial';
                 ctx.textAlign = 'center';
-                ctx.fillText('Price updating...', canvas.width / 2, canvas.height / 2);
+                ctx.fillText('No price changes today', canvas.width / 2, canvas.height / 2);
                 
                 document.getElementById('today-high').innerText = '0.00';
                 document.getElementById('today-low').innerText = '0.00';
@@ -1737,7 +1745,7 @@
             }
         }
 
-        // ======== UPDATED PORTFOLIO CALCULATION - SHOW ONLY 1 ACTIVE INVESTMENT ========
+        // ======== FIXED PORTFOLIO CALCULATION - SHOW ONLY 1 ACTIVE INVESTMENT ========
         function calculatePortfolioPL() {
             if (!currentUserData || !marketData) return;
             
@@ -1778,8 +1786,10 @@
                 const activeTK = originalTK * retentionRatio;
                 const activeInvested = originalInvested * retentionRatio;
                 
-                totalCurrentValue = availableBalance * currentPricePKR;
-                totalInvested = activeInvested;
+                // FIX: Current Value = Investment worth based on original deposit amount (NOT available balance)
+                // Total Balance = Available TK coins (shown separately now)
+                totalCurrentValue = activeTK * currentPricePKR;  // Investment ki current market value
+                totalInvested = activeInvested;  // Original kitna invest kiya tha
             } else if (availableBalance > 0) {
                 // If no active investment but has balance, show current value only
                 totalCurrentValue = availableBalance * currentPricePKR;
@@ -1791,6 +1801,11 @@
             
             document.getElementById('portfolio-total-invested').innerText = totalInvested.toFixed(2) + ' PKR';
             document.getElementById('portfolio-total-value').innerText = totalCurrentValue.toFixed(2);
+            
+            // FIX: Show Total Balance (TK) separately - Yeh user ke paas kitne coins hain
+            const totalBalanceTK = parseFloat(currentUserData.balanceTK) || 0;
+            document.getElementById('portfolio-total-balance').innerText = totalBalanceTK.toFixed(2) + ' TK';
+            document.getElementById('portfolio-current-price-display').innerText = currentPricePKR.toFixed(2) + ' PKR';
             
             const netPLElement = document.getElementById('portfolio-net-pl');
             netPLElement.innerText = (netPL >= 0 ? '+' : '') + netPL.toFixed(2) + ' PKR';
@@ -1839,7 +1854,9 @@
             const buyRate = parseFloat(activeInvestment.usdtRateAtDeposit) || marketData.usdtRate;
             const buyPricePKR = buyPriceTK * buyRate;
             
-            const currentValue = availableBalance * currentPricePKR;
+            // FIX: Current Value = Original TK × Current Price (NOT available balance)
+            // This shows what the investment is worth now
+            const currentValue = originalTK * currentPricePKR;
             const pl = currentValue - originalInvested;
             const plPercent = originalInvested > 0 ? ((pl / originalInvested) * 100) : 0;
             const isProfit = pl >= 0;
@@ -1850,7 +1867,7 @@
             card.innerHTML = `
                 <div class="investment-header">
                     <div>
-                        <div class="investment-amount">${availableBalance.toFixed(2)} TK</div>
+                        <div class="investment-amount">${originalTK.toFixed(2)} TK</div>
                         <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
                             <i class="fas fa-calendar-alt"></i> ${activeInvestment.date}
                         </div>
