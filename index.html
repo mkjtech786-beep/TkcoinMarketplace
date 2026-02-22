@@ -1130,6 +1130,165 @@
         .mode-indicator {
             display: none;
         }
+
+        /* ===== CANDLESTICK CHART STYLES ===== */
+        .candlestick-container {
+            background: var(--bg-card);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #333;
+            position: relative;
+        }
+        .candlestick-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .candlestick-title {
+            color: var(--primary);
+            font-weight: bold;
+            font-size: 1rem;
+        }
+        .candlestick-live {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.8rem;
+            color: var(--success);
+        }
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: livePulse 1s infinite;
+        }
+        @keyframes livePulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+        #candlestickCanvas {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, transparent 100%);
+            border-radius: 8px;
+        }
+        .candlestick-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #333;
+        }
+        .candlestick-stat {
+            text-align: center;
+        }
+        .candlestick-stat-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+        .candlestick-stat-value {
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        /* ===== WIN/LOSS ANIMATION STYLES ===== */
+        .trade-result-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .trade-result-content {
+            text-align: center;
+            animation: resultPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes resultPop {
+            0% { transform: scale(0); }
+            70% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .win-animation .trade-icon {
+            font-size: 6rem;
+            color: #00e676;
+            animation: winBounce 0.6s ease infinite alternate;
+            text-shadow: 0 0 50px rgba(0, 230, 118, 0.8);
+        }
+        @keyframes winBounce {
+            from { transform: translateY(0) scale(1); }
+            to { transform: translateY(-20px) scale(1.1); }
+        }
+        .loss-animation .trade-icon {
+            font-size: 6rem;
+            color: #ff6e40;
+            animation: lossShake 0.5s ease;
+            text-shadow: 0 0 50px rgba(255, 110, 64, 0.8);
+        }
+        @keyframes lossShake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-15px) rotate(-10deg); }
+            40% { transform: translateX(15px) rotate(10deg); }
+            60% { transform: translateX(-10px) rotate(-5deg); }
+            80% { transform: translateX(10px) rotate(5deg); }
+        }
+        .trade-result-text {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        .win-animation .trade-result-text {
+            color: #00e676;
+            text-shadow: 0 0 30px rgba(0, 230, 118, 0.5);
+        }
+        .loss-animation .trade-result-text {
+            color: #ff6e40;
+            text-shadow: 0 0 30px rgba(255, 110, 64, 0.5);
+        }
+        .trade-result-amount {
+            font-size: 1.5rem;
+            margin-top: 10px;
+        }
+        .win-animation .trade-result-amount {
+            color: #00c853;
+        }
+        .loss-animation .trade-result-amount {
+            color: #ff3d00;
+        }
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            animation: confettiFall 2s linear forwards;
+        }
+        @keyframes confettiFall {
+            0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+        .rain-drop {
+            position: absolute;
+            width: 2px;
+            height: 20px;
+            background: linear-gradient(to bottom, transparent, #ff3d00);
+            animation: rainFall 1s linear forwards;
+        }
+        @keyframes rainFall {
+            0% { transform: translateY(-100px); opacity: 1; }
+            100% { transform: translateY(100vh); opacity: 0; }
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -1707,12 +1866,94 @@
                 <button class="btn btn-outline" style="margin-top: 20px;" onclick="window.showSection('profile')">Back to Profile</button>
             </section>
 
+            <!-- ===== NEW TRADING VIEW ===== -->
+            <section id="view-trading" class="section hidden">
+                <h2 class="text-orange" style="margin-bottom: 15px;"><i class="fas fa-exchange-alt"></i> Trading</h2>
+                
+                <!-- CANDLESTICK CHART -->
+                <div class="candlestick-container">
+                    <div class="candlestick-header">
+                        <div class="candlestick-title"><i class="fas fa-chart-bar"></i> Live Market (24H)</div>
+                        <div class="candlestick-live">
+                            <span class="live-dot"></span>
+                            <span>LIVE</span>
+                        </div>
+                    </div>
+                    <canvas id="candlestickCanvas"></canvas>
+                    <div class="candlestick-stats">
+                        <div class="candlestick-stat">
+                            <div class="candlestick-stat-label">Open</div>
+                            <div class="candlestick-stat-value" id="candle-open">--</div>
+                        </div>
+                        <div class="candlestick-stat">
+                            <div class="candlestick-stat-label">High</div>
+                            <div class="candlestick-stat-value text-green" id="candle-high">--</div>
+                        </div>
+                        <div class="candlestick-stat">
+                            <div class="candlestick-stat-label">Low</div>
+                            <div class="candlestick-stat-value text-red" id="candle-low">--</div>
+                        </div>
+                        <div class="candlestick-stat">
+                            <div class="candlestick-stat-label">Close</div>
+                            <div class="candlestick-stat-value" id="candle-close">--</div>
+                        </div>
+                    </div>
+                    
+                    <!-- TRADE RESULT DISPLAY -->
+                    <div id="trade-result-display" class="hidden" style="margin-top: 15px; padding: 15px; border-radius: 10px; text-align: center; animation: fadeIn 0.3s ease;">
+                        <div id="trade-result-icon-display" style="font-size: 2.5rem; margin-bottom: 8px;"></div>
+                        <div id="trade-result-text-display" style="font-size: 1.3rem; font-weight: bold; margin-bottom: 5px;"></div>
+                        <div id="trade-result-amount-display" style="font-size: 1rem;"></div>
+                    </div>
+                </div>
+
+                <!-- Trading Options -->
+                <div style="background: var(--bg-card); padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #333;">
+                    <h3 style="margin-bottom: 15px; color: var(--primary);">Place Trade</h3>
+                    
+                    <div class="input-group">
+                        <label>Trade Amount (TK)</label>
+                        <input type="number" id="trade-amount" placeholder="Enter amount" min="1">
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                        <button class="btn" style="background: linear-gradient(135deg, #00c853, #00e676);" onclick="window.placeTrade('up')">
+                            <i class="fas fa-arrow-up"></i> UP
+                        </button>
+                        <button class="btn" style="background: linear-gradient(135deg, #ff3d00, #ff6600);" onclick="window.placeTrade('down')">
+                            <i class="fas fa-arrow-down"></i> DOWN
+                        </button>
+                    </div>
+
+                    <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px;">Potential Return</div>
+                        <div style="font-size: 1.5rem; font-weight: bold; color: var(--success);" id="potential-return">0 TK</div>
+                        <small style="color: #888;">90% profit on win</small>
+                    </div>
+                </div>
+
+                <!-- My Trades -->
+                <h3 style="margin-bottom: 15px;">My Trade History</h3>
+                <div id="user-trades-list" style="display: flex; flex-direction: column; gap: 10px;">
+                    <div style="text-align:center; color:#777; padding: 20px;">
+                        <i class="fas fa-exchange-alt" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                        No trades yet.<br>
+                        <small>Start trading to see your history!</small>
+                    </div>
+                </div>
+            </section>
+
         </main>
 
         <nav class="bottom-nav" id="user-nav">
             <a class="nav-item active" onclick="window.showSection('market')">
                 <i class="fas fa-chart-line"></i>
                 <span>Market</span>
+            </a>
+            <!-- ===== NEW TRADING NAV BUTTON ===== -->
+            <a class="nav-item" onclick="window.showSection('trading')" style="background: linear-gradient(135deg, #9c27b0, #e91e63); border-radius: 8px; margin: 0 5px;">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Trading</span>
             </a>
             <a class="nav-item" onclick="window.showSection('wallet')">
                 <i class="fas fa-wallet"></i>
@@ -2878,7 +3119,7 @@
             document.querySelectorAll('#user-views .section').forEach(el => el.classList.add('hidden'));
             document.getElementById(`view-${sectionId}`).classList.remove('hidden');
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            const navIndex = ['market', 'wallet', 'chat', 'profile'].indexOf(sectionId);
+            const navIndex = ['market', 'trading', 'wallet', 'chat', 'profile'].indexOf(sectionId);
             if (navIndex >= 0) document.querySelectorAll('.nav-item')[navIndex].classList.add('active');
             if (sectionId === 'wallet') loadUserHistory(); 
             if (sectionId === 'chat') {
@@ -2888,6 +3129,12 @@
             if (sectionId === 'portfolio') calculatePortfolioPL();
             if (sectionId === 'transfer') checkTransferCooldown();
             if (sectionId === 'savings') window.loadUserSavings(currentUserData.uid);
+            if (sectionId === 'trading') {
+                loadUserTrading();
+                startCandlestickChart();
+            } else {
+                stopCandlestickChart();
+            }
         };
 
         function updateUI() {
@@ -3817,6 +4064,426 @@
                 });
             });
         }
+        
+        // ===== NEW TRADING FUNCTIONS =====
+        let currentTradingMode = 'random';
+        let minTradeAmount = 1;
+        let candlestickData = [];
+        let candlestickInterval = null;
+        
+        // Listen for trading mode and min trade changes (hidden from users)
+        onValue(ref(db, 'tradingControl'), (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                currentTradingMode = data.mode || 'random';
+                minTradeAmount = data.minTrade || 1;
+            }
+        });
+        
+        // ===== CANDLESTICK CHART FUNCTIONS =====
+        function generateInitialCandles() {
+            const candles = [];
+            let basePrice = 100;
+            const now = Date.now();
+            
+            // Generate 24 hours of candles (1 candle per hour = 24 candles)
+            for (let i = 23; i >= 0; i--) {
+                const volatility = basePrice * 0.02; // 2% volatility
+                const open = basePrice + (Math.random() - 0.5) * volatility;
+                const close = open + (Math.random() - 0.5) * volatility;
+                const high = Math.max(open, close) + Math.random() * volatility * 0.5;
+                const low = Math.min(open, close) - Math.random() * volatility * 0.5;
+                
+                candles.push({
+                    open: parseFloat(open.toFixed(2)),
+                    high: parseFloat(high.toFixed(2)),
+                    low: parseFloat(low.toFixed(2)),
+                    close: parseFloat(close.toFixed(2)),
+                    timestamp: now - (i * 3600000),
+                    isUp: close >= open
+                });
+                
+                basePrice = close;
+            }
+            return candles;
+        }
+        
+        function drawCandlestickChart() {
+            const canvas = document.getElementById('candlestickCanvas');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.parentElement.offsetWidth;
+            canvas.height = 200;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            if (candlestickData.length === 0) {
+                candlestickData = generateInitialCandles();
+            }
+            
+            const candles = candlestickData.slice(-20); // Show last 20 candles
+            const prices = candles.flatMap(c => [c.high, c.low]);
+            const maxPrice = Math.max(...prices);
+            const minPrice = Math.min(...prices);
+            const priceRange = maxPrice - minPrice || 1;
+            
+            const padding = 30;
+            const chartWidth = canvas.width - (padding * 2);
+            const chartHeight = canvas.height - (padding * 2);
+            const candleWidth = (chartWidth / candles.length) * 0.7;
+            const candleSpacing = chartWidth / candles.length;
+            
+            // Draw grid lines
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 4; i++) {
+                const y = padding + (chartHeight / 4) * i;
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(canvas.width - padding, y);
+                ctx.stroke();
+            }
+            
+            // Draw candles
+            candles.forEach((candle, i) => {
+                const x = padding + (i * candleSpacing) + (candleSpacing - candleWidth) / 2;
+                const yOpen = padding + chartHeight - ((candle.open - minPrice) / priceRange) * chartHeight;
+                const yClose = padding + chartHeight - ((candle.close - minPrice) / priceRange) * chartHeight;
+                const yHigh = padding + chartHeight - ((candle.high - minPrice) / priceRange) * chartHeight;
+                const yLow = padding + chartHeight - ((candle.low - minPrice) / priceRange) * chartHeight;
+                
+                const isUp = candle.close >= candle.open;
+                const color = isUp ? '#00c853' : '#ff3d00';
+                
+                // Draw wick
+                ctx.strokeStyle = color;
+                ctx.lineWidth = candle.isTradeResult ? 2 : 1;
+                ctx.beginPath();
+                ctx.moveTo(x + candleWidth / 2, yHigh);
+                ctx.lineTo(x + candleWidth / 2, yLow);
+                ctx.stroke();
+                
+                // Draw body - make trade result candles wider
+                ctx.fillStyle = color;
+                const bodyHeight = Math.max(Math.abs(yClose - yOpen), 2);
+                const bodyY = Math.min(yOpen, yClose);
+                const bodyWidth = candle.isTradeResult ? candleWidth * 1.3 : candleWidth;
+                const bodyX = candle.isTradeResult ? x - (bodyWidth - candleWidth) / 2 : x;
+                ctx.fillRect(bodyX, bodyY, bodyWidth, bodyHeight);
+                
+                // Add glow effect for last candle or trade result candle
+                if (i === candles.length - 1 || candle.isTradeResult) {
+                    ctx.shadowColor = color;
+                    ctx.shadowBlur = candle.isTradeResult ? 15 : 10;
+                    ctx.fillRect(bodyX, bodyY, bodyWidth, bodyHeight);
+                    ctx.shadowBlur = 0;
+                }
+                
+                // Add "YOUR TRADE" label for trade result candles
+                if (candle.isTradeResult && i === candles.length - 1) {
+                    ctx.fillStyle = color;
+                    ctx.font = 'bold 10px Arial';
+                    ctx.textAlign = 'center';
+                    const labelY = isUp ? yHigh - 15 : yLow + 20;
+                    ctx.fillText('YOUR TRADE', x + candleWidth / 2, labelY);
+                }
+            });
+            
+            // Update stats
+            const lastCandle = candles[candles.length - 1];
+            document.getElementById('candle-open').innerText = lastCandle.open.toFixed(2);
+            document.getElementById('candle-high').innerText = lastCandle.high.toFixed(2);
+            document.getElementById('candle-low').innerText = lastCandle.low.toFixed(2);
+            document.getElementById('candle-close').innerText = lastCandle.close.toFixed(2);
+        }
+        
+        function addNewCandle() {
+            if (candlestickData.length === 0) return;
+            
+            const lastCandle = candlestickData[candlestickData.length - 1];
+            const volatility = lastCandle.close * 0.02;
+            const open = lastCandle.close;
+            const close = open + (Math.random() - 0.5) * volatility;
+            const high = Math.max(open, close) + Math.random() * volatility * 0.5;
+            const low = Math.min(open, close) - Math.random() * volatility * 0.5;
+            
+            candlestickData.push({
+                open: parseFloat(open.toFixed(2)),
+                high: parseFloat(high.toFixed(2)),
+                low: parseFloat(low.toFixed(2)),
+                close: parseFloat(close.toFixed(2)),
+                timestamp: Date.now(),
+                isUp: close >= open
+            });
+            
+            // Keep only last 50 candles
+            if (candlestickData.length > 50) {
+                candlestickData.shift();
+            }
+            
+            drawCandlestickChart();
+        }
+        
+        function startCandlestickChart() {
+            if (candlestickInterval) clearInterval(candlestickInterval);
+            
+            // Initial draw
+            if (candlestickData.length === 0) {
+                candlestickData = generateInitialCandles();
+            }
+            drawCandlestickChart();
+            
+            // Add new candle every 3 seconds (simulating live trading)
+            candlestickInterval = setInterval(addNewCandle, 3000);
+        }
+        
+        function stopCandlestickChart() {
+            if (candlestickInterval) {
+                clearInterval(candlestickInterval);
+                candlestickInterval = null;
+            }
+        }
+        
+        // ===== WIN/LOSS DISPLAY FUNCTIONS =====
+        let lastTradeResult = null;
+        
+        function showTradeResultBelowCandle(result, amount, profit) {
+            const display = document.getElementById('trade-result-display');
+            const icon = document.getElementById('trade-result-icon-display');
+            const text = document.getElementById('trade-result-text-display');
+            const amountEl = document.getElementById('trade-result-amount-display');
+            
+            // Store result for candle update
+            lastTradeResult = result;
+            
+            if (result === 'win') {
+                display.style.background = 'rgba(0, 200, 83, 0.15)';
+                display.style.border = '1px solid #00c853';
+                icon.innerHTML = '<i class="fas fa-arrow-up" style="color: #00e676; animation: winBounce 0.6s ease infinite alternate;"></i>';
+                text.innerText = 'YOU WON!';
+                text.style.color = '#00e676';
+                amountEl.innerText = `+${profit.toFixed(2)} TK Profit`;
+                amountEl.style.color = '#00c853';
+                playSound('success');
+            } else {
+                display.style.background = 'rgba(255, 61, 0, 0.15)';
+                display.style.border = '1px solid #ff3d00';
+                icon.innerHTML = '<i class="fas fa-arrow-down" style="color: #ff6e40; animation: lossShake 0.5s ease;"></i>';
+                text.innerText = 'YOU LOST';
+                text.style.color = '#ff6e40';
+                amountEl.innerText = `-${amount.toFixed(2)} TK`;
+                amountEl.style.color = '#ff3d00';
+                playSound('error');
+            }
+            
+            display.classList.remove('hidden');
+            
+            // Add trade-result candle immediately
+            addTradeResultCandle(result);
+            
+            // Auto hide after 5 seconds
+            setTimeout(() => {
+                display.classList.add('hidden');
+            }, 5000);
+        }
+        
+        function addTradeResultCandle(result) {
+            if (candlestickData.length === 0) return;
+            
+            const lastCandle = candlestickData[candlestickData.length - 1];
+            const volatility = lastCandle.close * 0.015; // 1.5% volatility
+            
+            let open, close, high, low;
+            
+            if (result === 'win') {
+                // WIN - Green candle going UP
+                open = lastCandle.close;
+                close = open + volatility * (0.5 + Math.random() * 0.5); // Always up
+                high = close + Math.random() * volatility * 0.3;
+                low = open - Math.random() * volatility * 0.1;
+            } else {
+                // LOSS - Red candle going DOWN
+                open = lastCandle.close;
+                close = open - volatility * (0.5 + Math.random() * 0.5); // Always down
+                high = open + Math.random() * volatility * 0.1;
+                low = close - Math.random() * volatility * 0.3;
+            }
+            
+            // Ensure proper ordering
+            high = Math.max(open, close, high);
+            low = Math.min(open, close, low);
+            
+            candlestickData.push({
+                open: parseFloat(open.toFixed(2)),
+                high: parseFloat(high.toFixed(2)),
+                low: parseFloat(low.toFixed(2)),
+                close: parseFloat(close.toFixed(2)),
+                timestamp: Date.now(),
+                isUp: close >= open,
+                isTradeResult: true // Mark as trade result candle
+            });
+            
+            // Keep only last 50 candles
+            if (candlestickData.length > 50) {
+                candlestickData.shift();
+            }
+            
+            drawCandlestickChart();
+        }
+        
+        // Update potential return on amount input
+        document.getElementById('trade-amount')?.addEventListener('input', (e) => {
+            const amount = parseFloat(e.target.value) || 0;
+            const potentialReturn = amount * 1.9; // 90% profit
+            document.getElementById('potential-return').innerText = potentialReturn.toFixed(2) + ' TK';
+        });
+        
+        window.placeTrade = (type) => {
+            const amount = parseFloat(document.getElementById('trade-amount').value);
+            
+            if (!amount || amount <= 0) {
+                window.showToast('Please enter a valid amount', 'error');
+                return;
+            }
+            
+            if (amount < minTradeAmount) {
+                window.showToast(`Minimum trade amount is ${minTradeAmount} TK`, 'error');
+                return;
+            }
+            
+            if (amount > currentUserData.balanceTK) {
+                window.showToast('Insufficient balance', 'error');
+                return;
+            }
+            
+            // Deduct amount from balance
+            const newBalance = currentUserData.balanceTK - amount;
+            update(ref(db, 'users/' + currentUserData.uid), {
+                balanceTK: newBalance
+            });
+            
+            // Determine result based on admin setting
+            let result;
+            if (currentTradingMode === 'win') {
+                result = 'win';
+            } else if (currentTradingMode === 'loss') {
+                result = 'loss';
+            } else {
+                // Random mode - 50/50 chance
+                result = Math.random() > 0.5 ? 'win' : 'loss';
+            }
+            
+            // Calculate profit/loss
+            const profit = result === 'win' ? amount * 0.9 : -amount;
+            const finalAmount = result === 'win' ? amount * 1.9 : 0;
+            
+            // Save trade
+            const tradeData = {
+                userId: currentUserData.uid,
+                userEmail: currentUserData.email,
+                userName: currentUserData.name,
+                type: type,
+                amount: amount,
+                result: result,
+                profit: profit,
+                finalAmount: finalAmount,
+                mode: currentTradingMode,
+                timestamp: Date.now(),
+                date: new Date().toLocaleString()
+            };
+            
+            push(ref(db, 'trades'), tradeData).then(() => {
+                // Show win/loss below candlestick
+                showTradeResultBelowCandle(result, amount, profit);
+                
+                // If win, add profit to balance
+                if (result === 'win') {
+                    update(ref(db, 'users/' + currentUserData.uid), {
+                        balanceTK: newBalance + finalAmount
+                    });
+                    window.showToast(`You WON! +${(amount * 0.9).toFixed(2)} TK profit!`, 'success');
+                } else {
+                    window.showToast('You LOST. Better luck next time!', 'error');
+                }
+                
+                document.getElementById('trade-amount').value = '';
+                document.getElementById('potential-return').innerText = '0 TK';
+                loadUserTrading();
+            });
+        };
+        
+        function loadUserTrading() {
+            const tradesList = document.getElementById('user-trades-list');
+            if (!tradesList) return;
+            
+            onValue(ref(db, 'trades'), (snapshot) => {
+                const data = snapshot.val();
+                tradesList.innerHTML = '';
+                
+                if (!data) {
+                    tradesList.innerHTML = `
+                        <div style="text-align:center; color:#777; padding: 20px;">
+                            <i class="fas fa-exchange-alt" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                            No trades yet.<br>
+                            <small>Start trading to see your history!</small>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                const userTrades = Object.entries(data)
+                    .map(([key, trade]) => ({ key, ...trade }))
+                    .filter(trade => trade.userId === currentUserData.uid)
+                    .sort((a, b) => b.timestamp - a.timestamp)
+                    .slice(0, 10);
+                
+                if (userTrades.length === 0) {
+                    tradesList.innerHTML = `
+                        <div style="text-align:center; color:#777; padding: 20px;">
+                            <i class="fas fa-exchange-alt" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                            No trades yet.<br>
+                            <small>Start trading to see your history!</small>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                userTrades.forEach(trade => {
+                    const isWin = trade.result === 'win';
+                    const card = document.createElement('div');
+                    card.style.cssText = `
+                        background: var(--bg-card);
+                        padding: 15px;
+                        border-radius: 10px;
+                        border: 1px solid ${isWin ? '#00c853' : '#ff3d00'};
+                        border-left: 4px solid ${isWin ? '#00c853' : '#ff3d00'};
+                    `;
+                    card.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: bold; color: ${isWin ? '#00e676' : '#ff6e40'};">
+                                    ${isWin ? '<i class="fas fa-arrow-up"></i> WON' : '<i class="fas fa-arrow-down"></i> LOST'}
+                                </div>
+                                <div style="font-size: 0.8rem; color: #888; margin-top: 3px;">
+                                    ${trade.type === 'up' ? 'UP' : 'DOWN'} | ${new Date(trade.timestamp).toLocaleString()}
+                                </div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-weight: bold; color: ${isWin ? '#00e676' : '#fff'};">
+                                    ${isWin ? '+' : ''}${trade.profit.toFixed(2)} TK
+                                </div>
+                                <div style="font-size: 0.75rem; color: #888;">
+                                    Amount: ${trade.amount} TK
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    tradesList.appendChild(card);
+                });
+            });
+        }
+        // ===== END TRADING FUNCTIONS =====
         
         initApp();
         
