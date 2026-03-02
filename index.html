@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TK Coin - Hold & Earn</title>
+    <title>TK Coin - Trade / Hold /Saving </title>
     <style>
         :root {
             --primary: #ff6600;
@@ -193,31 +193,14 @@
                 inset 0 1px 0 rgba(255, 255, 255, 0.1);
             position: relative;
             z-index: 10;
-            animation: boxFloat 4s ease-in-out infinite, boxGlow 3s ease-in-out infinite alternate;
+            /* Login animations disabled */
             backdrop-filter: blur(20px);
             transform-style: preserve-3d;
-        }
-
-        @keyframes boxFloat {
-            0%, 100% { transform: translateY(0px) rotateX(0deg); }
-            50% { transform: translateY(-15px) rotateX(2deg); }
-        }
-
-        @keyframes boxGlow {
-            0% { box-shadow: 0 20px 60px rgba(255, 102, 0, 0.2), 0 0 100px rgba(255, 102, 0, 0.1); }
-            100% { box-shadow: 0 25px 70px rgba(255, 102, 0, 0.3), 0 0 120px rgba(255, 102, 0, 0.2); }
         }
 
         .logo-animation {
             text-align: center;
             margin-bottom: 35px;
-            animation: logoPop 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        @keyframes logoPop {
-            0% { transform: scale(0) rotate(-180deg); opacity: 0; }
-            70% { transform: scale(1.1) rotate(10deg); }
-            100% { transform: scale(1) rotate(0deg); opacity: 1; }
         }
 
         .coin-icon {
@@ -225,30 +208,11 @@
             color: #ff6600;
             display: block;
             margin-bottom: 15px;
-            animation: 
-                coinSpin 3s linear infinite,
-                coinGlow 2s ease-in-out infinite alternate,
-                coinBounce 1s ease-in-out infinite;
             filter: drop-shadow(0 0 30px rgba(255, 102, 0, 0.6));
             background: linear-gradient(135deg, #ff6600, #ff9100);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-        }
-
-        @keyframes coinSpin {
-            0% { transform: rotateY(0deg); }
-            100% { transform: rotateY(360deg); }
-        }
-
-        @keyframes coinGlow {
-            0% { filter: drop-shadow(0 0 20px rgba(255, 102, 0, 0.5)) brightness(1); }
-            100% { filter: drop-shadow(0 0 50px rgba(255, 102, 0, 0.9)) brightness(1.3); }
-        }
-
-        @keyframes coinBounce {
-            0%, 100% { transform: translateY(0) rotateY(0deg); }
-            50% { transform: translateY(-10px) rotateY(180deg); }
         }
 
         .app-title {
@@ -261,13 +225,6 @@
             margin: 0;
             text-shadow: 0 0 30px rgba(255, 102, 0, 0.3);
             letter-spacing: 3px;
-            animation: textShimmer 3s linear infinite;
-            background-size: 200% auto;
-        }
-
-        @keyframes textShimmer {
-            0% { background-position: 0% center; }
-            100% { background-position: 200% center; }
         }
 
         .tagline {
@@ -276,7 +233,6 @@
             margin-top: 8px;
             letter-spacing: 4px;
             text-transform: uppercase;
-            animation: fadeInUp 1s ease 0.5s both;
         }
 
         @keyframes fadeInUp {
@@ -286,16 +242,6 @@
 
         #auth-screen .input-group {
             margin-bottom: 20px;
-            animation: slideInLeft 0.6s ease both;
-        }
-
-        #auth-screen .input-group:nth-child(1) { animation-delay: 0.2s; }
-        #auth-screen .input-group:nth-child(2) { animation-delay: 0.3s; }
-        #auth-screen .input-group:nth-child(3) { animation-delay: 0.4s; }
-
-        @keyframes slideInLeft {
-            from { opacity: 0; transform: translateX(-30px); }
-            to { opacity: 1; transform: translateX(0); }
         }
 
         #auth-screen .input-group label {
@@ -364,50 +310,19 @@
             position: relative;
             overflow: hidden;
             transition: all 0.3s ease;
-            animation: slideInUp 0.6s ease 0.5s both;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
         }
 
-        @keyframes slideInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .auth-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-            transition: left 0.6s;
-        }
-
-        .auth-btn:hover::before {
-            left: 100%;
-        }
-
         .auth-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 
-                0 15px 40px rgba(255, 102, 0, 0.4),
-                0 0 60px rgba(255, 102, 0, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 102, 0, 0.3);
         }
 
         .auth-btn:active {
-            transform: translateY(-1px) scale(0.98);
-        }
-
-        .btn-icon {
-            transition: transform 0.3s ease;
-        }
-
-        .auth-btn:hover .btn-icon {
-            transform: translateX(5px);
+            transform: translateY(0) scale(0.98);
         }
 
         .auth-btn.loading {
@@ -416,10 +331,6 @@
         }
 
         .auth-btn.loading .btn-text {
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
         }
@@ -456,61 +367,15 @@
             position: relative;
             display: inline-block;
             width: 100%;
-            animation: fadeIn 1s ease 0.7s both;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .auth-toggle::after {
-            content: '';
-            position: absolute;
-            bottom: -4px;
-            left: 50%;
-            width: 0;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, #ff6600, transparent);
-            transition: all 0.3s ease;
-            transform: translateX(-50%);
-        }
-
-        .auth-toggle:hover::after {
-            width: 80%;
         }
 
         .auth-toggle:hover {
             color: #ff9100;
-            transform: scale(1.05);
         }
 
         .particle {
-            position: absolute;
-            width: 6px;
-            height: 6px;
-            background: #ff6600;
-            border-radius: 50%;
-            pointer-events: none;
-            animation: particleFloat 10s linear infinite;
-        }
-
-        @keyframes particleFloat {
-            0%, 100% { 
-                transform: translate(0, 0) scale(0); 
-                opacity: 0; 
-            }
-            10% { 
-                opacity: 1; 
-                transform: scale(1); 
-            }
-            90% { 
-                opacity: 1; 
-            }
-            100% { 
-                transform: translate(var(--tx), var(--ty)) scale(0); 
-                opacity: 0; 
-            }
+            /* Particles disabled */
+            display: none;
         }
 
         @media (max-width: 480px) {
@@ -1289,12 +1154,62 @@
             0% { transform: translateY(-100px); opacity: 1; }
             100% { transform: translateY(100vh); opacity: 0; }
         }
-    </style>
+    
+        /* ===== INVITE POPUP STYLES ===== */
+        #invite-popup { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 100000; display: flex; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
+        .invite-popup-content { background: linear-gradient(135deg, var(--bg-card), #2a2a2a); padding: 30px; border-radius: 20px; width: 90%; max-width: 350px; border: 2px solid var(--primary); text-align: center; animation: popupSlideIn 0.4s ease; }
+        @keyframes popupSlideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .invite-popup-icon { font-size: 4rem; color: gold; margin-bottom: 15px; animation: giftBounce 1s infinite; }
+        @keyframes giftBounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        .invite-popup-title { font-size: 1.5rem; color: var(--primary); margin-bottom: 10px; font-weight: bold; }
+        .invite-popup-text { color: var(--text-light); font-size: 1rem; margin-bottom: 8px; }
+        .invite-popup-bonus { font-size: 2rem; color: var(--success); font-weight: bold; margin: 15px 0; }
+        .invite-popup-btn { background: linear-gradient(135deg, var(--primary), #ff9100); color: white; border: none; padding: 15px 40px; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 1rem; margin-top: 15px; transition: 0.3s; }
+        .invite-popup-btn:hover { transform: scale(1.05); box-shadow: 0 10px 30px rgba(255, 102, 0, 0.4); }
+
+        /* ===== UPDATED INVITED ITEM STYLES ===== */
+        .invited-item { background: var(--bg-card); padding: 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border: 1px solid #333; flex-wrap: wrap; }
+        .invited-info { display: flex; flex-direction: column; gap: 5px; }
+        .invited-name { font-weight: bold; color: #fff; font-size: 0.9rem; }
+        .invited-date { font-size: 0.7rem; color: #777; }
+        .invited-status-line { width: 100%; margin-top: 8px; padding-top: 8px; border-top: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
+        .invited-status { font-size: 0.75rem; padding: 4px 10px; border-radius: 12px; font-weight: bold; }
+        .invited-status.valid { background: rgba(0, 200, 83, 0.2); color: var(--success); border: 1px solid var(--success); }
+        .invited-status.invalid { background: rgba(255, 61, 0, 0.2); color: var(--danger); border: 1px solid var(--danger); }
+        .invited-bonus { font-size: 0.8rem; color: var(--primary); font-weight: bold; }
+
+        /* ===== INVITE BONUS CARD STYLES ===== */
+        .invite-bonus-card { background: linear-gradient(135deg, rgba(0, 200, 83, 0.15), rgba(0, 200, 83, 0.05)); border: 1px solid var(--success); border-radius: 12px; padding: 15px; margin-bottom: 20px; }
+        .invite-bonus-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .invite-bonus-title { color: var(--success); font-weight: bold; font-size: 1rem; }
+        .invite-bonus-amount { font-size: 1.5rem; color: var(--success); font-weight: bold; }
+        .invite-bonus-progress { background: rgba(255,255,255,0.1); border-radius: 10px; height: 10px; overflow: hidden; margin-bottom: 10px; }
+        .invite-bonus-progress-bar { background: linear-gradient(90deg, var(--success), #00e676); height: 100%; border-radius: 10px; transition: width 0.5s ease; }
+        .invite-bonus-info { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted); }
+        .invite-transfer-btn { background: linear-gradient(135deg, var(--success), #00e676); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 15px; transition: 0.3s; }
+        .invite-transfer-btn:hover { transform: scale(1.02); box-shadow: 0 5px 20px rgba(0, 200, 83, 0.4); }
+        .invite-transfer-btn:disabled { background: #555; cursor: not-allowed; transform: none; box-shadow: none; }
+</style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
     <div id="toast-container"></div>
+
+    <!-- INVITE POPUP - App Open Hote Hi Dikhega -->
+    <div id="invite-popup" class="hidden">
+        <div class="invite-popup-content">
+            <i class="fas fa-gift invite-popup-icon"></i>
+            <div class="invite-popup-title">Invite & Earn!</div>
+            <div class="invite-popup-text">Per invite valid members</div>
+            <div class="invite-popup-bonus">3 TK Coin</div>
+            <div class="invite-popup-text">Invite more to earn more!</div>
+            <button class="invite-popup-btn" onclick="window.closeInvitePopup()">
+                <i class="fas fa-check"></i> OK
+            </button>
+        </div>
+    </div>
+
 
     <div id="receive-popup" class="hidden">
         <i class="fas fa-hand-holding-usd" style="font-size: 5rem; color: gold; margin-bottom: 20px; animation: bounce 1s infinite;"></i>
@@ -1320,7 +1235,7 @@
             <div class="logo-animation">
                 <i class="fas fa-coins coin-icon"></i>
                 <h1 class="app-title">TK Coin</h1>
-                <p class="tagline">Hold & Earn</p>
+                <p class="tagline">Trade / Hold /Saving </p>
             </div>
             
             <!-- Login Form -->
@@ -1388,7 +1303,7 @@
                 <div class="balance-card">
                     <div class="balance-title">Current TK Price</div>
                     <div class="balance-amount"><span id="market-price">0.00</span> PKR</div>
-                    <small style="opacity: 0.8;">Total Hold TK: 27M+ Coins</small>
+                    <small style="opacity: 0.8;">Total Hold TK: 34M+ Coins</small>
                 </div>
 
                 <div class="market-pressure-card">
@@ -1561,7 +1476,7 @@
             <!-- Deposit - ONLY TILL AND USDT -->
             <section id="view-deposit" class="section hidden">
                 <h2 class="text-orange">Deposit Funds</h2>
-                <p style="color: #aaa; margin-bottom: 20px;">Select payment method below.</p>
+                <p style="color: #aaa; margin-bottom: 20px;">⚠️ After making the deposit, please enter your TID number within 30 minutes</p>
                 <div class="input-group">
                     <label>Method</label>
                     <select id="deposit-method" onchange="window.updateDepositDetails()">
@@ -1642,29 +1557,57 @@
                 </div>
                 <div class="input-group">
                     <label>Amount (TK)</label>
-                    <input type="number" id="withdraw-amount" placeholder="Tk coin" oninput="window.calculateWithdraw()">
+                    <input type="number" id="withdraw-amount" placeholder="Enter TK amount" oninput="window.calculateWithdraw()">
                 </div>
-                
-                <!-- PKR VALUE DISPLAY - NEW -->
-                <div style="background: linear-gradient(135deg, rgba(0,200,83,0.2), rgba(0,200,83,0.05)); border: 1px solid var(--success); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <div style="font-size: 0.8rem; color: var(--text-muted);">You will receive (PKR):</div>
-                            <div style="font-size: 1.5rem; font-weight: bold; color: var(--success);"><span id="withdraw-pkr-amount">0.00</span> PKR</div>
+
+                <!-- WITHDRAW PREVIEW - TK + PKR + TAX -->
+                <div id="withdraw-preview" class="hidden" style="background: linear-gradient(135deg, rgba(255,102,0,0.15), rgba(255,102,0,0.05)); border: 2px solid var(--primary); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                    <h4 style="color: var(--primary); margin-bottom: 15px; text-align: center;"><i class="fas fa-receipt"></i> Withdraw Summary</h4>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                        <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">TK Amount</div>
+                            <div style="font-size: 1.3rem; font-weight: bold; color: var(--primary);"><span id="preview-tk-amount">0</span> TK</div>
                         </div>
-                        <div style="text-align: right;">
-                            <div style="font-size: 0.8rem; color: var(--text-muted);">Current Rate</div>
-                            <div style="font-size: 0.9rem; color: white;">1 TK = <span id="withdraw-current-rate">0.00</span> PKR</div>
+                        <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">PKR Value</div>
+                            <div style="font-size: 1.3rem; font-weight: bold; color: var(--success);"><span id="preview-pkr-amount">0</span> PKR</div>
                         </div>
                     </div>
-                    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(0,200,83,0.3); font-size: 0.8rem; color: var(--text-muted);">
-                        <i class="fas fa-info-circle"></i> Amount after <span id="withdraw-fee-percent">5</span>% fee deduction
+
+                    <div style="background: rgba(255,0,0,0.1); border: 1px solid var(--danger); padding: 12px; border-radius: 8px; margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-size: 0.8rem; color: var(--danger);"><i class="fas fa-percentage"></i> Fee (<span id="preview-fee-percent">5</span>%)</div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">Platform fee</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 1.1rem; font-weight: bold; color: var(--danger);">- <span id="preview-fee-amount">0</span> TK</div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">= <span id="preview-fee-pkr">0</span> PKR</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background: rgba(0,200,83,0.15); border: 2px solid var(--success); padding: 15px; border-radius: 8px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-size: 0.9rem; color: var(--success); font-weight: bold;"><i class="fas fa-hand-holding-usd"></i> You Receive</div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">Final amount after fee</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 1.5rem; font-weight: bold; color: var(--success);"><span id="preview-final-tk">0</span> TK</div>
+                                <div style="font-size: 1rem; color: white;">= <span id="preview-final-pkr">0</span> PKR</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); text-align: center;">
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">Sell Rate</div>
+                        <div style="font-size: 1rem; color: var(--primary);">1 TK = <span id="preview-locked-rate">0.00</span> PKR</div>
+                        <div style="font-size: 0.7rem; color: #666; margin-top: 5px;"><i class="fas fa-lock"></i> This rate will be saved in your history</div>
                     </div>
                 </div>
 
-                <div style="background: #222; padding: 10px; border-radius: 6px; margin-bottom: 20px; color: #aaa;">
-                    <small>Estimated Receive: <strong style="color: white; font-size: 1.1rem;"><span id="withdraw-calc-usdt">0.00</span> PKR</strong></small>
-                </div>
                 <button class="btn" onclick="window.submitWithdraw()">Request Withdrawal</button>
                 <button class="btn btn-outline" style="margin-top: 10px;" onclick="window.showSection('wallet')">Back</button>
             </section>
@@ -1753,7 +1696,29 @@
                     </div>
                 </div>
 
-                <div style="margin-bottom: 20px;">
+                
+                <!-- INVITE BONUS CARD -->
+                <div class="invite-bonus-card">
+                    <div class="invite-bonus-header">
+                        <div class="invite-bonus-title"><i class="fas fa-coins"></i> Invite Bonus</div>
+                        <div class="invite-bonus-amount"><span id="invite-bonus-total">0</span> TK</div>
+                    </div>
+                    <div class="invite-bonus-progress">
+                        <div class="invite-bonus-progress-bar" id="invite-bonus-progress" style="width: 0%;"></div>
+                    </div>
+                    <div class="invite-bonus-info">
+                        <span>Progress: <span id="invite-bonus-progress-text">0</span>/100 TK</span>
+                        <span id="invite-bonus-valid-count">0 Valid Members</span>
+                    </div>
+                    <button class="invite-transfer-btn" id="invite-transfer-btn" onclick="window.transferInviteBonus()" disabled>
+                        <i class="fas fa-wallet"></i> Transfer to Main Wallet
+                    </button>
+                    <div id="invite-bonus-msg" style="text-align: center; margin-top: 10px; font-size: 0.75rem; color: var(--text-muted);">
+                        Need 100 TK to transfer
+                    </div>
+                </div>
+
+<div style="margin-bottom: 20px;">
                     <div style="display:flex; justify-content: space-between; margin-bottom: 10px;">
                         <h3>Invited Members</h3>
                         <span style="background:var(--primary); padding:2px 8px; border-radius:4px; font-weight:bold; font-size:0.8rem;">Total: <span id="total-invites-count">0</span></span>
@@ -1899,6 +1864,18 @@
                         </div>
                     </div>
                     
+                                        <!-- ACTIVE TRADE COUNTDOWN -->
+                    <div id="active-trade-display" class="hidden" style="margin-top: 15px; padding: 15px; border-radius: 10px; background: linear-gradient(135deg, rgba(255,102,0,0.2), rgba(255,102,0,0.05)); border: 2px solid var(--primary); text-align: center;">
+                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px;">Trade in Progress</div>
+                        <div style="font-size: 2rem; font-weight: bold; color: var(--primary);" id="trade-countdown">00:30</div>
+                        <div style="font-size: 0.8rem; color: #888; margin-top: 5px;">
+                            <span id="active-trade-type">UP</span> | <span id="active-trade-amount">0</span> TK
+                        </div>
+                        <div style="margin-top: 10px; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden;">
+                            <div id="trade-progress-bar" style="height: 100%; background: var(--primary); width: 100%; transition: width 1s linear;"></div>
+                        </div>
+                    </div>
+
                     <!-- TRADE RESULT DISPLAY -->
                     <div id="trade-result-display" class="hidden" style="margin-top: 15px; padding: 15px; border-radius: 10px; text-align: center; animation: fadeIn 0.3s ease;">
                         <div id="trade-result-icon-display" style="font-size: 2.5rem; margin-bottom: 8px;"></div>
@@ -1908,7 +1885,7 @@
                 </div>
 
                 <!-- Trading Options -->
-                <div style="background: var(--bg-card); padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #333;">
+                <div id="trading-controls" style="background: var(--bg-card); padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #333;">
                     <h3 style="margin-bottom: 15px; color: var(--primary);">Place Trade</h3>
                     
                     <div class="input-group">
@@ -1993,6 +1970,8 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
 
+        let invitePopupShown = false;
+        let inviteBonusData = { total: 0, validCount: 0, transferred: 0 };
         let currentUserData = null; 
         let marketData = { tkPrice: 1.50, usdtRate: 280, mode: 'manual', basePrice: 280, autoRange: 50, autoInterval: 30 };
         let appSettings = {
@@ -2032,6 +2011,66 @@
         let coinRainInterval = null;
 
         // ===== SOUND EFFECTS =====
+        
+        // ===== INVITE POPUP FUNCTIONS =====
+        window.closeInvitePopup = () => {
+            document.getElementById('invite-popup').classList.add('hidden');
+            invitePopupShown = true;
+        }
+
+        function showInvitePopup() {
+            if (!invitePopupShown) {
+                document.getElementById('invite-popup').classList.remove('hidden');
+            }
+        }
+
+        // ===== INVITE BONUS UI UPDATE =====
+        function updateInviteBonusUI() {
+            const availableBonus = inviteBonusData.total - inviteBonusData.transferred;
+            const progressPercent = Math.min((availableBonus / 100) * 100, 100);
+
+            document.getElementById('invite-bonus-total').innerText = availableBonus.toFixed(2);
+            document.getElementById('invite-bonus-progress').style.width = progressPercent + '%';
+            document.getElementById('invite-bonus-progress-text').innerText = availableBonus.toFixed(0);
+
+            const transferBtn = document.getElementById('invite-transfer-btn');
+            const msgEl = document.getElementById('invite-bonus-msg');
+
+            if (availableBonus >= 100) {
+                transferBtn.disabled = false;
+                msgEl.innerHTML = '<span style="color: var(--success);"><i class="fas fa-check-circle"></i> Ready to transfer!</span>';
+            } else {
+                transferBtn.disabled = true;
+                const need = 100 - availableBonus;
+                msgEl.innerText = `Need ${need.toFixed(0)} more TK to transfer`;
+            }
+        }
+
+        // ===== TRANSFER INVITE BONUS TO MAIN WALLET =====
+        window.transferInviteBonus = () => {
+            const availableBonus = inviteBonusData.total - inviteBonusData.transferred;
+
+            if (availableBonus < 100) {
+                window.showToast("Need at least 100 TK to transfer", "error");
+                return;
+            }
+
+            const transferAmount = availableBonus;
+            const currentBal = parseFloat(currentUserData.balanceTK || 0);
+
+            const updates = {};
+            updates['users/' + currentUserData.uid + '/balanceTK'] = currentBal + transferAmount;
+            updates['users/' + currentUserData.uid + '/inviteBonusTransferred'] = inviteBonusData.transferred + transferAmount;
+
+            update(ref(db), updates).then(() => {
+                window.showToast(`${transferAmount.toFixed(2)} TK transferred to main wallet!`, "success");
+                inviteBonusData.transferred += transferAmount;
+                updateInviteBonusUI();
+            }).catch(err => {
+                window.showToast("Transfer failed. Try again.", "error");
+            });
+        }
+
         window.playSound = (type) => {
             try {
                 const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -2094,15 +2133,9 @@
         }
 
         function startCoinRain() {
-            if (coinRainInterval) clearInterval(coinRainInterval);
-            
+            // Login animation disabled
             const container = document.getElementById('coins-container');
-            if (container) container.style.display = 'block';
-            
-            for (let i = 0; i < 15; i++) {
-                setTimeout(createCoin, i * 300);
-            }
-            coinRainInterval = setInterval(createCoin, 1200);
+            if (container) container.style.display = 'none';
         }
 
         function stopCoinRain() {
@@ -2118,20 +2151,8 @@
         }
 
         function createParticles() {
-            const container = document.getElementById('coins-container');
-            if (!container) return;
-            
-            for (let i = 0; i < 10; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.top = Math.random() * 100 + '%';
-                particle.style.setProperty('--tx', (Math.random() - 0.5) * 200 + 'px');
-                particle.style.setProperty('--ty', (Math.random() - 0.5) * 200 + 'px');
-                particle.style.animationDelay = Math.random() * 5 + 's';
-                particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
-                container.appendChild(particle);
-            }
+            // Login particles animation disabled
+            return;
         }
 
         window.closePopup = () => {
@@ -2396,7 +2417,9 @@
                         isPremium: isAdmin ? true : false,
                         balanceTK: isAdmin ? 10000 : 0,
                         createdAt: new Date().toISOString(),
-                        lastReadTimestamp: 0
+                        lastReadTimestamp: 0,
+                        inviteBonus: 0,
+                        inviteBonusTransferred: 0
                     };
 
                     if (refCode) {
@@ -2404,7 +2427,9 @@
                         const referralPath = ref(db, `referrals/${refCode}/${firebaseUser.uid}`);
                         set(referralPath, {
                             name: newUser.name,
-                            joinedAt: new Date().toLocaleString()
+                            joinedAt: new Date().toLocaleString(),
+                            isValid: false,
+                            deposited: false
                         });
                     }
 
@@ -2835,6 +2860,11 @@
                     currentUserData = data;
                     currentUserData.uid = user.uid;
                     lastKnownBalance = newBal;
+
+                    // Update invite bonus data
+                    inviteBonusData.total = data.inviteBonus || 0;
+                    inviteBonusData.transferred = data.inviteBonusTransferred || 0;
+                    updateInviteBonusUI();
                     updateUI();
                     
                     if(document.getElementById('view-transfer').classList.contains('hidden') === false) {
@@ -2951,6 +2981,11 @@
 
             loadUserInvestments(user.uid);
             loadReferralStats(user.uid);
+
+            // Show invite popup on app open
+            setTimeout(() => {
+                showInvitePopup();
+            }, 500);
             window.loadUserSavings(user.uid);
             monitorIncomingTransfers(user.uid); 
             
@@ -3086,32 +3121,86 @@
             }
         }
 
+        // ===== UPDATED REFERRAL STATS WITH VALID/INVALID STATUS =====
         function loadReferralStats(uid) {
             const listContainer = document.getElementById('invited-list');
             const countDisplay = document.getElementById('total-invites-count');
-            
+            const validCountDisplay = document.getElementById('invite-bonus-valid-count');
+
             onValue(ref(db, `referrals/${uid}`), (snapshot) => {
                 listContainer.innerHTML = "";
                 const data = snapshot.val();
-                
+
                 if (!data || Object.keys(data).length === 0) {
                     listContainer.innerHTML = `<div style="text-align:center; color:#777; font-size:0.8rem;">No invites yet.</div>`;
                     countDisplay.innerText = "0";
+                    validCountDisplay.innerText = "0 Valid Members";
                     return;
                 }
 
-                const invites = Object.values(data);
+                const invites = Object.entries(data);
                 countDisplay.innerText = invites.length;
 
-                invites.forEach(member => {
+                let validCount = 0;
+                let totalBonus = 0;
+
+                invites.forEach(([memberId, member]) => {
                     const div = document.createElement('div');
                     div.className = 'invited-item';
+
+                    const isValid = member.isValid === true;
+                    const hasDeposited = member.deposited === true;
+
+                    if (isValid) {
+                        validCount++;
+                        totalBonus += 3; // 3 TK per valid member
+                    }
+
                     div.innerHTML = `
-                        <span class="invited-name"><i class="fas fa-user" style="margin-right:5px; font-size:0.8rem; color:#555;"></i> ${member.name}</span>
-                        <span class="invited-date">${member.joinedAt}</span>
+                        <div class="invited-info">
+                            <span class="invited-name"><i class="fas fa-user" style="margin-right:5px; font-size:0.8rem; color:#555;"></i> ${member.name}</span>
+                            <span class="invited-date">${member.joinedAt}</span>
+                        </div>
+                        <div class="invited-status-line">
+                            <span class="invited-status ${isValid ? 'valid' : 'invalid'}">
+                                <i class="fas ${isValid ? 'fa-check-circle' : 'fa-clock'}"></i>
+                                ${isValid ? 'VALID' : 'INVALID'}
+                            </span>
+                            ${isValid ? '<span class="invited-bonus">+3 TK</span>' : ''}
+                        </div>
                     `;
                     listContainer.appendChild(div);
                 });
+
+                validCountDisplay.innerText = `${validCount} Valid Members`;
+
+                // Update invite bonus in database if changed
+                if (currentUserData && totalBonus !== (currentUserData.inviteBonus || 0)) {
+                    update(ref(db, 'users/' + uid), {
+                        inviteBonus: totalBonus
+                    });
+                }
+            });
+
+            // Listen for deposit changes to update valid status
+            onValue(ref(db, 'deposits'), (snapshot) => {
+                const deposits = snapshot.val();
+                if (deposits) {
+                    Object.entries(deposits).forEach(([depositId, deposit]) => {
+                        if (deposit.status === 'approved' && deposit.userId) {
+                            // Check if this user was referred by current user
+                            const userRef = ref(db, `referrals/${uid}/${deposit.userId}`);
+                            get(userRef).then((snap) => {
+                                if (snap.exists()) {
+                                    update(userRef, {
+                                        isValid: true,
+                                        deposited: true
+                                    });
+                                }
+                            });
+                        }
+                    });
+                }
             });
         }
 
@@ -3412,20 +3501,42 @@
         // ===== UPDATED WITHDRAW WITH PKR DISPLAY =====
         window.calculateWithdraw = () => {
             const tk = parseFloat(document.getElementById('withdraw-amount').value) || 0;
-            
+
             const currentPrice = getCurrentPrice();
             const currentPricePKR = currentPrice * marketData.usdtRate;
-            
+
             const pkrVal = tk * currentPricePKR;
-            
-            // Update PKR display
-            document.getElementById('withdraw-calc-usdt').innerText = pkrVal.toFixed(2);
-            document.getElementById('withdraw-pkr-amount').innerText = pkrVal.toFixed(2);
-            document.getElementById('withdraw-current-rate').innerText = currentPricePKR.toFixed(2);
-            
-            // Update fee percent display
+
+            // Calculate fee
             const feePercent = currentUserData?.isPremium ? 0 : (appSettings.withdrawFee * 100);
-            document.getElementById('withdraw-fee-percent').innerText = feePercent;
+            const feeRate = currentUserData?.isPremium ? 0 : appSettings.withdrawFee;
+            const feeTK = tk * feeRate;
+            const feePKR = feeTK * currentPricePKR;
+
+            // Final amounts
+            const finalTK = tk - feeTK;
+            const finalPKR = finalTK * currentPricePKR;
+
+            // Show/hide preview
+            const preview = document.getElementById('withdraw-preview');
+            if (tk > 0) {
+                preview.classList.remove('hidden');
+            } else {
+                preview.classList.add('hidden');
+            }
+
+            // Update preview
+            document.getElementById('preview-tk-amount').innerText = tk.toFixed(2);
+            document.getElementById('preview-pkr-amount').innerText = pkrVal.toFixed(2);
+            document.getElementById('preview-fee-percent').innerText = feePercent;
+            document.getElementById('preview-fee-amount').innerText = feeTK.toFixed(2);
+            document.getElementById('preview-fee-pkr').innerText = feePKR.toFixed(2);
+            document.getElementById('preview-final-tk').innerText = finalTK.toFixed(2);
+            document.getElementById('preview-final-pkr').innerText = finalPKR.toFixed(2);
+            document.getElementById('preview-locked-rate').innerText = currentPricePKR.toFixed(2);
+
+            // Store current rate for withdrawal
+            window.currentWithdrawRate = currentPricePKR;
         }
 
         window.submitWithdraw = () => {
@@ -3442,25 +3553,39 @@
 
             if (total > currentUserData.balanceTK) return window.showToast("Insufficient balance", "error");
 
-            const currentPrice = getCurrentPrice();
-            const currentPricePKR = currentPrice * marketData.usdtRate;
-            const pkrVal = amount * currentPricePKR;
+            // Use the SAVED rate from when user entered the amount
+            // This rate won't change even if market rate changes
+            const savedRate = window.currentWithdrawRate || (getCurrentPrice() * marketData.usdtRate);
+
+            // Calculate PKR values using the SAVED rate
+            const pkrVal = amount * savedRate;
+            const feePKR = fee * savedRate;
+            const finalPKR = (amount - fee) * savedRate;
 
             const newWithdrawKey = push(ref(db, 'withdrawals')).key;
 
-            // ===== UPDATED WITHDRAW DATA WITH PKR AMOUNT =====
+            // ===== WITHDRAW DATA WITH LOCKED RATE =====
             const withdrawData = {
                 userId: currentUserData.uid,
                 userEmail: currentUserData.email,
                 method: method,
                 account: account,
-                amount: amount, // TK amount
-                pkrAmount: pkrVal, // PKR amount - YEH NAYA FIELD HAI
-                currentRate: currentPricePKR, // Current rate - YEH BHI NAYA
-                pkrDisplay: pkrVal.toFixed(2) + ' PKR', // Readable format
-                fee: fee,
-                total: total, 
+                amount: amount, // TK amount entered
+                fee: fee, // Fee in TK
+                total: total, // Total deduction from balance
+                finalAmount: amount - fee, // TK after fee
+
+                // PKR amounts using LOCKED rate
+                pkrAmount: pkrVal, // PKR value of TK amount
+                feePKR: feePKR, // Fee in PKR
+                finalPKR: finalPKR, // Final PKR after fee
+
+                // LOCKED RATE - This won't change
+                lockedRate: savedRate, // Rate at time of withdrawal
+                lockedRateDisplay: '1 TK = ' + savedRate.toFixed(2) + ' PKR',
+
                 date: new Date().toLocaleString(),
+                timestamp: Date.now(),
                 status: 'pending'
             };
 
@@ -3472,6 +3597,8 @@
                 window.showToast("Withdrawal Requested. Balance Deducted.");
                 document.getElementById('withdraw-amount').value = '';
                 document.getElementById('withdraw-account').value = '';
+                document.getElementById('withdraw-preview').classList.add('hidden');
+                window.currentWithdrawRate = null; // Clear saved rate
                 window.showSection('wallet');
             }).catch((error) => {
                 console.error("Withdraw Error:", error);
@@ -3692,10 +3819,39 @@
                     let title = item.type ? item.type.toUpperCase() : 'TRANSFER';
                     let subtitle = item.method || '';
                     let amountColor = '#fff';
+                    let extraInfo = '';
 
                     if(item.type === 'Deposit' || item.type === 'Withdraw') {
                         if(item.status === 'approved') statusColor = 'var(--success)';
                         if(item.status === 'rejected') statusColor = 'var(--danger)';
+
+                        // For withdraw, show locked rate info
+                        if(item.type === 'Withdraw' && item.lockedRate) {
+                            extraInfo = `
+                                <div style="margin-top:8px; padding-top:8px; border-top:1px solid #333; font-size:0.75rem;">
+                                    <div style="display:flex; justify-content:space-between;">
+                                        <span style="color:#888;">TK Amount:</span>
+                                        <span style="color:#fff;">${item.amount} TK</span>
+                                    </div>
+                                    <div style="display:flex; justify-content:space-between;">
+                                        <span style="color:#888;">Fee:</span>
+                                        <span style="color:var(--danger);">- ${item.fee ? item.fee.toFixed(2) : '0'} TK</span>
+                                    </div>
+                                    <div style="display:flex; justify-content:space-between;">
+                                        <span style="color:#888;">Final:</span>
+                                        <span style="color:var(--success);">${item.finalAmount ? item.finalAmount.toFixed(2) : item.amount} TK</span>
+                                    </div>
+                                    <div style="display:flex; justify-content:space-between; margin-top:4px;">
+                                        <span style="color:#888;"><i class="fas fa-lock"></i> Sell Rate:</span>
+                                        <span style="color:var(--primary);">1 TK = ${item.lockedRate.toFixed(2)} PKR</span>
+                                    </div>
+                                    <div style="display:flex; justify-content:space-between;">
+                                        <span style="color:#888;">PKR Value:</span>
+                                        <span style="color:var(--success); font-weight:bold;">${item.finalPKR ? item.finalPKR.toFixed(2) : item.pkrAmount.toFixed(2)} PKR</span>
+                                    </div>
+                                </div>
+                            `;
+                        }
                     } else if (item.type === 'Transfer') {
                          title = 'TRANSFER';
                          subtitle = item.direction === 'Sent' ? `Sent to: ${item.peerName}` : `Received from: ${item.peerName}`;
@@ -3719,6 +3875,7 @@
                                 </div>
                                 ${item.status ? `<div class="status-badge" style="background:${statusColor}; color:${item.status==='pending'?'black':'white'}">${item.status}</div>` : ''}
                             </div>
+                            ${extraInfo}
                         </div>
                     `;
                 });
@@ -4080,6 +4237,164 @@
             }
         });
         
+        // ===== TRADE COUNTDOWN FUNCTIONS =====
+        let tradeCountdownInterval = null;
+        let isTradeActive = false;
+        let activeTradeData = null;
+
+        function startTradeCountdown(duration, tradeData) {
+            isTradeActive = true;
+            activeTradeData = tradeData;
+
+            const countdownEl = document.getElementById('trade-countdown');
+            const progressBar = document.getElementById('trade-progress-bar');
+            const activeTradeDisplay = document.getElementById('active-trade-display');
+            const tradingControls = document.getElementById('trading-controls');
+
+            activeTradeDisplay.classList.remove('hidden');
+            tradingControls.classList.add('hidden');
+
+            document.getElementById('active-trade-type').innerText = tradeData.type.toUpperCase();
+            document.getElementById('active-trade-amount').innerText = tradeData.amount;
+
+            let remaining = duration;
+            const totalDuration = duration;
+
+            // Keep normal candle speed - candles move naturally
+
+            tradeCountdownInterval = setInterval(() => {
+                remaining--;
+                const minutes = Math.floor(remaining / 60);
+                const seconds = remaining % 60;
+                countdownEl.innerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                const progress = (remaining / totalDuration) * 100;
+                progressBar.style.width = progress + '%';
+
+                // Candle moves naturally - no artificial speed up
+
+                if (remaining <= 0) {
+                    clearInterval(tradeCountdownInterval);
+                    finishTrade(tradeData);
+                }
+            }, 1000);
+        }
+
+        function finishTrade(tradeData) {
+            isTradeActive = false;
+
+            let result;
+            if (currentTradingMode === 'win') result = 'win';
+            else if (currentTradingMode === 'loss') result = 'loss';
+            else result = Math.random() > 0.5 ? 'win' : 'loss';
+
+            const profit = result === 'win' ? tradeData.amount * 0.9 : -tradeData.amount;
+            const finalAmount = result === 'win' ? tradeData.amount * 1.9 : 0;
+            const currentBalance = currentUserData.balanceTK;
+
+            // Add realistic final candle based on result
+            addFinalTradeCandle(tradeData.type, result);
+
+            const tradeResultData = {
+                userId: currentUserData.uid,
+                userEmail: currentUserData.email,
+                userName: currentUserData.name,
+                type: tradeData.type,
+                amount: tradeData.amount,
+                result: result,
+                profit: profit,
+                finalAmount: finalAmount,
+                mode: currentTradingMode,
+                timestamp: Date.now(),
+                date: new Date().toLocaleString()
+            };
+
+            push(ref(db, 'trades'), tradeResultData).then(() => {
+                document.getElementById('active-trade-display').classList.add('hidden');
+                document.getElementById('trading-controls').classList.remove('hidden');
+                showTradeResultBelowCandle(result, tradeData.amount, profit);
+                if (result === 'win') {
+                    update(ref(db, 'users/' + currentUserData.uid), { balanceTK: currentBalance + finalAmount });
+                    window.showToast(`You WON! +${(tradeData.amount * 0.9).toFixed(2)} TK profit!`, 'success');
+                } else {
+                    window.showToast('You LOST. Better luck next time!', 'error');
+                }
+                document.getElementById('trade-amount').value = '';
+                document.getElementById('potential-return').innerText = '0 TK';
+                loadUserTrading();
+            });
+        }
+
+        // Add final candle that shows realistic trade result
+        function addFinalTradeCandle(betType, result) {
+            if (candlestickData.length === 0) return;
+
+            const lastCandle = candlestickData[candlestickData.length - 1];
+            const volatility = lastCandle.close * 0.035; // 3.5% volatility for dramatic effect
+
+            let open, close, high, low, isUp;
+
+            // Determine candle direction based on bet and result
+            // WIN = candle moves in direction of bet
+            // LOSS = candle moves opposite to bet
+            if (result === 'win') {
+                // WIN - Candle moves in bet direction
+                if (betType === 'up') {
+                    // Bet UP and WON -> Green candle going UP
+                    open = lastCandle.close;
+                    close = open + volatility * (1.0 + Math.random() * 0.5);
+                    high = close + volatility * 0.3;
+                    low = open - volatility * 0.1;
+                    isUp = true;
+                } else {
+                    // Bet DOWN and WON -> Red candle going DOWN
+                    open = lastCandle.close;
+                    close = open - volatility * (1.0 + Math.random() * 0.5);
+                    high = open + volatility * 0.1;
+                    low = close - volatility * 0.3;
+                    isUp = false;
+                }
+            } else {
+                // LOSS - Candle moves opposite to bet
+                if (betType === 'up') {
+                    // Bet UP and LOST -> Red candle going DOWN
+                    open = lastCandle.close;
+                    close = open - volatility * (1.0 + Math.random() * 0.5);
+                    high = open + volatility * 0.1;
+                    low = close - volatility * 0.3;
+                    isUp = false;
+                } else {
+                    // Bet DOWN and LOST -> Green candle going UP
+                    open = lastCandle.close;
+                    close = open + volatility * (1.0 + Math.random() * 0.5);
+                    high = close + volatility * 0.3;
+                    low = open - volatility * 0.1;
+                    isUp = true;
+                }
+            }
+
+            // Ensure proper ordering
+            high = Math.max(open, close, high);
+            low = Math.min(open, close, low);
+
+            candlestickData.push({
+                open: parseFloat(open.toFixed(2)),
+                high: parseFloat(high.toFixed(2)),
+                low: parseFloat(low.toFixed(2)),
+                close: parseFloat(close.toFixed(2)),
+                timestamp: Date.now(),
+                isUp: isUp,
+                isTradeResult: true,
+                betType: betType,
+                result: result
+            });
+
+            if (candlestickData.length > 50) {
+                candlestickData.shift();
+            }
+
+            drawCandlestickChart();
+        }
+
         // ===== CANDLESTICK CHART FUNCTIONS =====
         function generateInitialCandles() {
             const candles = [];
@@ -4292,21 +4607,23 @@
             if (candlestickData.length === 0) return;
             
             const lastCandle = candlestickData[candlestickData.length - 1];
-            const volatility = lastCandle.close * 0.015; // 1.5% volatility
+            const volatility = lastCandle.close * 0.02; // 2% volatility
             
             let open, close, high, low;
             
             if (result === 'win') {
-                // WIN - Green candle going UP
+                // WIN - Green candle going UP (seedha/straight)
                 open = lastCandle.close;
-                close = open + volatility * (0.5 + Math.random() * 0.5); // Always up
+                close = open + volatility * (0.8 + Math.random() * 0.4); // Strong upward
                 high = close + Math.random() * volatility * 0.3;
-                low = open - Math.random() * volatility * 0.1;
+                low = open - Math.random() * volatility * 0.05;
             } else {
-                // LOSS - Red candle going DOWN
-                open = lastCandle.close;
-                close = open - volatility * (0.5 + Math.random() * 0.5); // Always down
-                high = open + Math.random() * volatility * 0.1;
+                // LOSS - Red candle going DOWN (ulta/inverted - dramatic drop)
+                // Ulta effect: candle neeche se shuru hokar upar jati hui dikhegi
+                // but actually price gir raha hai
+                close = lastCandle.close;
+                open = close + volatility * (0.8 + Math.random() * 0.4); // Open higher
+                high = open + Math.random() * volatility * 0.2;
                 low = close - Math.random() * volatility * 0.3;
             }
             
@@ -4320,7 +4637,7 @@
                 low: parseFloat(low.toFixed(2)),
                 close: parseFloat(close.toFixed(2)),
                 timestamp: Date.now(),
-                isUp: close >= open,
+                isUp: result === 'win', // Win = green, Loss = red
                 isTradeResult: true // Mark as trade result candle
             });
             
@@ -4341,78 +4658,39 @@
         
         window.placeTrade = (type) => {
             const amount = parseFloat(document.getElementById('trade-amount').value);
-            
+
             if (!amount || amount <= 0) {
                 window.showToast('Please enter a valid amount', 'error');
                 return;
             }
-            
+
             if (amount < minTradeAmount) {
                 window.showToast(`Minimum trade amount is ${minTradeAmount} TK`, 'error');
                 return;
             }
-            
+
             if (amount > currentUserData.balanceTK) {
                 window.showToast('Insufficient balance', 'error');
                 return;
             }
-            
-            // Deduct amount from balance
+
+            if (isTradeActive) {
+                window.showToast('A trade is already in progress. Please wait.', 'error');
+                return;
+            }
+
+            // Deduct amount from balance immediately
             const newBalance = currentUserData.balanceTK - amount;
             update(ref(db, 'users/' + currentUserData.uid), {
                 balanceTK: newBalance
             });
-            
-            // Determine result based on admin setting
-            let result;
-            if (currentTradingMode === 'win') {
-                result = 'win';
-            } else if (currentTradingMode === 'loss') {
-                result = 'loss';
-            } else {
-                // Random mode - 50/50 chance
-                result = Math.random() > 0.5 ? 'win' : 'loss';
-            }
-            
-            // Calculate profit/loss
-            const profit = result === 'win' ? amount * 0.9 : -amount;
-            const finalAmount = result === 'win' ? amount * 1.9 : 0;
-            
-            // Save trade
-            const tradeData = {
-                userId: currentUserData.uid,
-                userEmail: currentUserData.email,
-                userName: currentUserData.name,
-                type: type,
-                amount: amount,
-                result: result,
-                profit: profit,
-                finalAmount: finalAmount,
-                mode: currentTradingMode,
-                timestamp: Date.now(),
-                date: new Date().toLocaleString()
-            };
-            
-            push(ref(db, 'trades'), tradeData).then(() => {
-                // Show win/loss below candlestick
-                showTradeResultBelowCandle(result, amount, profit);
-                
-                // If win, add profit to balance
-                if (result === 'win') {
-                    update(ref(db, 'users/' + currentUserData.uid), {
-                        balanceTK: newBalance + finalAmount
-                    });
-                    window.showToast(`You WON! +${(amount * 0.9).toFixed(2)} TK profit!`, 'success');
-                } else {
-                    window.showToast('You LOST. Better luck next time!', 'error');
-                }
-                
-                document.getElementById('trade-amount').value = '';
-                document.getElementById('potential-return').innerText = '0 TK';
-                loadUserTrading();
-            });
+
+            // Start the trade with countdown
+            const tradeData = { type: type, amount: amount };
+            startTradeCountdown(30, tradeData);
+            window.showToast(`Trade started! ${type.toUpperCase()} ${amount} TK. Wait for result...`, 'info');
         };
-        
+
         function loadUserTrading() {
             const tradesList = document.getElementById('user-trades-list');
             if (!tradesList) return;
