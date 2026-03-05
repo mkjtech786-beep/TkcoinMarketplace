@@ -633,8 +633,40 @@
         .msg-user { align-self: flex-end; background: var(--primary); color: white; }
         .chat-input-area { padding: 10px; display: flex; gap: 10px; border-top: 1px solid #333; }
 
-        .badge-premium { color: var(--blue); margin-left: 5px; }
+        .badge-premium { color: gold; margin-left: 5px; }
         .blue-tick { color: #1da1f2; margin-left: 2px; }
+
+        /* ===== GOLDEN PREMIUM USER STYLES ===== */
+        .golden-premium {
+            background: linear-gradient(90deg, #ffd700, #ffec8b, #ffd700, #ffec8b);
+            background-size: 300% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: bold;
+            animation: goldenShine 2s linear infinite;
+        }
+
+        @keyframes goldenShine {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 300% 50%; }
+        }
+
+        .golden-tick {
+            color: gold;
+            animation: tickPulse 1.5s ease-in-out infinite;
+            filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.8));
+        }
+
+        @keyframes tickPulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+        }
+
+        .golden-text {
+            color: gold;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
         .status-badge { padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; }
         .status-pending { background: #ff9800; color: black; }
         .status-approved { background: #00c853; color: white; }
@@ -1286,7 +1318,7 @@
         <header>
             <div class="logo">
                 <i class="fas fa-coins"></i> TK Coin
-                <span id="header-premium-badge" class="hidden blue-tick"><i class="fas fa-check-circle"></i></span>
+                <span id="header-premium-badge" class="hidden golden-tick"><i class="fas fa-check-circle"></i></span>
             </div>
             <div class="user-info" onclick="window.showSection('profile')">
                 <div style="text-align: right;">
@@ -1662,6 +1694,18 @@
             <section id="view-chat" class="section hidden">
                 <h2>Live Support 24/7 </h2>
                 <div class="chat-box">
+                    <!-- Quick Options Buttons -->
+                    <div id="chat-options" style="padding: 10px; border-bottom: 1px solid #333; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;">
+                        <button class="btn btn-sm btn-outline" onclick="window.sendBotOption('deposit')" style="width: auto; padding: 8px 15px; font-size: 0.8rem;">
+                            <i class="fas fa-wallet"></i> How To Deposit
+                        </button>
+                        <button class="btn btn-sm btn-outline" onclick="window.sendBotOption('withdraw')" style="width: auto; padding: 8px 15px; font-size: 0.8rem;">
+                            <i class="fas fa-money-bill-wave"></i> How To Withdraw
+                        </button>
+                        <button class="btn btn-sm btn-outline" onclick="window.sendBotOption('about')" style="width: auto; padding: 8px 15px; font-size: 0.8rem;">
+                            <i class="fas fa-coins"></i> About TK Coin
+                        </button>
+                    </div>
                     <div class="chat-messages" id="chat-messages"></div>
                     <div class="chat-input-area">
                         <input type="text" id="chat-input" placeholder="Type a message..." style="flex: 1; padding: 8px; border-radius: 4px; border: none; background: #333; color: white;">
@@ -1928,7 +1972,7 @@
                 <span>Market</span>
             </a>
             <!-- ===== NEW TRADING NAV BUTTON ===== -->
-            <a class="nav-item" onclick="window.showSection('trading')" style="background: linear-gradient(135deg, #9c27b0, #e91e63); border-radius: 8px; margin: 0 5px;">
+            <a class="nav-item" onclick="window.showSection('trading')">
                 <i class="fas fa-exchange-alt"></i>
                 <span>Trading</span>
             </a>
@@ -3214,6 +3258,33 @@
             if (sectionId === 'chat') {
                 loadUserChat();
                 resetUnreadChatCount();
+                // Reset chat state
+                adminReplyReceived = false;
+                lastMessageWasBot = false;
+
+                // Check if chat is still blocked
+                const isBlocked = checkChatBlockStatus();
+
+                const input = document.getElementById('chat-input');
+                const btn = document.querySelector('.chat-input-area .btn');
+                const options = document.getElementById('chat-options');
+
+                if (isBlocked) {
+                    // Chat is blocked - disable input and show countdown
+                    if (input) input.disabled = true;
+                    if (btn) btn.disabled = true;
+                    if (options) options.style.display = 'none';
+                    // Restart the countdown timer
+                    startChatBlockTimer();
+                } else {
+                    // Chat is not blocked - enable everything
+                    if (input) {
+                        input.disabled = false;
+                        input.placeholder = "Type a message...";
+                    }
+                    if (btn) btn.disabled = false;
+                    if (options) options.style.display = 'flex';
+                }
             }
             if (sectionId === 'portfolio') calculatePortfolioPL();
             if (sectionId === 'transfer') checkTransferCooldown();
@@ -3244,7 +3315,7 @@
             document.getElementById('wallet-pkr').innerText = pkrValue.toFixed(2);
             
             if (currentUserData.isPremium) {
-                document.getElementById('profile-status').innerHTML = `<span class="text-blue"><i class="fas fa-check-circle blue-tick"></i> Premium User</span>`;
+                document.getElementById('profile-status').innerHTML = `<span class="golden-premium"><i class="fas fa-check-circle golden-tick"></i> Premium User</span>`;
                 document.getElementById('header-premium-badge').classList.remove('hidden');
             } else {
                 document.getElementById('profile-status').innerText = "Standard User";
@@ -3729,18 +3800,33 @@
                 container.innerHTML = "";
                 const data = snapshot.val();
                 if (!data) {
-                    container.innerHTML = `<div style="text-align:center; color:#777; margin-top:20px;">Start conversation.</div>`;
+                    container.innerHTML = `<div style="text-align:center; color:#777; margin-top:20px;">Start conversation or select an option above.</div>`;
                     return;
                 }
                 Object.values(data).forEach(msg => {
                     const isUser = msg.sender === currentUserData.uid;
+                    const isBot = msg.sender === 'bot' || msg.isBot === true;
                     const div = document.createElement('div');
-                    div.className = `message ${isUser ? 'msg-user' : 'msg-admin'}`;
-                    div.innerText = msg.text;
+
+                    if (isBot) {
+                        div.className = 'message msg-admin';
+                        div.style.background = 'linear-gradient(135deg, #ff6600, #ff9100)';
+                        div.style.color = 'white';
+                        div.innerHTML = '<i class="fas fa-robot" style="margin-right: 5px;"></i> ' + msg.text.replace(/\n/g, '<br>');
+                    } else if (isUser) {
+                        div.className = 'message msg-user';
+                        div.innerText = msg.text;
+                    } else {
+                        div.className = 'message msg-admin';
+                        div.innerHTML = '<i class="fas fa-headset" style="margin-right: 5px;"></i> ' + msg.text;
+                    }
                     container.appendChild(div);
                 });
                 container.scrollTop = container.scrollHeight;
             });
+
+            // Start monitoring admin replies
+            monitorAdminReplies(currentUserData.uid);
         }
 
         function monitorUnreadChat(uid) {
@@ -3788,17 +3874,233 @@
             });
         }
 
+        // ===== ENHANCED CHAT FUNCTIONS WITH BOT =====
+
+        // Check if text contains abusive words - EXACT MATCH ONLY
+        function containsAbusiveWords(text) {
+            const lowerText = ' ' + text.toLowerCase() + ' ';
+
+            return abusiveWords.some(word => {
+                const lowerWord = word.toLowerCase();
+                // Check if word exists as a standalone word/phrase
+                // Add spaces to ensure word boundaries
+                const searchPattern = ' ' + lowerWord + ' ';
+                return lowerText.includes(searchPattern) || 
+                       lowerText.startsWith(lowerWord + ' ') ||
+                       lowerText.endsWith(' ' + lowerWord) ||
+                       lowerText === ' ' + lowerWord + ' ';
+            });
+        }
+
+        // Check if text contains acknowledgment words
+        function containsAcknowledgment(text) {
+            const lowerText = text.toLowerCase();
+            return acknowledgmentWords.some(word => lowerText.includes(word.toLowerCase()));
+        }
+
+        // Send bot message
+        function sendBotMessage(message) {
+            const chatRef = ref(db, 'chats/' + currentUserData.uid);
+            push(chatRef, {
+                sender: 'bot',
+                text: message,
+                timestamp: Date.now(),
+                isBot: true
+            });
+            lastMessageWasBot = true;
+        }
+
+        // Start 5-minute timer for auto-reply
+        function startChatTimer() {
+            if (chatTimer) clearTimeout(chatTimer);
+
+            chatTimer = setTimeout(() => {
+                // Only send if admin hasn't replied and chat isn't closed
+                if (!adminReplyReceived && !isChatClosed && !lastMessageWasBot) {
+                    const waitMessages = [
+                        `👋 **Hello!**\n\nThank you for contacting us. Our support team is currently busy with other customers.\n\n⏰ Please wait a few minutes, our official representative will reply to you shortly.\n\n🙏 We appreciate your patience!`,
+                        `📩 **Message Received!**\n\nYour query has been forwarded to our support team.\n\n⏳ Due to high volume, it may take a few minutes for our official agent to respond.\n\n🙏 Thank you for waiting!`,
+                        `✅ **Thank you for reaching out!**\n\nOur support staff is currently assisting other users.\n\n⌛ Please wait a few minutes - an official message from our team will arrive soon.\n\n🙏 We value your patience!`
+                    ];
+                    // Randomly select one message for variety
+                    const randomMessage = waitMessages[Math.floor(Math.random() * waitMessages.length)];
+                    sendBotMessage(randomMessage);
+                }
+            }, 60 * 1000); // 1 minute
+        }
+
+        // Close chat with warning and 30-minute timer
+        function closeChatWithWarning() {
+            isChatClosed = true;
+            chatBlockEndTime = Date.now() + CHAT_BLOCK_DURATION;
+
+            const blockEndTime = new Date(chatBlockEndTime).toLocaleTimeString();
+
+            sendBotMessage(`⚠️ **WARNING** ⚠️\n\nAbusive language detected!\n\n🚫 Chat blocked for 30 minutes\n⏰ You can message again at: ${blockEndTime}\n\nPlease use respectful language.`);
+
+            // Disable chat input
+            const input = document.getElementById('chat-input');
+            const btn = document.querySelector('.chat-input-area .btn');
+            if (input) {
+                input.disabled = true;
+                input.placeholder = "Chat blocked for 30 minutes...";
+            }
+            if (btn) btn.disabled = true;
+
+            // Hide options
+            const options = document.getElementById('chat-options');
+            if (options) options.style.display = 'none';
+
+            // Start 30-minute countdown to re-enable chat
+            startChatBlockTimer();
+        }
+
+        // Start 30-minute chat block timer
+        function startChatBlockTimer() {
+            if (chatBlockTimer) clearInterval(chatBlockTimer);
+
+            chatBlockTimer = setInterval(() => {
+                const now = Date.now();
+                const remaining = chatBlockEndTime - now;
+
+                if (remaining <= 0) {
+                    // 30 minutes passed - re-enable chat
+                    clearInterval(chatBlockTimer);
+                    chatBlockTimer = null;
+                    isChatClosed = false;
+                    chatBlockEndTime = 0;
+
+                    // Re-enable chat input
+                    const input = document.getElementById('chat-input');
+                    const btn = document.querySelector('.chat-input-area .btn');
+                    const options = document.getElementById('chat-options');
+
+                    if (input) {
+                        input.disabled = false;
+                        input.placeholder = "Type a message...";
+                    }
+                    if (btn) btn.disabled = false;
+                    if (options) options.style.display = 'flex';
+
+                    // Send notification
+                    sendBotMessage(`✅ **Chat Unblocked!**\n\nYou can now send messages again.\nPlease use respectful language. 🙏`);
+                } else {
+                    // Update countdown in placeholder
+                    const minutes = Math.floor(remaining / 60000);
+                    const seconds = Math.floor((remaining % 60000) / 1000);
+                    const input = document.getElementById('chat-input');
+                    if (input && input.disabled) {
+                        input.placeholder = `Blocked: ${minutes}m ${seconds}s remaining...`;
+                    }
+                }
+            }, 1000); // Update every second
+        }
+
+        // Check if chat is still blocked when entering chat section
+        function checkChatBlockStatus() {
+            if (chatBlockEndTime > 0) {
+                const now = Date.now();
+                if (now >= chatBlockEndTime) {
+                    // Block time expired
+                    isChatClosed = false;
+                    chatBlockEndTime = 0;
+                    if (chatBlockTimer) {
+                        clearInterval(chatBlockTimer);
+                        chatBlockTimer = null;
+                    }
+                    return false; // Not blocked
+                } else {
+                    // Still blocked
+                    isChatClosed = true;
+                    return true; // Blocked
+                }
+            }
+            return false; // Not blocked
+        }
+
+        // Send option-based bot reply
+        window.sendBotOption = (option) => {
+            if (isChatClosed) {
+                window.showToast("Chat is closed", "error");
+                return;
+            }
+
+            let message = '';
+            switch(option) {
+                case 'deposit':
+                    message = chatBotReplies.deposit;
+                    break;
+                case 'withdraw':
+                    message = chatBotReplies.withdraw;
+                    break;
+                case 'about':
+                    message = chatBotReplies.about;
+                    break;
+            }
+
+            if (message) {
+                sendBotMessage(message);
+                adminReplyReceived = true; // Bot reply counts as reply
+                lastMessageWasBot = true;
+            }
+        };
+
         window.sendChatMessage = () => {
             const input = document.getElementById('chat-input');
-            const text = input.value;
+            const text = input.value.trim();
             if(!text) return;
+
+            // Check if chat is closed
+            if (isChatClosed) {
+                window.showToast("Chat is closed due to violation", "error");
+                return;
+            }
+
+            // Check for abusive words
+            if (containsAbusiveWords(text)) {
+                closeChatWithWarning();
+                return;
+            }
+
+            // Send user message
             const chatRef = ref(db, 'chats/' + currentUserData.uid);
             push(chatRef, {
                 sender: currentUserData.uid,
                 text: text,
                 timestamp: Date.now()
             });
+
+            // Reset states
+            lastUserMessageTime = Date.now();
+            adminReplyReceived = false;
+            lastMessageWasBot = false;
+
+            // Check if message contains acknowledgment words
+            const hasAck = containsAcknowledgment(text);
+
+            // Start 5-minute timer only if no acknowledgment words
+            if (!hasAck) {
+                startChatTimer();
+            }
+
             input.value = "";
+        }
+
+        // Monitor admin replies
+        function monitorAdminReplies(uid) {
+            const chatRef = ref(db, 'chats/' + uid);
+            onChildAdded(chatRef, (snapshot) => {
+                const msg = snapshot.val();
+                if (msg && msg.sender !== uid && msg.sender !== 'bot') {
+                    // Admin replied
+                    adminReplyReceived = true;
+                    lastMessageWasBot = false;
+                    if (chatTimer) {
+                        clearTimeout(chatTimer);
+                        chatTimer = null;
+                    }
+                }
+            });
         }
 
         function loadUserHistory() {
@@ -4550,7 +4852,7 @@
             drawCandlestickChart();
             
             // Add new candle every 3 seconds (simulating live trading)
-            candlestickInterval = setInterval(addNewCandle, 3000);
+            candlestickInterval = setInterval(addNewCandle, 2000);
         }
         
         function stopCandlestickChart() {
@@ -4763,6 +5065,116 @@
         }
         // ===== END TRADING FUNCTIONS =====
         
+
+        // ===== CHAT BOT VARIABLES =====
+        let chatBotReplies = {
+            deposit: `📥 **How To Deposit:**
+
+1️⃣ Go to Wallet → Deposit
+2️⃣ Choose method (Till ID / USDT)
+3️⃣ Send payment to shown address
+4️⃣ Enter Transaction ID
+5️⃣ Submit & wait for approval
+
+⏱️ Usually takes 5-30 minutes`,
+
+            withdraw: `📤 **How To Withdraw:**
+
+1️⃣ Go to Wallet → Withdraw  
+2️⃣ Select method (JazzCash / USDT)
+3️⃣ Enter your account number
+4️⃣ Enter TK amount
+5️⃣ Submit request
+
+⏱️ Processing time: 1-24 hours
+💰 Fee: 5% (0% for Premium users)`,
+
+            about: `🪙 **About TK Coin:**
+
+TK Coin is a digital asset for trading, holding, and savings.
+
+✅ Trade with leverage
+✅ Earn daily profit on savings
+✅ Instant transfers to other users
+✅ Low withdrawal fees
+
+📈 Current price updates every 30 seconds!`
+        };
+
+        // Abusive words list (English + Urdu/Roman Urdu) - STRICT MATCH ONLY
+        const abusiveWords = [
+            // English Profanity (Exact matches)
+            'fuck', 'fucking', 'fucked', 'fucker', 'fuckers',
+            'shit', 'shitting', 'shitty',
+            'bitch', 'bitches', 'bitching',
+            'asshole', 'assholes',
+            'bastard', 'bastards',
+            'cunt', 'cunts',
+            'dick', 'dicks', 'dickhead',
+            'pussy', 'pussies',
+            'whore', 'whores',
+            'slut', 'sluts',
+            'nigger', 'nigga',
+            // English Insults (Strong negative only)
+            'retard', 'retards', 'retarded',
+            'moron', 'morons',
+            // Roman Urdu - Family Based (Exact phrases)
+            'madarchod', 'madarchod,', 'madarchod!',
+            'behenchod', 'behenchod,', 'behenchod!',
+            'bhenchod', 'bhenchod,', 'bhenchod!',
+            'randi', 'randi,', 'randi!',
+            'randibaaz', 'randibaaz,',
+            // Roman Urdu - Sexual (Exact matches)
+            'chutiya', 'chutiye', 'chutiyon',
+            'bhosdi', 'bhosdiwala', 'bhosdiwale',
+            'lund', 'lund,', 'lund!',
+            'choot', 'choot,', 'choot!',
+            'gaand', 'gaand,', 'gaand!',
+            'gand', 'gand,', 'gand!',
+            'chod', 'chod,', 'chod!',
+            'chodo', 'chodo,',
+            // Roman Urdu - Character Insults (Strong only)
+            'kamina', 'kamina,', 'kamina!',
+            'harami', 'harami,', 'harami!',
+            'haramkhor', 'haramkhor,',
+            'khabees', 'khabees,',
+            'badzaat', 'badzaat,',
+            // Roman Urdu - Threats (Exact phrases)
+            'maar dunga', 'maar dunga,',
+            'maar dalunga', 'maar dalunga,',
+            'dekh lunga', 'dekh lunga,',
+            'jaan se maar', 'jaan se maar,',
+            'tujhe dekh lunga', 'tujhe dekh lunga,',
+            'teri maa ki', 'teri maa ki,',
+            'teri behen ki', 'teri behen ki,',
+            'baap ko bula', 'baap ko bula,',
+            // Religious Hate
+            'kafir', 'kafir,',
+            'mushrik', 'mushrik,',
+            // Combined phrases (space included)
+            'maa ki choot', 'behen ki choot',
+            'teri maa', 'teri behen'
+        ];
+
+        // Acknowledgment words (if user sends these, bot won't auto-reply)
+        const acknowledgmentWords = [
+            'ok', 'okay', 'thanks', 'thank you', 'shukriya', 'shukria', 'theek',
+            'theek hai', 'samajh gaya', 'samajh gayi', 'got it', 'understood',
+            'haan', 'han', 'jee', 'ji', 'acha', 'achha', 'alright', 'cool',
+            'great', 'awesome', 'perfect', 'done', 'ho gaya', 'ho gai', 'kaam',
+            'work', 'working', 'chalo', 'chale', 'theek ho gaya', 'waha',
+            'allah hafiz', 'khuda hafiz', 'bye', 'allahafiz'
+        ];
+
+        let chatTimer = null;
+        let lastUserMessageTime = 0;
+        let isChatClosed = false;
+        let adminReplyReceived = false;
+        let lastMessageWasBot = false;
+        let chatBlockTimer = null;
+        let chatBlockEndTime = 0;
+        const CHAT_BLOCK_DURATION = 30 * 60 * 1000; // 30 minutes in milliseconds
+
         initApp();
         
         setInterval(processDailySavingsProfit, 60000);
