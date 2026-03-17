@@ -1221,12 +1221,229 @@
         .invite-transfer-btn { background: linear-gradient(135deg, var(--success), #00e676); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 15px; transition: 0.3s; }
         .invite-transfer-btn:hover { transform: scale(1.02); box-shadow: 0 5px 20px rgba(0, 200, 83, 0.4); }
         .invite-transfer-btn:disabled { background: #555; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        /* ===== BAN SYSTEM STYLES ===== */
+        #ban-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.98);
+            z-index: 100000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+        .ban-popup-content {
+            background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+            padding: 40px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 400px;
+            border: 3px solid var(--danger);
+            text-align: center;
+            animation: banPulse 2s infinite;
+        }
+        @keyframes banPulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(255, 61, 0, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(255, 61, 0, 0.8); }
+        }
+        .ban-icon {
+            font-size: 5rem;
+            color: var(--danger);
+            margin-bottom: 20px;
+            animation: banShake 0.5s ease infinite;
+        }
+        @keyframes banShake {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(5deg); }
+        }
+        .ban-title {
+            font-size: 2rem;
+            color: var(--danger);
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .ban-message {
+            color: var(--text-muted);
+            font-size: 1rem;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+        .ban-contact-btn {
+            background: linear-gradient(135deg, var(--primary), #ff9100);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            transition: 0.3s;
+        }
+        .ban-contact-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(255, 102, 0, 0.4);
+        }
+
+        /* BANNED USER SCREEN */
+        #banned-screen {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #121212 0%, #1a0f00 50%, #121212 100%);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .banned-header {
+            text-align: center;
+            padding: 40px 20px;
+            margin-bottom: 20px;
+        }
+        .banned-icon {
+            font-size: 6rem;
+            color: var(--danger);
+            margin-bottom: 20px;
+            animation: bannedPulse 2s infinite;
+        }
+        @keyframes bannedPulse {
+            0%, 100% { transform: scale(1); text-shadow: 0 0 20px rgba(255, 61, 0, 0.5); }
+            50% { transform: scale(1.1); text-shadow: 0 0 40px rgba(255, 61, 0, 0.8); }
+        }
+        .banned-title {
+            font-size: 2.5rem;
+            color: var(--danger);
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .banned-subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+        .banned-chat-container {
+            width: 100%;
+            max-width: 600px;
+            background: var(--bg-card);
+            border-radius: 15px;
+            border: 2px solid var(--danger);
+            overflow: hidden;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-height: 70vh;
+        }
+        .banned-chat-header {
+            background: linear-gradient(135deg, var(--danger), #ff6e40);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .banned-chat-header i {
+            font-size: 1.5rem;
+        }
+        .banned-chat-header span {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        .banned-chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .banned-chat-input-area {
+            padding: 15px;
+            border-top: 1px solid #333;
+            display: flex;
+            gap: 10px;
+        }
+        .banned-chat-input-area input {
+            flex: 1;
+            padding: 12px;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            color: white;
+            border-radius: 8px;
+            outline: none;
+        }
+        .banned-chat-input-area input:focus {
+            border-color: var(--primary);
+        }
+        .banned-contact-info {
+            margin-top: 20px;
+            padding: 20px;
+            background: var(--bg-card);
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #333;
+        }
+        .banned-contact-info h4 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        .banned-contact-info p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        /* ===== END BAN SYSTEM STYLES ===== */
 </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
     <div id="toast-container"></div>
+
+    <!-- ===== BAN SYSTEM HTML ===== -->
+    <!-- BAN POPUP - Shows immediately when banned -->
+    <div id="ban-popup" class="hidden">
+        <div class="ban-popup-content">
+            <i class="fas fa-ban ban-icon"></i>
+            <div class="ban-title">Account Banned!</div>
+            <div class="ban-message">
+                Your account has been banned by Company.<br>
+                Please contact customer support for assistance.
+            </div>
+            <button class="ban-contact-btn" onclick="window.showBannedScreen()">
+                <i class="fas fa-headset"></i> Contact Support
+            </button>
+        </div>
+    </div>
+
+    <!-- BANNED USER SCREEN - Only chat available -->
+    <div id="banned-screen" style="display: none;">
+        <div class="banned-header">
+            <i class="fas fa-ban banned-icon"></i>
+            <div class="banned-title">Account Banned</div>
+            <div class="banned-subtitle">Contact Customer Service</div>
+        </div>
+
+        <div class="banned-chat-container">
+            <div class="banned-chat-header">
+                <i class="fas fa-headset"></i>
+                <span>Support Chat</span>
+            </div>
+            <div class="banned-chat-messages" id="banned-chat-messages"></div>
+            <div class="banned-chat-input-area">
+                <input type="text" id="banned-chat-input" placeholder="Type your message..." onkeypress="if(event.key==='Enter')window.sendBannedChatMessage()">
+                <button class="btn btn-sm" onclick="window.sendBannedChatMessage()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="banned-contact-info">
+            <h4><i class="fas fa-info-circle"></i> Need Help?</h4>
+            <p>Our support team will review your case and respond shortly.</p>
+        </div>
+    </div>
+    <!-- ===== END BAN SYSTEM HTML ===== -->
+
 
     <!-- INVITE POPUP - App Open Hote Hi Dikhega -->
     <div id="invite-popup" class="hidden">
@@ -2444,6 +2661,15 @@
             const userRef = ref(db, 'users/' + firebaseUser.uid);
             get(userRef).then((snapshot) => {
                 if (snapshot.exists()) {
+                    // Check if user is banned
+                    if (snapshot.val().isBanned === true) {
+                        currentUserData = snapshot.val();
+                        currentUserData.uid = firebaseUser.uid;
+                        isUserBanned = true;
+                        window.showBanPopup();
+                        return;
+                    }
+
                     currentUserData = snapshot.val();
                     currentUserData.uid = firebaseUser.uid;
                     updateUserLocation(firebaseUser.uid);
@@ -2880,6 +3106,14 @@
         }
 
         function loginSuccess(user) {
+            // Check if user is banned
+            if (user.isBanned === true) {
+                isUserBanned = true;
+                currentUserData = user;
+                window.showBanPopup();
+                return;
+            }
+
             stopCoinRain();
             
             document.getElementById('auth-screen').classList.add('hidden');
@@ -2892,6 +3126,7 @@
             lastReadTimestamp = user.lastReadTimestamp || 0;
 
             trackUserActivity(user.uid);
+            monitorBanStatus(user.uid);
 
             onValue(ref(db, 'users/' + user.uid), (snapshot) => {
                 const data = snapshot.val();
@@ -5196,6 +5431,89 @@ TK Coin is a digital asset for trading, holding, and savings.
                 isOnline: true
             });
         }
-    </script>
+    
+        // ===== BAN SYSTEM FUNCTIONS =====
+        let isUserBanned = false;
+
+        // Show ban popup immediately
+        window.showBanPopup = () => {
+            document.getElementById('ban-popup').classList.remove('hidden');
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('app-container').classList.add('hidden');
+        };
+
+        // Show banned screen with chat
+        window.showBannedScreen = () => {
+            document.getElementById('ban-popup').classList.add('hidden');
+            document.getElementById('banned-screen').style.display = 'flex';
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('app-container').classList.add('hidden');
+            loadBannedChat();
+        };
+
+        // Load banned user chat
+        function loadBannedChat() {
+            if (!currentUserData) return;
+            const chatRef = ref(db, 'bannedChats/' + currentUserData.uid);
+            onValue(chatRef, (snapshot) => {
+                const container = document.getElementById('banned-chat-messages');
+                if (!container) return;
+                container.innerHTML = "";
+                const data = snapshot.val();
+                if (!data) {
+                    container.innerHTML = `<div style="text-align:center; color:#777; margin-top:20px;">Start conversation with support.</div>`;
+                    return;
+                }
+                Object.values(data).forEach(msg => {
+                    const div = document.createElement('div');
+                    if (msg.sender === 'admin') {
+                        div.className = 'message msg-admin';
+                        div.innerHTML = '<i class="fas fa-headset" style="margin-right: 5px;"></i> ' + msg.text;
+                    } else {
+                        div.className = 'message msg-user';
+                        div.innerText = msg.text;
+                    }
+                    container.appendChild(div);
+                });
+                container.scrollTop = container.scrollHeight;
+            });
+        }
+
+        // Send message from banned user
+        window.sendBannedChatMessage = () => {
+            const input = document.getElementById('banned-chat-input');
+            const text = input.value.trim();
+            if (!text || !currentUserData) return;
+
+            const chatRef = ref(db, 'bannedChats/' + currentUserData.uid);
+            push(chatRef, {
+                sender: 'user',
+                text: text,
+                timestamp: Date.now(),
+                userEmail: currentUserData.email,
+                userName: currentUserData.name
+            });
+            input.value = "";
+        };
+
+        // Monitor ban status in real-time
+        function monitorBanStatus(uid) {
+            const userRef = ref(db, 'users/' + uid + '/isBanned');
+            onValue(userRef, (snapshot) => {
+                const isBanned = snapshot.val();
+                if (isBanned === true && !isUserBanned) {
+                    isUserBanned = true;
+                    window.showBanPopup();
+                } else if (isBanned === false && isUserBanned) {
+                    // User was unbanned - reload page
+                    isUserBanned = false;
+                    window.showToast('Your account has been unbanned!', 'success');
+                    setTimeout(() => window.location.reload(), 2000);
+                }
+            });
+        }
+        // ===== END BAN SYSTEM FUNCTIONS =====
+
+</script>
 </body>
 </html>
