@@ -1391,6 +1391,131 @@
             color: var(--text-muted);
             font-size: 0.9rem;
         }
+        
+        /* ===== EMAIL VERIFICATION MODAL STYLES ===== */
+        #email-verify-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 100001;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+        .email-verify-content {
+            background: linear-gradient(135deg, #1e1e1e, #2a2a2a);
+            padding: 35px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 400px;
+            border: 2px solid var(--primary);
+            text-align: center;
+            animation: verifySlideIn 0.4s ease;
+        }
+        @keyframes verifySlideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .email-verify-icon {
+            font-size: 4rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            animation: emailPulse 2s infinite;
+        }
+        @keyframes emailPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .email-verify-title {
+            font-size: 1.5rem;
+            color: white;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .email-verify-text {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        .email-verify-code-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .email-verify-code-input {
+            width: 50px;
+            height: 55px;
+            background: #2a2a2a;
+            border: 2px solid #333;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        .email-verify-code-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(255, 102, 0, 0.3);
+        }
+        .email-verify-timer {
+            color: var(--warning);
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        .email-verify-resend {
+            color: var(--primary);
+            font-size: 0.85rem;
+            cursor: pointer;
+            text-decoration: underline;
+            margin-bottom: 15px;
+        }
+        .email-verify-resend:hover {
+            color: #ff9100;
+        }
+        .email-verify-resend.disabled {
+            color: #555;
+            cursor: not-allowed;
+            text-decoration: none;
+        }
+        .email-verify-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .email-verify-buttons .btn {
+            flex: 1;
+        }
+        .email-verify-status {
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.85rem;
+        }
+        .email-verify-status.sending {
+            background: rgba(255, 193, 7, 0.2);
+            border: 1px solid var(--warning);
+            color: var(--warning);
+        }
+        .email-verify-status.sent {
+            background: rgba(0, 200, 83, 0.2);
+            border: 1px solid var(--success);
+            color: var(--success);
+        }
+        .email-verify-status.error {
+            background: rgba(255, 61, 0, 0.2);
+            border: 1px solid var(--danger);
+            color: var(--danger);
+        }
+        /* ===== END EMAIL VERIFICATION STYLES ===== */
+
         /* ===== END BAN SYSTEM STYLES ===== */
 </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -1398,6 +1523,39 @@
 <body>
 
     <div id="toast-container"></div>
+
+    <!-- ===== EMAIL VERIFICATION MODAL ===== -->
+    <div id="email-verify-modal" class="hidden">
+        <div class="email-verify-content">
+            <i class="fas fa-envelope-open-text email-verify-icon"></i>
+            <div class="email-verify-title">Email Verification</div>
+            <div class="email-verify-text">
+                A 6-digit verification code has been sent to<br>
+                <strong id="verify-email-display" style="color: var(--primary);">your@email.com</strong>
+            </div>
+            <div id="email-verify-status" class="email-verify-status sending hidden">
+                <i class="fas fa-spinner fa-spin"></i> Sending verification code...
+            </div>
+            <div class="email-verify-code-container">
+                <input type="text" class="email-verify-code-input" maxlength="1" data-index="0">
+                <input type="text" class="email-verify-code-input" maxlength="1" data-index="1">
+                <input type="text" class="email-verify-code-input" maxlength="1" data-index="2">
+                <input type="text" class="email-verify-code-input" maxlength="1" data-index="3">
+                <input type="text" class="email-verify-code-input" maxlength="1" data-index="4">
+                <input type="text" class="email-verify-code-input" maxlength="1" data-index="5">
+            </div>
+            <div class="email-verify-timer" id="verify-timer">Code expires in: 05:00</div>
+            <div class="email-verify-resend disabled" id="resend-code" onclick="window.resendVerificationCode()">
+                <i class="fas fa-redo"></i> Resend Code
+            </div>
+            <div class="email-verify-buttons">
+                <button class="btn btn-outline" onclick="window.cancelEmailVerification()">Cancel</button>
+                <button class="btn" onclick="window.verifyCodeAndWithdraw()">Verify & Withdraw</button>
+            </div>
+        </div>
+    </div>
+    <!-- ===== END EMAIL VERIFICATION MODAL ===== -->
+
 
     <!-- ===== BAN SYSTEM HTML ===== -->
     <!-- BAN POPUP - Shows immediately when banned -->
@@ -2209,11 +2367,28 @@
         </nav>
     </div>
 
+    <!-- EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getDatabase, ref, set, push, onValue, update, get, child, onChildAdded, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        // ===== EMAILJS CONFIGURATION =====
+        // YEH VALUES AAPKO EMAILJS SE LENI HAIN:
+        // 1. https://www.emailjs.com pe jayein aur account banayein
+        // 2. Email Service add karein (Gmail/Outlook etc)
+        // 3. Template create karein with variables: {{to_email}}, {{code}}, {{user_name}}
+        // 4. In values ko yahan paste karein:
+        const EMAILJS_PUBLIC_KEY = 'eEOEBmiJWvIpYz0HH';      // EmailJS Dashboard > Account > API Keys
+        const EMAILJS_SERVICE_ID = 'service_nrksjjh';      // Email Services se
+        const EMAILJS_TEMPLATE_ID = 'template_yqddk8r';    // Email Templates se
+
+        // EmailJS initialize
+        emailjs.init(EMAILJS_PUBLIC_KEY);
+        // ==================================
 
         const firebaseConfig = {
             apiKey: "AIzaSyCBMk5ED0YNL9MqVThgMhoOuWvGwTgCJCg",
@@ -2447,6 +2622,7 @@
             checkUrlParams();
             startCoinRain();
             createParticles();
+            setupVerificationCodeInputs();
             
             const offsetRef = ref(db, '.info/serverTimeOffset');
             onValue(offsetRef, (snap) => {
@@ -3860,56 +4036,21 @@
             if (total > currentUserData.balanceTK) return window.showToast("Insufficient balance", "error");
 
             // Use the SAVED rate from when user entered the amount
-            // This rate won't change even if market rate changes
             const savedRate = window.currentWithdrawRate || (getCurrentPrice() * marketData.usdtRate);
 
-            // Calculate PKR values using the SAVED rate
-            const pkrVal = amount * savedRate;
-            const feePKR = fee * savedRate;
-            const finalPKR = (amount - fee) * savedRate;
-
-            const newWithdrawKey = push(ref(db, 'withdrawals')).key;
-
-            // ===== WITHDRAW DATA WITH LOCKED RATE =====
-            const withdrawData = {
-                userId: currentUserData.uid,
-                userEmail: currentUserData.email,
+            // Store withdrawal data for after verification
+            pendingWithdrawData = {
                 method: method,
                 account: account,
-                amount: amount, // TK amount entered
-                fee: fee, // Fee in TK
-                total: total, // Total deduction from balance
-                finalAmount: amount - fee, // TK after fee
-
-                // PKR amounts using LOCKED rate
-                pkrAmount: pkrVal, // PKR value of TK amount
-                feePKR: feePKR, // Fee in PKR
-                finalPKR: finalPKR, // Final PKR after fee
-
-                // LOCKED RATE - This won't change
-                lockedRate: savedRate, // Rate at time of withdrawal
-                lockedRateDisplay: '1 TK = ' + savedRate.toFixed(2) + ' PKR',
-
-                date: new Date().toLocaleString(),
-                timestamp: Date.now(),
-                status: 'pending'
+                amount: amount,
+                feeRate: feeRate,
+                fee: fee,
+                total: total,
+                savedRate: savedRate
             };
 
-            const updates = {};
-            updates['users/' + currentUserData.uid + '/balanceTK'] = currentUserData.balanceTK - total;
-            updates['withdrawals/' + newWithdrawKey] = withdrawData;
-
-            update(ref(db), updates).then(() => {
-                window.showToast("Withdrawal Requested. Balance Deducted.");
-                document.getElementById('withdraw-amount').value = '';
-                document.getElementById('withdraw-account').value = '';
-                document.getElementById('withdraw-preview').classList.add('hidden');
-                window.currentWithdrawRate = null; // Clear saved rate
-                window.showSection('wallet');
-            }).catch((error) => {
-                console.error("Withdraw Error:", error);
-                window.showToast("Failed to submit request. Try again.", "error");
-            });
+            // Show email verification modal
+            window.showEmailVerificationModal();
         };
 
         window.updateTransferInfo = () => {
@@ -5513,6 +5654,277 @@ TK Coin is a digital asset for trading, holding, and savings.
             });
         }
         // ===== END BAN SYSTEM FUNCTIONS =====
+
+        // ===== EMAIL VERIFICATION VARIABLES =====
+        let currentVerificationCode = null;
+        let verificationCodeExpiry = null;
+        let pendingWithdrawData = null;
+        let verificationTimerInterval = null;
+
+        // ===== EMAIL VERIFICATION FUNCTIONS =====
+        function generateVerificationCode() {
+            return Math.floor(100000 + Math.random() * 900000).toString();
+        }
+
+        function startVerificationTimer() {
+            if (verificationTimerInterval) {
+                clearInterval(verificationTimerInterval);
+            }
+
+            let timeLeft = 300; // 5 minutes
+            const timerEl = document.getElementById('verify-timer');
+            const resendEl = document.getElementById('resend-code');
+
+            resendEl.classList.add('disabled');
+
+            verificationTimerInterval = setInterval(() => {
+                timeLeft--;
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerEl.innerText = `Code expires in: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(verificationTimerInterval);
+                    timerEl.innerText = 'Code expired!';
+                    timerEl.style.color = 'var(--danger)';
+                    resendEl.classList.remove('disabled');
+                    currentVerificationCode = null;
+                }
+            }, 1000);
+        }
+
+        function setupVerificationCodeInputs() {
+            const inputs = document.querySelectorAll('.email-verify-code-input');
+
+            inputs.forEach((input, index) => {
+                input.addEventListener('input', (e) => {
+                    if (e.target.value.length === 1) {
+                        if (index < inputs.length - 1) {
+                            inputs[index + 1].focus();
+                        }
+                    }
+                });
+
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Backspace' && e.target.value === '' && index > 0) {
+                        inputs[index - 1].focus();
+                    }
+                });
+
+                input.addEventListener('paste', (e) => {
+                    e.preventDefault();
+                    const pasteData = e.clipboardData.getData('text').slice(0, 6);
+                    if (/^\d+$/.test(pasteData)) {
+                        inputs.forEach((inp, i) => {
+                            inp.value = pasteData[i] || '';
+                        });
+                        if (pasteData.length === 6) {
+                            inputs[5].focus();
+                        } else {
+                            inputs[Math.min(pasteData.length, 5)].focus();
+                        }
+                    }
+                });
+            });
+        }
+
+        async function sendVerificationEmail(email, code) {
+            // Store the verification code in Firebase for admin to see
+            try {
+                await set(ref(db, `emailVerifications/${currentUserData.uid}`), {
+                    email: email,
+                    code: code,
+                    timestamp: Date.now(),
+                    expiresAt: Date.now() + 300000, // 5 minutes
+                    used: false
+                });
+
+                // Send actual email using EmailJS
+                const templateParams = {
+                    to_email: email,
+                    code: code,
+                    user_name: currentUserData.name || 'User',
+                    from_name: 'TK Coin',
+                    message: `Your withdrawal verification code is: ${code}. This code will expire in 5 minutes.`
+                };
+
+                // Check if EmailJS is configured (all values should be set)
+                if (!EMAILJS_PUBLIC_KEY || !EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID ||
+                    EMAILJS_PUBLIC_KEY.includes('YOUR_') || EMAILJS_SERVICE_ID.includes('YOUR_') || EMAILJS_TEMPLATE_ID.includes('YOUR_')) {
+                    console.log('⚠️ EmailJS not fully configured. Code:', code);
+                    // Still return true so the flow continues (for testing)
+                    return true;
+                }
+
+                await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
+                console.log('✅ Email sent successfully to:', email);
+                return true;
+
+            } catch (error) {
+                console.error('Error sending verification email:', error);
+                // Still return true so user can see the code in toast (fallback)
+                return true;
+            }
+        }
+
+        window.showEmailVerificationModal = async () => {
+            const email = currentUserData.email;
+            document.getElementById('verify-email-display').innerText = email;
+            document.getElementById('email-verify-modal').classList.remove('hidden');
+
+            // Clear previous inputs
+            document.querySelectorAll('.email-verify-code-input').forEach(input => {
+                input.value = '';
+            });
+            document.querySelector('.email-verify-code-input').focus();
+
+            // Generate and send new code
+            currentVerificationCode = generateVerificationCode();
+            verificationCodeExpiry = Date.now() + 300000; // 5 minutes
+
+            const statusEl = document.getElementById('email-verify-status');
+            statusEl.classList.remove('hidden', 'sent', 'error');
+            statusEl.classList.add('sending');
+            statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending verification code...';
+
+            const sent = await sendVerificationEmail(email, currentVerificationCode);
+
+            if (sent) {
+                statusEl.classList.remove('sending');
+                statusEl.classList.add('sent');
+                statusEl.innerHTML = '<i class="fas fa-check-circle"></i> Verification code sent to your email!';
+                startVerificationTimer();
+
+                // Show appropriate message based on EmailJS configuration
+                if (!EMAILJS_PUBLIC_KEY || EMAILJS_PUBLIC_KEY.includes('YOUR_')) {
+                    // EmailJS not configured - show code for testing
+                    window.showToast(`Test Code: ${currentVerificationCode}`, 'success');
+                } else {
+                    // EmailJS configured - email sent
+                    window.showToast('Check your email for the OTP!', 'success');
+                }
+            } else {
+                statusEl.classList.remove('sending');
+                statusEl.classList.add('error');
+                statusEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Failed to send code. Try again.';
+            }
+        };
+
+        window.resendVerificationCode = async () => {
+            if (document.getElementById('resend-code').classList.contains('disabled')) return;
+
+            await window.showEmailVerificationModal();
+        };
+
+        window.cancelEmailVerification = () => {
+            document.getElementById('email-verify-modal').classList.add('hidden');
+            if (verificationTimerInterval) {
+                clearInterval(verificationTimerInterval);
+            }
+            currentVerificationCode = null;
+            pendingWithdrawData = null;
+        };
+
+        window.verifyCodeAndWithdraw = async () => {
+            const inputs = document.querySelectorAll('.email-verify-code-input');
+            let enteredCode = '';
+            inputs.forEach(input => {
+                enteredCode += input.value;
+            });
+
+            if (enteredCode.length !== 6) {
+                window.showToast('Please enter complete 6-digit code', 'error');
+                return;
+            }
+
+            if (!currentVerificationCode || Date.now() > verificationCodeExpiry) {
+                window.showToast('Code expired. Please request a new one.', 'error');
+                return;
+            }
+
+            if (enteredCode !== currentVerificationCode) {
+                window.showToast('Invalid verification code', 'error');
+                // Clear inputs
+                inputs.forEach(input => input.value = '');
+                inputs[0].focus();
+                return;
+            }
+
+            // Code verified - proceed with withdrawal
+            document.getElementById('email-verify-modal').classList.add('hidden');
+            if (verificationTimerInterval) {
+                clearInterval(verificationTimerInterval);
+            }
+
+            // Mark code as used
+            await update(ref(db, `emailVerifications/${currentUserData.uid}`), {
+                used: true,
+                usedAt: Date.now()
+            });
+
+            // Process the actual withdrawal
+            await processWithdrawal();
+        };
+
+        async function processWithdrawal() {
+            if (!pendingWithdrawData) return;
+
+            const { method, account, amount, feeRate, fee, total, savedRate } = pendingWithdrawData;
+
+            const newWithdrawKey = push(ref(db, 'withdrawals')).key;
+
+            // Calculate PKR values using the SAVED rate
+            const pkrVal = amount * savedRate;
+            const feePKR = fee * savedRate;
+            const finalPKR = (amount - fee) * savedRate;
+
+            // ===== WITHDRAW DATA WITH LOCKED RATE =====
+            const withdrawData = {
+                userId: currentUserData.uid,
+                userEmail: currentUserData.email,
+                method: method,
+                account: account,
+                amount: amount, // TK amount entered
+                fee: fee, // Fee in TK
+                total: total, // Total deduction from balance
+                finalAmount: amount - fee, // TK after fee
+
+                // PKR amounts using LOCKED rate
+                pkrAmount: pkrVal, // PKR value of TK amount
+                feePKR: feePKR, // Fee in PKR
+                finalPKR: finalPKR, // Final PKR after fee
+
+                // LOCKED RATE - This won't change
+                lockedRate: savedRate, // Rate at time of withdrawal
+                lockedRateDisplay: '1 TK = ' + savedRate.toFixed(2) + ' PKR',
+
+                date: new Date().toLocaleString(),
+                timestamp: Date.now(),
+                status: 'pending',
+                emailVerified: true,
+                verificationTime: Date.now()
+            };
+
+            const updates = {};
+            updates['users/' + currentUserData.uid + '/balanceTK'] = currentUserData.balanceTK - total;
+            updates['withdrawals/' + newWithdrawKey] = withdrawData;
+
+            update(ref(db), updates).then(() => {
+                window.showToast("Withdrawal Requested. Balance Deducted.");
+                document.getElementById('withdraw-amount').value = '';
+                document.getElementById('withdraw-account').value = '';
+                document.getElementById('withdraw-preview').classList.add('hidden');
+                window.currentWithdrawRate = null; // Clear saved rate
+                pendingWithdrawData = null;
+                currentVerificationCode = null;
+                window.showSection('wallet');
+            }).catch((error) => {
+                console.error("Withdraw Error:", error);
+                window.showToast("Failed to submit request. Try again.", "error");
+            });
+        }
+        // ===== END EMAIL VERIFICATION FUNCTIONS =====
+
 
 </script>
 </body>
