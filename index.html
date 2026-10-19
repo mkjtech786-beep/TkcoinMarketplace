@@ -1,1 +1,2845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TK Coin - Admin Panel</title>
+    <style>
+        :root {
+            --primary: #ff6600;
+            --primary-dark: #cc5200;
+            --bg-dark: #000000;
+            --bg-card: #111111;
+            --text-light: #fff3d6;
+            --text-muted: #b9aa87;
+            --success: #d4af37;
+            --danger: #ff6600;
+            --blue: #d4af37;
+        }
 
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            overflow-x: hidden;
+            padding-bottom: 20px;
+        }
+
+        .hidden { display: none !important; }
+        .text-orange { color: var(--primary); }
+        .text-green { color: var(--success); }
+        .text-blue { color: var(--blue); }
+        .btn {
+            background: var(--primary);
+            color: #000000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            transition: 0.2s;
+        }
+        .btn:hover { background: var(--primary-dark); }
+        .btn:disabled { background: #66562e; cursor: not-allowed; }
+        .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
+        .btn-sm { padding: 5px 10px; font-size: 0.8rem; width: auto; }
+        
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; margin-bottom: 5px; color: var(--text-muted); font-size: 0.9rem; }
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px;
+            background: #1a160d;
+            border: 1px solid #4a3b18;
+            color: #fff3d6;
+            border-radius: 6px;
+            outline: none;
+        }
+        .input-group input:focus { border-color: var(--primary); }
+
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+        .toast {
+            background: var(--bg-card);
+            border-left: 4px solid var(--primary);
+            color: #fff3d6;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+
+        header {
+            background: var(--bg-card);
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #4a3b18;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .logo { font-size: 1.2rem; font-weight: bold; color: #d4af37; display: flex; align-items: center; gap: 5px; }
+        
+        .section { padding: 15px; max-width: 600px; margin: 0 auto; }
+        
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .menu-card {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 1px solid #4a3b18;
+        }
+        .menu-card:hover { border-color: var(--primary); transform: translateY(-3px); }
+        .menu-icon { font-size: 1.5rem; margin-bottom: 10px; display: block; }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            height: 70vh;
+        }
+        .chat-user-list {
+            flex: 1;
+            overflow-y: auto;
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 10px;
+            border: 1px solid #4a3b18;
+        }
+        .chat-user-item {
+            padding: 10px;
+            background: #1a160d;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chat-user-item:hover { background: var(--primary); }
+        
+        .unread-badge {
+            color: #ff6600;
+            font-size: 10px;
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background-color: #ff6600;
+            border-radius: 50%;
+            box-shadow: 0 0 5px rgba(255,102,0,0.5);
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255,102,0,0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(255,102,0,0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255,102,0,0); }
+        }
+
+        .chat-box {
+            flex: 2;
+            background: var(--bg-card);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #4a3b18;
+        }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
+        .message { max-width: 80%; padding: 8px 12px; border-radius: 10px; font-size: 0.9rem; word-wrap: break-word;}
+        .msg-admin { align-self: flex-start; background: #4a3b18; color: #fff3d6; }
+        .msg-user { align-self: flex-end; background: var(--primary); color: #000000; }
+        .chat-input-area { padding: 10px; display: flex; gap: 10px; border-top: 1px solid #4a3b18; }
+
+        .admin-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 10px; 
+            font-size: 0.85rem;
+            min-width: 500px;
+        }
+        .admin-table th, .admin-table td { 
+            text-align: left; 
+            padding: 8px; 
+            border-bottom: 1px solid #4a3b18; 
+            white-space: nowrap;
+        }
+        .admin-table th { color: #d4af37; }
+        .status-badge { padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; }
+        .status-pending { background: #ff9900; color: black; }
+        .status-approved { background: #d4af37; color: #000000; }
+        .status-rejected { background: #ff6600; color: #000000; }
+        .status-banned { background: #4a3b18; color: #ff6600; border: 1px solid red; }
+        .status-active { background: #d4af37; color: #000000; }
+        .status-matured { background: var(--blue); color: #000000; }
+
+        .settings-divider {
+            margin: 20px 0 10px 0;
+            border-bottom: 1px solid #4a3b18;
+            padding-bottom: 5px;
+            color: #d4af37;
+            font-size: 0.9rem;
+        }
+
+        .online-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #d4af37;
+            border-radius: 50%;
+            margin-right: 5px;
+            animation: pulseOnline 1.5s infinite;
+            box-shadow: 0 0 5px #d4af37;
+        }
+
+        @keyframes pulseOnline {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        @media (max-width: 600px) {
+            .admin-table { font-size: 0.75rem; }
+            .admin-table th, .admin-table td { padding: 6px 4px; }
+            .btn-sm { padding: 4px 8px; font-size: 0.7rem; }
+            .online-indicator { width: 6px; height: 6px; }
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .summary-card {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #4a3b18;
+            text-align: center;
+        }
+        .summary-card h4 {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        .summary-card .amount {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .profit { color: var(--success); }
+        .loss { color: var(--danger); }
+
+        .credentials-box {
+            background: #1a160d;
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .credential-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #5c4920;
+        }
+        .credential-item:last-child { border-bottom: none; }
+        .credential-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        .credential-value {
+            color: var(--text-light);
+            font-weight: bold;
+            font-family: monospace;
+            font-size: 1rem;
+        }
+        .copy-btn {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-left: 10px;
+        }
+        .copy-btn:hover {
+            background: var(--primary);
+            color: #000000;
+        }
+
+        /* New styles for admin features */
+        .user-count-card {
+            background: linear-gradient(135deg, var(--primary), #d4af37);
+            color: #000000;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .user-count-card h3 {
+            margin: 0;
+            font-size: 2rem;
+        }
+        .user-count-card p {
+            margin: 5px 0 0 0;
+            opacity: 0.9;
+        }
+
+        .location-info {
+            font-size: 0.75rem;
+            color: #b0a17f;
+            margin-top: 3px;
+        }
+        .location-info i {
+            color: var(--primary);
+            margin-right: 3px;
+        }
+
+        .edit-balance-btn {
+            background: var(--blue);
+            color: #000000;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            margin-left: 5px;
+        }
+        .edit-balance-btn:hover {
+            background: #b89428;
+        }
+
+        /* Modal styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: var(--bg-card);
+            border: 1px solid #4a3b18;
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        /* ===== RATE DISPLAY CARD STYLES ===== */
+        .rate-display-card {
+            background: linear-gradient(135deg, #111111 0%, #1a160d 100%);
+            border: 2px solid var(--primary);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .rate-display-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), #d4af37, var(--primary));
+            animation: rateGlow 2s ease-in-out infinite;
+        }
+        @keyframes rateGlow {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+        .rate-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #d4af37;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        .rate-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #fff3d6;
+            margin-bottom: 15px;
+            text-shadow: 0 0 20px rgba(255,102,0,0.3);
+        }
+        .rate-unit {
+            font-size: 1rem;
+            color: var(--text-muted);
+            font-weight: normal;
+        }
+        .rate-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .rate-detail-item {
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .rate-label {
+            display: block;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-bottom: 3px;
+        }
+        .rate-number {
+            font-weight: bold;
+            color: #d4af37;
+        }
+        .rate-mode {
+            font-weight: bold;
+            color: var(--success);
+        }
+        .rate-live-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            color: var(--success);
+        }
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: livePulse 1s infinite;
+        }
+        @keyframes livePulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        /* ===== NEW TRADING CONTROL STYLES ===== */
+        .trading-control-card {
+            background: linear-gradient(135deg, #171207, #30220c);
+            color: #fff3d6;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #4a3b18;
+        }
+        .trading-control-card h3 {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .control-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .btn-all-win {
+            background: linear-gradient(135deg, #d4af37, #f0ca58);
+            color: #000000;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        .btn-all-win:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(212,175,55,0.4);
+        }
+        .btn-all-loss {
+            background: linear-gradient(135deg, #ff6600, #ff6600);
+            color: #000000;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        .btn-all-loss:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(255,102,0,0.4);
+        }
+        .btn-random {
+            background: linear-gradient(135deg, #a88423, #d4af37);
+            color: #000000;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        .btn-random:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(212,175,55,0.4);
+        }
+        .trading-status {
+            background: rgba(212,175,55,0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            text-align: center;
+        }
+        .trading-status h4 {
+            margin-bottom: 10px;
+            opacity: 0.8;
+        }
+        .status-indicator {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        .status-win {
+            background: rgba(212,175,55,0.3);
+            color: #f0ca58;
+            border: 2px solid #f0ca58;
+        }
+        .status-loss {
+            background: rgba(255,102,0,0.3);
+            color: #ff944d;
+            border: 2px solid #ff944d;
+        }
+        .status-random {
+            background: rgba(212,175,55,0.3);
+            color: #d4af37;
+            border: 2px solid #d4af37;
+        }
+        .trading-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .trading-stat-item {
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .trading-stat-item label {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            display: block;
+        }
+        .trading-stat-item value {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <div id="toast-container"></div>
+
+    <div id="app-container" class="hidden">
+        <header>
+            <div class="logo">
+                <i class="fas fa-user-shield"></i> TK Admin
+            </div>
+        </header>
+
+        <main id="admin-views">
+            <section id="view-admin-dashboard" class="section">
+                <h2 class="text-orange">Admin Dashboard</h2>
+                
+                <!-- User Count Card -->
+                <div class="user-count-card">
+                    <h3 id="total-user-count">0</h3>
+                    <p>Total Registered Users</p>
+                </div>
+
+                <!-- ===== CURRENT RATE DISPLAY (SAME AS USER PANEL) ===== -->
+                <div class="rate-display-card">
+                    <div class="rate-header">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Current Market Rate</span>
+                    </div>
+                    <div class="rate-value">
+                        <span id="admin-current-rate">0.00</span>
+                        <span class="rate-unit">PKR</span>
+                    </div>
+                    <div class="rate-details">
+                        <div class="rate-detail-item">
+                            <span class="rate-label">TK Price:</span>
+                            <span id="admin-tk-price-display" class="rate-number">0.00</span> USDT
+                        </div>
+                        <div class="rate-detail-item">
+                            <span class="rate-label">USDT Rate:</span>
+                            <span id="admin-usdt-rate-display" class="rate-number">0.00</span> PKR
+                        </div>
+                        <div class="rate-detail-item">
+                            <span class="rate-label">Mode:</span>
+                            <span id="admin-rate-mode-display" class="rate-mode">Manual</span>
+                        </div>
+                    </div>
+                    <div id="admin-auto-status" class="hidden" style="color:var(--primary);font-size:0.75rem;margin-top:12px;line-height:1.6;"></div>
+                    <div class="rate-live-indicator">
+                        <span class="live-dot"></span>
+                        <span>Live Updates</span>
+                    </div>
+                </div>
+
+                <!-- ===== NEW TRADING CONTROL SECTION ===== -->
+                <div class="trading-control-card">
+                    <h3><i class="fas fa-chart-line"></i> Trading Control Center</h3>
+                    <div class="trading-status">
+                        <h4>Current Market Mode</h4>
+                        <span id="trading-mode-display" class="status-indicator status-random">RANDOM</span>
+                    </div>
+                    <div class="control-buttons">
+                        <button class="btn-all-win" onclick="window.setTradingMode('win')">
+                            <i class="fas fa-arrow-up"></i><br>ALL WIN
+                        </button>
+                        <button class="btn-all-loss" onclick="window.setTradingMode('loss')">
+                            <i class="fas fa-arrow-down"></i><br>ALL LOSS
+                        </button>
+                        <button class="btn-random" onclick="window.setTradingMode('random')">
+                            <i class="fas fa-random"></i><br>RANDOM
+                        </button>
+                    </div>
+                    <div class="trading-stats">
+                        <div class="trading-stat-item">
+                            <label>Total Trades</label>
+                            <value id="total-trades-count">0</value>
+                        </div>
+                        <div class="trading-stat-item">
+                            <label>Active Traders</label>
+                            <value id="active-traders-count">0</value>
+                        </div>
+                    </div>
+                </div>
+                <!-- ===== END TRADING CONTROL SECTION ===== -->
+                
+                <div class="menu-grid" style="margin-top: 20px;">
+                    <div class="menu-card" onclick="window.showAdminSection('market')">
+                        <span class="menu-icon text-orange"><i class="fas fa-cogs"></i></span>
+                        <div>Settings</div>
+                    </div>
+                    <div class="menu-card" onclick="window.showAdminSection('deposits')">
+                        <span class="menu-icon text-green"><i class="fas fa-check-double"></i></span>
+                        <div>Deposits <span id="admin-dep-pending-count" class="badge" style="background: #ff6600; padding:2px 5px; border-radius:50%; font-size:0.7rem; color: #fff3d6;">0</span></div>
+                    </div>
+                    <div class="menu-card" onclick="window.showAdminSection('withdrawals')">
+                        <span class="menu-icon text-blue"><i class="fas fa-money-bill-wave"></i></span>
+                        <div>Withdrawals <span id="admin-with-pending-count" class="badge" style="background: #ff6600; padding:2px 5px; border-radius:50%; font-size:0.7rem; color: #fff3d6;">0</span></div>
+                    </div>
+                    <div class="menu-card" onclick="window.showAdminSection('verifications')">
+                        <span class="menu-icon" style="color:#d4af37;"><i class="fas fa-id-card"></i></span>
+                        <div>Verifications <span id="admin-ver-pending-count" class="badge" style="background: #ff6600; padding:2px 5px; border-radius:50%; font-size:0.7rem; color: #fff3d6;">0</span></div>
+                    </div>
+                    <div class="menu-card" onclick="window.showAdminSection('users')">
+                        <span class="menu-icon text-blue"><i class="fas fa-users"></i></span>
+                        <div>Users</div>
+                    </div>
+                    <div class="menu-card" onclick="window.showAdminSection('news')">
+                        <span class="menu-icon"><i class="fas fa-newspaper"></i></span>
+                        <div>News</div>
+                    </div>
+                    <div class="menu-card" onclick="window.showAdminSection('summary')">
+                        <span class="menu-icon text-orange"><i class="fas fa-chart-pie"></i></span>
+                        <div>Summary</div>
+                    </div>
+                    <div class="menu-card" onclick="window.showAdminSection('savings')">
+                        <span class="menu-icon text-green"><i class="fas fa-piggy-bank"></i></span>
+                        <div>Savings</div>
+                    </div>
+                    <!-- ===== NEW TRADING MENU CARD ===== -->
+                    <div class="menu-card" onclick="window.showAdminSection('trading')">
+                        <span class="menu-icon" style="color: #d4af37;"><i class="fas fa-exchange-alt"></i></span>
+                        <div>Trading</div>
+                    </div>
+                    <!-- BANNED CHAT BOX MENU -->
+                    <div class="menu-card" onclick="window.showAdminSection('bannedChat')" style="border: 2px solid var(--danger);">
+                        <span class="menu-icon" style="color: var(--danger);"><i class="fas fa-ban"></i></span>
+                        <div>Banned Chat Box <span id="banned-chat-count" class="badge" style="background:var(--danger); padding:2px 5px; border-radius:50%; font-size:0.7rem; color: #fff3d6;">0</span></div>
+                    </div>
+
+                </div>
+
+                <div class="menu-card" onclick="window.showAdminSection('chat')" style="text-align: left; margin-bottom: 20px;">
+                    <span class="menu-icon"><i class="fas fa-comments"></i></span>
+                    <div>Live Support Chats</div>
+                </div>
+            </section>
+
+            <!-- Admin: Market & Settings -->
+            <section id="admin-market" class="section hidden">
+                <button class="btn btn-sm btn-outline" onclick="window.showAdminSection('dashboard')">Back</button>
+                <h3 class="text-orange" style="margin-top: 15px;">App Settings</h3>
+                
+                <div class="input-group">
+                    <label>Rate Mode</label>
+                    <select id="admin-rate-mode" onchange="window.toggleRateMode()">
+                        <option value="manual">Manual</option>
+                        <option value="auto">Auto</option>
+                    </select>
+                </div>
+
+                <div id="manual-controls">
+                    <div class="input-group">
+                        <label>TK Price (USDT) - Internal Rate</label>
+                        <input type="number" id="admin-tk-price" step="0.01">
+                    </div>
+                    <div class="input-group">
+                        <label>USDT to PKR Rate (For Display)</label>
+                        <input type="number" id="admin-usdt-rate" step="0.01">
+                    </div>
+                </div>
+
+                <div id="auto-controls" class="hidden">
+                    <div style="padding:14px;border:1px solid #f5a62355;border-radius:12px;background:#f5a6230a;margin-bottom:16px;">
+                        <strong style="color:var(--primary);">24/7 Auto Rate</strong>
+                        <p style="color:var(--text-muted);font-size:0.82rem;line-height:1.6;margin:7px 0 0;">Set the lowest and highest price for 1 TK. Example: 30 to 60 PKR. The rate keeps moving inside this range, day and night, until you change it or select Manual.</p>
+                    </div>
+                    <div class="input-group">
+                        <label for="admin-auto-min">Minimum Rate (PKR / TK)</label>
+                        <input type="number" id="admin-auto-min" placeholder="e.g. 30" min="0.01" step="0.01" inputmode="decimal">
+                    </div>
+                    <div class="input-group">
+                        <label for="admin-auto-max">Maximum Rate (PKR / TK)</label>
+                        <input type="number" id="admin-auto-max" placeholder="e.g. 60" min="0.02" step="0.01" inputmode="decimal">
+                    </div>
+                    <div class="input-group">
+                        <label for="admin-auto-interval">Speed (seconds per step)</label>
+                        <input type="number" id="admin-auto-interval" value="30" min="1" max="3600" step="1" inputmode="numeric" aria-describedby="auto-speed-help">
+                        <small id="auto-speed-help" style="display:block;color:var(--text-muted);line-height:1.6;margin-top:7px;">Lower = faster. 3 sec: fast; 10 sec: normal; 30 sec: slow. One full up/down cycle takes 10 steps. Updates apply to both panels when saved.</small>
+                    </div>
+                </div>
+
+                <div class="settings-divider">Transfer Settings</div>
+                <div class="input-group">
+                    <label>Minimum Transfer (TK)</label>
+                    <input type="number" id="admin-min-transfer" step="1" value="10">
+                </div>
+                <div class="input-group">
+                    <label>Transfer Tax (%)</label>
+                    <input type="number" id="admin-transfer-tax" step="0.1" value="2">
+                </div>
+
+                <div class="settings-divider">Deposit Settings</div>
+                <div class="input-group">
+                    <label>Minimum Deposit (PKR)</label>
+                    <input type="number" id="admin-min-deposit" step="10" value="500">
+                </div>
+
+                <div class="settings-divider">Wallet Settings</div>
+                <div class="input-group">
+                    <label>Minimum Withdraw (TK)</label>
+                    <input type="number" id="admin-min-withdraw">
+                </div>
+                <div class="input-group">
+                    <label>Withdraw Fee (%)</label>
+                    <input type="number" id="admin-withdraw-fee" step="0.01">
+                </div>
+
+                <div class="settings-divider">Deposit Details</div>
+                <div class="input-group">
+                    <label>Easypaisa Number</label>
+                    <input type="text" id="admin-easypaisa">
+                </div>
+                <div class="input-group">
+                    <label>JazzCash Number</label>
+                    <input type="text" id="admin-jazzcash">
+                </div>
+                <div class="input-group">
+                    <label>Till ID (Raast)</label>
+                    <input type="text" id="admin-tillid">
+                </div>
+                <div class="input-group">
+                    <label>QR Code Image URL</label>
+                    <input type="text" id="admin-qr-url" placeholder="./qr.png">
+                </div>
+
+                <!-- Savings Settings -->
+                <div class="settings-divider">Savings Settings</div>
+                <div class="input-group">
+                    <label>30 Days Profit (%)</label>
+                    <input type="number" id="admin-savings-30" step="0.1" value="2.0">
+                </div>
+                <div class="input-group">
+                    <label>60 Days Profit (%)</label>
+                    <input type="number" id="admin-savings-60" step="0.1" value="3.0">
+                </div>
+                <div class="input-group">
+                    <label>90 Days Profit (%)</label>
+                    <input type="number" id="admin-savings-90" step="0.1" value="4.0">
+                </div>
+                <div class="input-group">
+                    <label>Minimum Savings Amount (PKR)</label>
+                    <input type="number" id="admin-min-savings" step="100" value="1000">
+                </div>
+                <div style="background: rgba(255,102,0,0.1); border: 1px solid var(--primary); padding: 10px; border-radius: 6px; margin: 15px 0; font-size: 0.85rem; color: var(--text-muted);">
+                    <i class="fas fa-info-circle"></i> Daily profit will be auto-calculated and credited to user wallets based on these percentages.
+                </div>
+
+                <button class="btn" onclick="window.updateAdminSettings()">Save All Settings</button>
+            </section>
+
+            <!-- Admin: Deposits -->
+            <section id="admin-deposits" class="section hidden">
+                <button class="btn btn-sm btn-outline" onclick="window.showAdminSection('dashboard')">Back</button>
+                <h3 class="text-orange" style="margin-top: 15px;">Deposit Approvals</h3>
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <button class="btn btn-sm" style="background: var(--danger); width: auto;" onclick="window.deleteAllDepositHistory()">
+                        <i class="fas fa-trash"></i> Delete All Deposit History
+                    </button>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Method</th>
+                                <th>TK Amount</th>
+                                <th>Rate</th>
+                                <th>PKR Value</th>
+                                <th>Ref</th>
+                                <th>Notes</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-deposit-list"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Admin: Withdrawals - UPDATED WITH RATE AND PKR COLUMNS -->
+            <section id="admin-withdrawals" class="section hidden">
+                <button class="btn btn-sm btn-outline" onclick="window.showAdminSection('dashboard')">Back</button>
+                <h3 class="text-orange" style="margin-top: 15px;">Withdrawal Requests</h3>
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <button class="btn btn-sm" style="background: var(--danger); width: auto;" onclick="window.deleteAllWithdrawHistory()">
+                        <i class="fas fa-trash"></i> Delete All Withdraw History
+                    </button>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Method</th>
+                                <th>TK Amount</th>
+                                <th>Rate</th>
+                                <th>PKR Value</th>
+                                <th>Total TK</th>
+                                <th>View</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-withdraw-list"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Admin: Users -->
+            <section id="admin-users" class="section hidden">
+                <button class="btn btn-sm btn-outline" onclick="window.showAdminSection('dashboard')">Back</button>
+                <h3 class="text-orange" style="margin-top: 15px;">User Management</h3>
+                <div style="overflow-x: auto;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr><th>Name</th><th>Email</th><th>Balance</th><th>Active</th><th>View</th><th>IP/Location</th><th>Action</th></tr>
+                        </thead>
+                        <tbody id="admin-user-list"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Admin: Summary -->
+            <section id="admin-summary" class="section hidden">
+                <button class="btn btn-sm btn-outline" onclick="window.showAdminSection('dashboard')">Back</button>
+                <h3 class="text-orange" style="margin-top: 15px;">Financial Summary</h3>
+                
+                <!-- Overall Stats -->
+                <div class="summary-grid" style="margin-top: 20px;">
+                    <div class="summary-card">
+                        <h4><i class="fas fa-arrow-down text-green"></i> Total Approved Deposits</h4>
+                        <div class="amount text-green" id="total-deposits-pkr">Rs. 0</div>
+                        <small style="color: var(--text-muted);" id="total-deposits-tk">0 TK</small>
+                    </div>
+                    <div class="summary-card">
+                        <h4><i class="fas fa-arrow-up text-danger"></i> Total Approved Withdrawals</h4>
+                        <div class="amount text-danger" id="total-withdrawals-pkr">Rs. 0</div>
+                        <small style="color: var(--text-muted);" id="total-withdrawals-tk">0 TK</small>
+                    </div>
+                </div>
+
+                <!-- Admin Profit Card -->
+                <div class="summary-card" style="margin-bottom: 20px; background: linear-gradient(135deg, rgba(255,102,0,0.2), rgba(255,102,0,0.05)); border: 2px solid var(--primary);">
+                    <h4><i class="fas fa-coins text-orange"></i> Admin Profit</h4>
+                    <div class="amount text-orange" id="admin-profit">Rs. 0</div>
+                    <small style="color: var(--text-muted);">(Deposits - Withdrawals) = Platform Earnings</small>
+                </div>
+
+                <!-- Net Status -->
+                <div class="summary-card" style="margin-bottom: 20px;">
+                    <h4>Net Status</h4>
+                    <div class="amount" id="net-profit-loss">Rs. 0</div>
+                    <small style="color: var(--text-muted);">Positive = Profit | Negative = Loss</small>
+                </div>
+
+                <h3 class="text-orange" style="margin: 20px 0 15px 0;">User-wise Profit/Loss (PKR)</h3>
+                <div style="overflow-x: auto;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr><th>User</th><th>Total Deposits</th><th>Total Withdrawals</th><th>Net</th></tr>
+                        </thead>
+                        <tbody id="user-profit-loss-list"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Admin: Savings Management -->
+            <section id="admin-savings" class="section hidden">
+                <button class="btn btn-sm btn-outline" onclick="window.showAdminSection('dashboard')">Back</button>
+                <h3 class="text-orange" style="margin-top: 15px;"><i class="fas fa-piggy-bank"></i> Savings Management</h3>
+                
+                <div class="summary-grid" style="margin-top: 20px;">
+                    <div class="summary-card">
+                        <h4>Total Active Savings</h4>
+                        <div class="amount text-orange" id="admin-total-savings-pkr">Rs. 0</div>
+                        <small style="color: var(--text-muted);" id="admin-total-savings-count">0 Active Plans</small>
+                    </div>
+                    <div class="summary-card">
+                        <h4>Total Profit Distributed</h4>
+                        <div class="amount text-green" id="admin-total-profit">Rs. 0</div>
+                        <small style="color: var(--text-muted);">Lifetime</small>
+                    </div>
+                </div>
+
+                <h3 class="text-orange" style="margin: 20px 0 15px 0;">Active Savings Plans</h3>
+                <div style="overflow-x: auto;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr><th>User</th><th>Amount</th><th>Plan</th><th>Start Date</th><th>Maturity</th><th>Status</th><th>Profit</th></tr>
+                        </thead>
+                        <tbody id="admin-savings-list"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ===== NEW TRADING MANAGEMENT SECTION ===== -->
+            <section id="admin-trading" class="section hidden">
+                <button class="btn btn-sm btn-outline" onclick="window.showAdminSection('dashboard')">Back</button>
+                <h3 class="text-orange" style="margin-top: 15px;"><i class="fas fa-exchange-alt"></i> Trading Management</h3>
+
+                <div style="display: flex; gap: 10px; margin: 15px 0;">
+                    <button class="btn btn-sm" style="background: var(--danger); width: auto;" onclick="window.deleteAllTradingHistory()">
+                        <i class="fas fa-trash"></i> Delete All Trading History
+                    </button>
+                </div>
+                <div class="trading-control-card" style="margin-top: 20px;">
+                    <h3><i class="fas fa-sliders-h"></i> Market Control Panel</h3>
+                    <p style="opacity: 0.8; margin-bottom: 15px;">Control the outcome of all user trades</p>
+                    
+                    <div class="trading-status">
+                        <h4>Current Trading Mode</h4>
+                        <span id="admin-trading-mode-display" class="status-indicator status-random">RANDOM</span>
+                    </div>
+                    
+                    <div class="control-buttons">
+                        <button class="btn-all-win" onclick="window.setTradingMode('win')">
+                            <i class="fas fa-arrow-up"></i><br>ALL WIN
+                        </button>
+                        <button class="btn-all-loss" onclick="window.setTradingMode('loss')">
+                            <i class="fas fa-arrow-down"></i><br>ALL LOSS
+                        </button>
+                        <button class="btn-random" onclick="window.setTradingMode('random')">
+                            <i class="fas fa-random"></i><br>RANDOM
+                        </button>
+                    </div>
+                    
+                    <!-- Minimum Trade Setting -->
+                    <div style="background: rgba(212,175,55,0.1); padding: 15px; border-radius: 8px; margin-top: 15px;">
+                        <h4 style="margin-bottom: 10px; opacity: 0.9;"><i class="fas fa-coins"></i> Minimum Trade Amount</h4>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <input type="number" id="admin-min-trade" value="1" min="1" style="flex: 1; padding: 10px; border-radius: 6px; border: none; background: rgba(0,0,0,0.3); color: #fff3d6; font-size: 1rem;">
+                            <span style="color: #c1b18e;">TK</span>
+                            <button class="btn btn-sm" onclick="window.updateMinTrade()" style="background: var(--primary); width: auto;">
+                                <i class="fas fa-save"></i> Save
+                            </button>
+                        </div>
+                        <small style="color: #c1b18e; display: block; margin-top: 8px;">Users cannot place trades below this amount</small>
+                    </div>
+                </div>
+
+                <div class="summary-grid" style="margin-top: 20px;">
+                    <div class="summary-card">
+                        <h4>Total Trades Today</h4>
+                        <div class="amount text-orange" id="admin-total-trades">0</div>
+                    </div>
+                    <div class="summary-card">
+                        <h4>Win Rate</h4>
+                        <div class="amount text-green" id="admin-win-rate">0%</div>
+                    </div>
+                </div>
+
+                <h3 class="text-orange" style="margin: 20px 0 15px 0;">Recent Trades</h3>
+                <div style="overflow-x: auto;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr><th>User</th><th>Type</th><th>Amount</th><th>Result</th><th>Time</th><th>Action</th></tr>
+                        </thead>
+                        <tbody id="admin-trades-list"></tbody>
+                    </table>
+                </div>
+            </section>
+            <!-- ===== END TRADING MANAGEMENT SECTION ===== -->
+
+            <!-- ===== BANNED CHAT BOX SECTION ===== -->
+            <section id="admin-bannedChat" class="section hidden">
+                <button class="btn btn-sm btn-outline" onclick="window.showAdminSection('dashboard')">Back</button>
+                <h3 class="text-orange" style="margin-top: 15px;"><i class="fas fa-ban"></i> Banned Users Chat</h3>
+                <p style="color: #b0a17f; margin-bottom: 15px;">Only banned users can chat here. You can unban users from this panel.</p>
+
+                <div class="chat-container" style="height: 65vh;">
+                    <div id="banned-chat-user-list" class="chat-user-list" style="border: 2px solid var(--danger);">
+                        <div style="padding:10px; text-align:center; color:#ad9d78;">Loading banned users...</div>
+                    </div>
+                    <div id="banned-chat-window" class="chat-box hidden" style="border: 2px solid var(--danger);">
+                        <div style="padding:10px; border-bottom: 1px solid #4a3b18; background:var(--bg-card); display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                Chatting with: <strong id="banned-chatting-with-name" class="text-orange">--</strong>
+                                <span id="banned-user-email" style="color:#b0a17f; font-size:0.8rem; margin-left:10px;"></span>
+                            </div>
+                            <button class="btn btn-sm" style="background:var(--success); width:auto;" onclick="window.unbanCurrentUser()">
+                                <i class="fas fa-unlock"></i> Unban User
+                            </button>
+                        </div>
+                        <div class="chat-messages" id="banned-chat-messages"></div>
+                        <div class="chat-input-area">
+                            <input type="text" id="banned-admin-chat-input" placeholder="Reply to banned user...">
+                            <button class="btn btn-sm" onclick="window.adminSendBannedReply()">Reply</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- ===== END BANNED CHAT BOX SECTION ===== -->
+
+
+            <!-- Admin: Account Verifications (KYC) -->
+            <section id="admin-verifications" class="section hidden">
+                <button class="btn btn-sm btn-outline" onclick="window.showAdminSection('dashboard')">Back</button>
+                <h3 class="text-orange" style="margin-top: 15px;"><i class="fas fa-id-card"></i> Account Verifications (KYC)</h3>
+                <p style="color:#b0a17f; font-size:0.8rem; margin-bottom:10px;">Review documents. Approve adds the blue Verified tick to user's profile.</p>
+                <div style="overflow-x: auto;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr><th>User</th><th>NIC Front</th><th>NIC Back</th><th>Left Hand</th><th>Right Hand</th><th>Submitted</th><th>Status</th><th>Action</th></tr>
+                        </thead>
+                        <tbody id="admin-verification-list"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Admin: News -->
+            <section id="admin-news" class="section hidden">
+                <button class="btn btn-sm btn-outline" onclick="window.showAdminSection('dashboard')">Back</button>
+                <h3 class="text-orange" style="margin-top: 15px;">Post News</h3>
+                <p style="color:#ad9d78; font-size:0.8rem; margin-bottom:10px;">Posting this will delete old news.</p>
+                <div class="input-group">
+                    <label>Headline</label>
+                    <input type="text" id="admin-news-headline">
+                </div>
+                <button class="btn" onclick="window.postNews()">Post Update</button>
+            </section>
+
+            <!-- Admin: Chat -->
+            <section id="admin-chat" class="section hidden">
+                <button class="btn btn-sm btn-outline" onclick="window.showAdminSection('dashboard')">Back</button>
+                <h3 class="text-orange" style="margin-top: 15px;">User Chats <small style="color: #ff6600; font-size:0.7rem;">(Real-time)</small></h3>
+                <div class="chat-container">
+                    <div id="admin-chat-list" class="chat-user-list"></div>
+                    <div id="admin-chat-window" class="chat-box hidden">
+                        <div style="padding:10px; border-bottom: 1px solid #4a3b18; background:var(--bg-card);">
+                            Chatting with: <strong id="chatting-with-name" class="text-orange">--</strong>
+                        </div>
+                        <div class="chat-messages" id="admin-chat-messages"></div>
+                        <div class="chat-input-area">
+                            <input type="text" id="admin-chat-input" placeholder="Reply...">
+                            <button class="btn btn-sm" onclick="window.adminSendReply()">Reply</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Withdrawal Details Modal - UPDATED WITH RATE AND PKR FIELDS -->
+            <div id="withdraw-modal" class="hidden" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; display:flex; justify-content:center; align-items:center;">
+                <div style="background:var(--bg-card); border:1px solid #4a3b18; border-radius:12px; padding:20px; max-width:400px; width:90%; box-shadow:0 10px 30px rgba(0,0,0,0.5);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid #4a3b18; padding-bottom:10px;">
+                        <h3 class="text-orange" style="margin:0;">Withdrawal Details</h3>
+                        <button onclick="window.closeWithdrawModal()" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div style="margin-bottom:15px;">
+                        <label style="color:var(--text-muted); font-size:0.8rem;">User</label>
+                        <div id="modal-user" style="font-size:1rem; color:var(--text-light);"></div>
+                    </div>
+                    <div style="margin-bottom:15px;">
+                        <label style="color:var(--text-muted); font-size:0.8rem;">Method</label>
+                        <div id="modal-method" style="font-size:1rem; color:var(--text-light);"></div>
+                    </div>
+                    <div style="margin-bottom:15px; background:#1a160d; padding:15px; border-radius:8px; border:1px solid var(--primary);">
+                        <label style="color:var(--primary); font-size:0.8rem; font-weight:bold;"><i class="fas fa-university"></i> Account Number</label>
+                        <div id="modal-account" style="font-size:1.2rem; color:var(--text-light); font-weight:bold; margin-top:5px; word-break:break-all;"></div>
+                    </div>
+                    
+                    <!-- NEW: Rate and PKR Value Display -->
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:15px; background:#15120b; padding:15px; border-radius:8px; border:1px solid #5c4920;">
+                        <div>
+                            <label style="color:var(--primary); font-size:0.8rem; font-weight:bold;"><i class="fas fa-exchange-alt"></i> Rate Applied</label>
+                            <div id="modal-rate" style="font-size:1.1rem; color:var(--text-light); font-weight:bold; margin-top:5px;"></div>
+                        </div>
+                        <div>
+                            <label style="color:var(--success); font-size:0.8rem; font-weight:bold;"><i class="fas fa-money-bill-wave"></i> PKR Value</label>
+                            <div id="modal-pkr" style="font-size:1.1rem; color:var(--success); font-weight:bold; margin-top:5px;"></div>
+                        </div>
+                    </div>
+                    
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:20px;">
+                        <div>
+                            <label style="color:var(--text-muted); font-size:0.8rem;">TK Amount</label>
+                            <div id="modal-amount" style="font-size:1rem; color:var(--text-light);"></div>
+                        </div>
+                        <div>
+                            <label style="color:var(--text-muted); font-size:0.8rem;">Total Deducted</label>
+                            <div id="modal-total" style="font-size:1rem; color:var(--primary); font-weight:bold;"></div>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button id="modal-approve-btn" class="btn" style="flex:1; background:var(--success);"><i class="fas fa-check"></i> Approve</button>
+                        <button id="modal-reject-btn" class="btn" style="flex:1; background:var(--danger);"><i class="fas fa-times"></i> Reject</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Credentials Modal -->
+            <div id="credentials-modal" class="hidden" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; display:flex; justify-content:center; align-items:center;">
+                <div style="background:var(--bg-card); border:1px solid #4a3b18; border-radius:12px; padding:20px; max-width:400px; width:90%; box-shadow:0 10px 30px rgba(0,0,0,0.5);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid #4a3b18; padding-bottom:10px;">
+                        <h3 class="text-orange" style="margin:0;"><i class="fas fa-user-lock"></i> User Credentials</h3>
+                        <button onclick="window.closeCredentialsModal()" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div style="margin-bottom:15px;">
+                        <label style="color:var(--text-muted); font-size:0.8rem;">User Name</label>
+                        <div id="cred-name" style="font-size:1.1rem; color:var(--text-light); font-weight:bold;"></div>
+                    </div>
+                    <div class="credentials-box">
+                        <div class="credential-item">
+                            <span class="credential-label"><i class="fas fa-envelope"></i> Email</span>
+                            <div style="display:flex; align-items:center;">
+                                <span class="credential-value" id="cred-email"></span>
+                                <button class="copy-btn" onclick="window.copyToClipboard('cred-email')">Copy</button>
+                            </div>
+                        </div>
+                        <div class="credential-item">
+                            <span class="credential-label"><i class="fas fa-key"></i> Password</span>
+                            <div style="display:flex; align-items:center;">
+                                <span class="credential-value" id="cred-password" style="color:var(--primary);"></span>
+                                <button class="copy-btn" onclick="window.copyToClipboard('cred-password')">Copy</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="background:#15120b; padding:10px; border-radius:6px; margin-top:15px; border-left:3px solid var(--success);">
+                        <small style="color:var(--text-muted);">
+                            <i class="fas fa-info-circle"></i> Use these credentials to login as this user for support purposes.
+                        </small>
+                    </div>
+                    <button class="btn" onclick="window.closeCredentialsModal()" style="margin-top:20px;">Close</button>
+                </div>
+            </div>
+
+            <!-- Edit Balance Modal -->
+            <div id="edit-balance-modal" class="modal-overlay hidden">
+                <div class="modal-content">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid #4a3b18; padding-bottom:10px;">
+                        <h3 class="text-orange" style="margin:0;"><i class="fas fa-wallet"></i> Edit User Balance</h3>
+                        <button onclick="window.closeEditBalanceModal()" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;"><i class="fas fa-times"></i></button>
+                    </div>
+                    
+                    <div style="margin-bottom:15px;">
+                        <label style="color:var(--text-muted); font-size:0.8rem;">User</label>
+                        <div id="edit-balance-user-name" style="font-size:1.1rem; color:var(--text-light); font-weight:bold;"></div>
+                        <div id="edit-balance-user-email" style="font-size:0.85rem; color:#b0a17f;"></div>
+                    </div>
+                    
+                    <div style="background:#1a160d; padding:15px; border-radius:8px; margin-bottom:15px; border:1px solid var(--primary);">
+                        <label style="color:var(--primary); font-size:0.8rem;">Current Balance</label>
+                        <div id="edit-balance-current" style="font-size:1.5rem; color:var(--text-light); font-weight:bold;"></div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Amount to Add/Subtract (TK)</label>
+                        <input type="number" id="edit-balance-amount" placeholder="Use negative to subtract">
+                        <small style="color:#b0a17f; font-size:0.75rem;">Use positive to add, negative to subtract</small>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Reason (Optional)</label>
+                        <input type="text" id="edit-balance-reason" placeholder="e.g., Bonus, Correction, Penalty">
+                    </div>
+                    
+                    <div style="display:flex; gap:10px; margin-top:20px;">
+                        <button class="btn" onclick="window.saveBalanceEdit()" style="flex:1;"><i class="fas fa-save"></i> Save</button>
+                        <button class="btn btn-outline" onclick="window.closeEditBalanceModal()" style="flex:1;">Cancel</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- IP/Location Tracking Modal -->
+            <div id="ip-location-modal" class="hidden" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; display:flex; justify-content:center; align-items:center;">
+                <div style="background:var(--bg-card); border:1px solid #4a3b18; border-radius:12px; padding:20px; max-width:500px; width:90%; box-shadow:0 10px 30px rgba(0,0,0,0.5); max-height:80vh; overflow-y:auto;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid #4a3b18; padding-bottom:10px;">
+                        <h3 class="text-orange" style="margin:0;"><i class="fas fa-map-marker-alt"></i> IP & Location Details</h3>
+                        <button onclick="window.closeIPLocationModal()" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;"><i class="fas fa-times"></i></button>
+                    </div>
+                    
+                    <div style="margin-bottom:15px;">
+                        <label style="color:var(--text-muted); font-size:0.8rem;">User Name</label>
+                        <div id="ip-loc-user-name" style="font-size:1.1rem; color:var(--text-light); font-weight:bold;"></div>
+                        <div id="ip-loc-user-email" style="font-size:0.85rem; color:#b0a17f;"></div>
+                    </div>
+
+                    <div id="ip-location-content" style="background:#1a160d; border-radius:8px; padding:15px; border:1px solid #5c4920;">
+                        <div style="margin-bottom:20px; padding-bottom:15px; border-bottom:1px solid #5c4920;">
+                            <label style="color:var(--primary); font-size:0.8rem; font-weight:bold;"><i class="fas fa-network-wired"></i> IP Address</label>
+                            <div id="ip-loc-ip" style="font-size:1.2rem; color:var(--text-light); font-weight:bold; margin-top:5px; word-break:break-all;"></div>
+                            <div style="margin-top:8px;">
+                                <button class="copy-btn" onclick="window.copyIPToClipboard()" style="background:var(--primary); color: #fff3d6; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:0.8rem;">
+                                    <i class="fas fa-copy"></i> Copy IP
+                                </button>
+                                <button class="copy-btn" onclick="window.lookupIP()" style="background:var(--blue); color: #fff3d6; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:0.8rem; margin-left:5px;">
+                                    <i class="fas fa-search"></i> Lookup IP
+                                </button>
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom:20px; padding-bottom:15px; border-bottom:1px solid #5c4920;">
+                            <label style="color:var(--primary); font-size:0.8rem; font-weight:bold;"><i class="fas fa-map"></i> Location Information</label>
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;">
+                                <div><label style="color:#b0a17f; font-size:0.75rem;">City</label><div id="ip-loc-city" style="color:var(--text-light); font-weight:bold;">-</div></div>
+                                <div><label style="color:#b0a17f; font-size:0.75rem;">Region/State</label><div id="ip-loc-region" style="color:var(--text-light); font-weight:bold;">-</div></div>
+                                <div><label style="color:#b0a17f; font-size:0.75rem;">Country</label><div id="ip-loc-country" style="color:var(--text-light); font-weight:bold;">-</div></div>
+                                <div><label style="color:#b0a17f; font-size:0.75rem;">ZIP Code</label><div id="ip-loc-zip" style="color:var(--text-light); font-weight:bold;">-</div></div>
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom:15px; padding-bottom:15px; border-bottom:1px solid #5c4920;">
+                            <label style="color:var(--primary); font-size:0.8rem; font-weight:bold;"><i class="fas fa-globe"></i> Coordinates</label>
+                            <div style="display:flex; gap:15px; margin-top:10px;">
+                                <div><label style="color:#b0a17f; font-size:0.75rem;">Latitude</label><div id="ip-loc-lat" style="color:var(--text-light); font-weight:bold; font-family:monospace;">-</div></div>
+                                <div><label style="color:#b0a17f; font-size:0.75rem;">Longitude</label><div id="ip-loc-lon" style="color:var(--text-light); font-weight:bold; font-family:monospace;">-</div></div>
+                            </div>
+                            <button id="open-map-btn" class="btn btn-sm" style="margin-top:10px; background:var(--success); width:auto;" onclick="window.openInMaps()">
+                                <i class="fas fa-external-link-alt"></i> Open in Google Maps
+                            </button>
+                        </div>
+
+                        <div>
+                            <label style="color:var(--primary); font-size:0.8rem; font-weight:bold;"><i class="fas fa-building"></i> ISP / Organization</label>
+                            <div id="ip-loc-isp" style="color:var(--text-light); margin-top:5px;">-</div>
+                            <div id="ip-loc-org" style="color:#b0a17f; font-size:0.85rem; margin-top:3px;">-</div>
+                        </div>
+                    </div>
+
+                    <div id="ip-location-loading" style="text-align:center; padding:30px; display:none;">
+                        <i class="fas fa-spinner fa-spin" style="font-size:2rem; color:var(--primary);"></i>
+                        <p style="color:#b0a17f; margin-top:10px;">Fetching location data...</p>
+                    </div>
+
+                    <div id="ip-location-error" style="background:rgba(255,102,0,0.1); border:1px solid var(--danger); padding:15px; border-radius:6px; margin-top:15px; display:none;">
+                        <i class="fas fa-exclamation-triangle" style="color:var(--danger);"></i>
+                        <span style="color:var(--danger); margin-left:5px;">No location data available for this user.</span>
+                    </div>
+
+                    <div style="background:#15120b; padding:10px; border-radius:6px; margin-top:15px; border-left:3px solid var(--primary);">
+                        <small style="color:var(--text-muted);">
+                            <i class="fas fa-info-circle"></i> Last updated: <span id="ip-loc-timestamp">-</span>
+                        </small>
+                    </div>
+                    
+                    <button class="btn" onclick="window.closeIPLocationModal()" style="margin-top:20px;">Close</button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+        import { getDatabase, ref, push, onValue, update, get, set } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCBMk5ED0YNL9MqVThgMhoOuWvGwTgCJCg",
+            authDomain: "injector-c964a.firebaseapp.com",
+            databaseURL: "https://injector-c964a-default-rtdb.firebaseio.com",
+            projectId: "injector-c964a",
+            storageBucket: "injector-c964a.firebasestorage.app",
+            messagingSenderId: "746006402839",
+            appId: "1:746006402839:web:26d14a3fee7d6e6cc68952",
+            measurementId: "G-DBMSEZZWW1"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        let marketData = { tkPrice: 1.50, usdtRate: 280, mode: 'manual', basePrice: 280, autoRange: 50, autoInterval: 30 };
+        let appSettings = { minWithdraw: 50, withdrawFee: 0.05 };
+        let adminSelectedChatUser = null;
+        let serverTimeOffset = 0;
+        let currentFluctuatedPrice = null;
+        let priceUpdateInterval = null;
+
+        // ===== TIME-BASED AUTO PRICE SYSTEM (SAME AS USER) =====
+        function getServerTime() {
+            return Date.now() + serverTimeOffset;
+        }
+
+        // Shared deterministic PKR bounds and speed; no always-open admin or timer service needed.
+        function getAutoPriceConfig() {
+            const positive = (value, fallback) => Number.isFinite(Number(value)) && Number(value) > 0 ? Number(value) : fallback;
+            const base = positive(marketData.basePrice, positive(Number(marketData.tkPrice) * Number(marketData.usdtRate), 280));
+            const legacyRange = positive(marketData.autoRange, 50);
+            const savedMin = Number(marketData.autoMinPrice);
+            const savedMax = Number(marketData.autoMaxPrice);
+            const validBounds = savedMin > 0 && Number.isFinite(savedMin) && Number.isFinite(savedMax) && savedMax > savedMin;
+            return {
+                min: validBounds ? savedMin : Math.max(0.01, base - legacyRange),
+                max: validBounds ? savedMax : Math.max(base + legacyRange, 0.02),
+                seconds: Math.min(3600, Math.max(1, positive(marketData.autoInterval, 30)))
+            };
+        }
+
+        function calculateTimeBasedPrice() {
+            const { min, max, seconds } = getAutoPriceConfig();
+            // Ten steps complete a smooth full up/down cycle; epoch phase survives reloads and midnight.
+            const cycleMs = seconds * 1000 * 10;
+            const phase = ((getServerTime() % cycleMs) + cycleMs) % cycleMs / cycleMs;
+            const value = min + (max - min) * (0.5 + 0.5 * Math.sin(phase * Math.PI * 2));
+            return Math.min(max, Math.max(min, Math.round(value * 100) / 100));
+        }
+
+        function updateAutoPrice() {
+            if (marketData.mode !== 'auto') return;
+            const newPrice = calculateTimeBasedPrice();
+            currentFluctuatedPrice = newPrice;
+            updateAdminRateDisplay();
+        }
+
+        function startAutoPriceFluctuation() {
+            if (priceUpdateInterval) clearInterval(priceUpdateInterval);
+            updateAutoPrice();
+            priceUpdateInterval = setInterval(updateAutoPrice, 1000);
+        }
+
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) updateAutoPrice();
+        });
+        window.addEventListener('focus', updateAutoPrice);
+
+        function stopAutoPriceFluctuation() {
+            if (priceUpdateInterval) {
+                clearInterval(priceUpdateInterval);
+                priceUpdateInterval = null;
+            }
+            currentFluctuatedPrice = null;
+        }
+
+        function updateAdminRateDisplay() {
+            let currentRate, displayTkPrice, displayUsdtRate;
+            if (marketData.mode === 'auto' && currentFluctuatedPrice !== null) {
+                currentFluctuatedPrice = calculateTimeBasedPrice();
+                displayUsdtRate = marketData.usdtRate || 280;
+                displayTkPrice = currentFluctuatedPrice / displayUsdtRate;
+                currentRate = currentFluctuatedPrice.toFixed(2);
+            } else {
+                displayTkPrice = marketData.tkPrice || 1.50;
+                displayUsdtRate = marketData.usdtRate || 280;
+                currentRate = (displayTkPrice * displayUsdtRate).toFixed(2);
+            }
+            document.getElementById('admin-current-rate').innerText = currentRate;
+            document.getElementById('admin-tk-price-display').innerText = displayTkPrice.toFixed(2);
+            document.getElementById('admin-usdt-rate-display').innerText = displayUsdtRate.toFixed(2);
+            document.getElementById('admin-rate-mode-display').innerText = (marketData.mode || 'manual').toUpperCase();
+            const autoStatus = document.getElementById('admin-auto-status');
+            autoStatus.classList.toggle('hidden', marketData.mode !== 'auto');
+            if (marketData.mode === 'auto') {
+                const c = getAutoPriceConfig();
+                autoStatus.innerText = `24/7 AUTO • ${c.min.toFixed(2)}–${c.max.toFixed(2)} PKR • ${c.seconds}s / step`;
+            }
+        }
+        // ======================================================
+
+        window.showToast = (msg, type = 'success') => {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.style.borderLeftColor = type === 'error' ? 'var(--danger)' : 'var(--primary)';
+            toast.innerText = msg;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        window.toggleRateMode = () => {
+            const mode = document.getElementById('admin-rate-mode').value;
+            const manualControls = document.getElementById('manual-controls');
+            const autoControls = document.getElementById('auto-controls');
+            
+            if (mode === 'auto') {
+                manualControls.classList.add('hidden');
+                autoControls.classList.remove('hidden');
+            } else {
+                manualControls.classList.remove('hidden');
+                autoControls.classList.add('hidden');
+            }
+        }
+
+        // UPDATED: Now accepts rate and pkrValue parameters
+        window.viewWithdrawDetails = (key, userEmail, method, account, amount, total, userId, rate, pkrValue) => {
+            document.getElementById('modal-user').innerText = userEmail || 'Unknown';
+            document.getElementById('modal-method').innerText = method || 'Unknown';
+            document.getElementById('modal-account').innerText = account || 'Not Provided';
+            document.getElementById('modal-amount').innerText = (amount || 0).toFixed(2) + ' TK';
+            document.getElementById('modal-total').innerText = (total || 0).toFixed(2) + ' TK';
+            
+            // Add rate and PKR info to modal
+            document.getElementById('modal-rate').innerText = (rate || 0).toFixed(2) + ' PKR/TK';
+            document.getElementById('modal-pkr').innerText = 'Rs. ' + (pkrValue || 0).toLocaleString('en-IN', {maximumFractionDigits: 2});
+            
+            document.getElementById('modal-approve-btn').onclick = () => {
+                window.approveWithdraw(key);
+                window.closeWithdrawModal();
+            };
+            
+            document.getElementById('modal-reject-btn').onclick = () => {
+                window.rejectWithdraw(key, userId, total);
+                window.closeWithdrawModal();
+            };
+            
+            document.getElementById('withdraw-modal').classList.remove('hidden');
+        }
+
+        window.closeWithdrawModal = () => {
+            document.getElementById('withdraw-modal').classList.add('hidden');
+        }
+
+        window.viewUserCredentials = (name, email, password) => {
+            document.getElementById('cred-name').innerText = name || 'Unknown User';
+            document.getElementById('cred-email').innerText = email || 'N/A';
+            document.getElementById('cred-password').innerText = password || 'N/A';
+            document.getElementById('credentials-modal').classList.remove('hidden');
+        }
+
+        window.closeCredentialsModal = () => {
+            document.getElementById('credentials-modal').classList.add('hidden');
+        }
+
+        window.copyToClipboard = (elementId) => {
+            const text = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Copied to clipboard!');
+            }).catch(() => {
+                showToast('Failed to copy', 'error');
+            });
+        }
+
+        document.addEventListener('click', (e) => {
+            const withdrawModal = document.getElementById('withdraw-modal');
+            const credModal = document.getElementById('credentials-modal');
+            const editBalanceModal = document.getElementById('edit-balance-modal');
+            const ipLocModal = document.getElementById('ip-location-modal');
+            if (e.target === withdrawModal) window.closeWithdrawModal();
+            if (e.target === credModal) window.closeCredentialsModal();
+            if (e.target === editBalanceModal) window.closeEditBalanceModal();
+            if (e.target === ipLocModal) window.closeIPLocationModal();
+        });
+
+        function initApp() {
+            document.getElementById('app-container').classList.remove('hidden');
+
+            // Get server time offset for auto price calculation
+            const offsetRef = ref(db, '.info/serverTimeOffset');
+            onValue(offsetRef, (snap) => {
+                serverTimeOffset = snap.val() || 0;
+                updateAutoPrice();
+            });
+
+            onValue(ref(db, 'market'), (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    marketData = data;
+                    document.getElementById('admin-rate-mode').value = data.mode || 'manual';
+                    document.getElementById('admin-auto-min').value = getAutoPriceConfig().min;
+                    document.getElementById('admin-auto-max').value = getAutoPriceConfig().max;
+                    document.getElementById('admin-auto-interval').value = data.autoInterval || 30;
+                    toggleRateMode();
+
+                    // Handle auto mode price fluctuation (same as user panel)
+                    if (data.mode === 'auto') {
+                        startAutoPriceFluctuation();
+                    } else {
+                        stopAutoPriceFluctuation();
+                    }
+
+                    // Update rate display
+                    updateAdminRateDisplay();
+                }
+            });
+
+            onValue(ref(db, 'settings'), (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    appSettings.minWithdraw = data.minWithdraw || 50;
+                    appSettings.withdrawFee = data.withdrawFee || 0.05;
+                    appSettings.easypaisa = data.easypaisa || '0300-1234567';
+                    appSettings.jazzcash = data.jazzcash || '0321-7654321';
+                    appSettings.tillid = data.tillid || '03XX-XXXXXXX (Raast)';
+                    appSettings.minTransfer = data.minTransfer || 10;
+                    appSettings.transferTax = data.transferTax || 0.02;
+                    appSettings.minDeposit = data.minDeposit || 500;
+                    appSettings.savings30 = data.savings30 || 2.0;
+                    appSettings.savings60 = data.savings60 || 3.0;
+                    appSettings.savings90 = data.savings90 || 4.0;
+                    appSettings.minSavings = data.minSavings || 1000;
+                }
+            });
+        }
+
+        window.showAdminSection = (sectionId) => {
+            document.querySelectorAll('#admin-views .section').forEach(el => el.classList.add('hidden'));
+            if(sectionId === 'dashboard') document.getElementById('view-admin-dashboard').classList.remove('hidden');
+            else document.getElementById(`admin-${sectionId}`).classList.remove('hidden');
+            if (sectionId === 'deposits') loadAdminDeposits();
+            if (sectionId === 'withdrawals') loadAdminWithdrawals();
+            if (sectionId === 'verifications') loadAdminVerifications();
+            if (sectionId === 'users') loadAdminUsers();
+            if (sectionId === 'market') loadAdminMarket();
+            if (sectionId === 'chat') loadAdminChatList();
+            if (sectionId === 'summary') loadSummaryData();
+            if (sectionId === 'savings') loadAdminSavings();
+            if (sectionId === 'trading') {
+                loadAdminTrading();
+                loadMinTradeSetting();
+            }
+            if (sectionId === 'bannedChat') loadBannedChatList();
+        };
+
+        function loadAdminMarket() {
+            document.getElementById('admin-tk-price').value = marketData.tkPrice || 1.50;
+            document.getElementById('admin-usdt-rate').value = marketData.usdtRate || 280;
+            document.getElementById('admin-rate-mode').value = marketData.mode || 'manual';
+            document.getElementById('admin-auto-min').value = getAutoPriceConfig().min;
+            document.getElementById('admin-auto-max').value = getAutoPriceConfig().max;
+            document.getElementById('admin-auto-interval').value = marketData.autoInterval || 30;
+            
+            document.getElementById('admin-min-transfer').value = appSettings.minTransfer || 10;
+            document.getElementById('admin-transfer-tax').value = (appSettings.transferTax * 100) || 2;
+            document.getElementById('admin-min-deposit').value = appSettings.minDeposit || 500;
+            
+            document.getElementById('admin-savings-30').value = appSettings.savings30 || 2.0;
+            document.getElementById('admin-savings-60').value = appSettings.savings60 || 3.0;
+            document.getElementById('admin-savings-90').value = appSettings.savings90 || 4.0;
+            document.getElementById('admin-min-savings').value = appSettings.minSavings || 1000;
+            
+            toggleRateMode();
+            document.getElementById('admin-min-withdraw').value = appSettings.minWithdraw || 50;
+            document.getElementById('admin-withdraw-fee').value = (appSettings.withdrawFee * 100) || 5;
+            document.getElementById('admin-easypaisa').value = appSettings.easypaisa || '0300-1234567';
+            document.getElementById('admin-jazzcash').value = appSettings.jazzcash || '0321-7654321';
+            document.getElementById('admin-tillid').value = appSettings.tillid || '03XX-XXXXXXX (Raast)';
+            document.getElementById('admin-qr-url').value = appSettings.qrUrl || './qr.png';
+        }
+
+        window.updateAdminSettings = () => {
+            const mode = document.getElementById('admin-rate-mode').value;
+            const updates = {};
+            updates['market/mode'] = mode;
+            if (mode === 'auto') {
+                const min = Number(document.getElementById('admin-auto-min').value);
+                const max = Number(document.getElementById('admin-auto-max').value);
+                const seconds = Number(document.getElementById('admin-auto-interval').value);
+                if (!Number.isFinite(min) || !Number.isFinite(max) || min < 0.01 || max <= min ||
+                    Math.abs(min * 100 - Math.round(min * 100)) > 0.000001 || Math.abs(max * 100 - Math.round(max * 100)) > 0.000001) {
+                    showToast('Enter valid PKR rates (up to 2 decimals). Maximum must be greater than minimum.', 'error');
+                    return;
+                }
+                if (!Number.isInteger(seconds) || seconds < 1 || seconds > 3600) {
+                    showToast('Speed must be a whole number from 1 to 3600 seconds.', 'error');
+                    return;
+                }
+                updates['market/autoMinPrice'] = min;
+                updates['market/autoMaxPrice'] = max;
+                updates['market/autoInterval'] = seconds;
+                // Retain compatible midpoint/range fields for older configuration readers.
+                updates['market/basePrice'] = (min + max) / 2;
+                updates['market/autoRange'] = (max - min) / 2;
+            } else {
+                const tkPrice = Number(document.getElementById('admin-tk-price').value);
+                const usdtRate = Number(document.getElementById('admin-usdt-rate').value);
+                if (!Number.isFinite(tkPrice) || !Number.isFinite(usdtRate) || tkPrice <= 0 || usdtRate <= 0) {
+                    showToast('Enter a valid positive TK price and USDT rate.', 'error');
+                    return;
+                }
+                updates['market/tkPrice'] = tkPrice;
+                updates['market/usdtRate'] = usdtRate;
+            }
+            
+            updates['settings/minTransfer'] = parseFloat(document.getElementById('admin-min-transfer').value) || 10;
+            updates['settings/transferTax'] = (parseFloat(document.getElementById('admin-transfer-tax').value) || 2) / 100;
+            updates['settings/minDeposit'] = parseFloat(document.getElementById('admin-min-deposit').value) || 500;
+            
+            updates['settings/savings30'] = parseFloat(document.getElementById('admin-savings-30').value) || 2.0;
+            updates['settings/savings60'] = parseFloat(document.getElementById('admin-savings-60').value) || 3.0;
+            updates['settings/savings90'] = parseFloat(document.getElementById('admin-savings-90').value) || 4.0;
+            updates['settings/minSavings'] = parseFloat(document.getElementById('admin-min-savings').value) || 1000;
+            
+            updates['settings/minWithdraw'] = parseFloat(document.getElementById('admin-min-withdraw').value);
+            updates['settings/withdrawFee'] = parseFloat(document.getElementById('admin-withdraw-fee').value) / 100;
+            updates['settings/easypaisa'] = document.getElementById('admin-easypaisa').value;
+            updates['settings/jazzcash'] = document.getElementById('admin-jazzcash').value;
+            updates['settings/tillid'] = document.getElementById('admin-tillid').value;
+            updates['settings/qrUrl'] = document.getElementById('admin-qr-url').value;
+
+            update(ref(db), updates).then(() => {
+                showToast(mode === 'auto' ? "24/7 Auto Rate Settings Updated" : "Settings Updated");
+            }).catch(() => showToast("Could not save settings. Check your connection and try again.", "error"));
+        }
+
+        function loadAdminDeposits() {
+            const list = document.getElementById('admin-deposit-list');
+            onValue(ref(db, 'deposits'), (snapshot) => {
+                const data = snapshot.val();
+                list.innerHTML = "";
+                if(data) {
+                    let count = 0;
+                    Object.keys(data).forEach((key) => {
+                        const item = data[key];
+                        if(item.status === 'pending') count++;
+                        
+                        // Get locked rate from deposit data (rate at time of deposit)
+                        const tkPrice = item.tkPriceAtDeposit || marketData.tkPrice || 1.50;
+                        const usdtRate = item.usdtRateAtDeposit || marketData.usdtRate || 280;
+                        const lockedRate = tkPrice * usdtRate;
+                        const pkrValue = (item.rawAmount || (item.amount * lockedRate));
+                        
+                        list.innerHTML += `
+                            <tr>
+                                <td>${item.userEmail}</td>
+                                <td>${item.method}</td>
+                                <td>${item.amount.toFixed(2)} TK</td>
+                                <td style="color: var(--primary); font-weight: bold;">${lockedRate.toFixed(2)}</td>
+                                <td style="color: var(--success); font-weight: bold;">Rs. ${pkrValue.toLocaleString('en-IN', {maximumFractionDigits: 2})}</td>
+                                <td>${item.ref}</td>
+                                <td>
+                                    <input type="text" id="dep-note-${key}" placeholder="Add note..." value="${item.notes || ''}" 
+                                        style="background: #1a160d; border: 1px solid #5c4920; color: #fff3d6; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; width: 100px;"
+                                        onchange="window.saveDepositNote('${key}', this.value)">
+                                </td>
+                                <td>
+                                    ${item.status === 'pending' ? `
+                                    <button class="btn btn-sm" style="background:var(--success)" onclick="window.approveDep('${key}', '${item.userId}', ${item.amount})"><i class="fas fa-check"></i></button>
+                                    <button class="btn btn-sm" style="background:var(--danger)" onclick="window.rejectDep('${key}')"><i class="fas fa-times"></i></button>
+                                    ` : `<span class="status-badge status-${item.status}">${item.status}</span>`}
+                                    <button class="btn btn-sm" style="background:#66562e; margin-left:5px;" onclick="window.deleteSingleDeposit('${key}', '${item.userEmail}')" title="Delete"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    document.getElementById('admin-dep-pending-count').innerText = count;
+                }
+            });
+        }
+        
+        window.saveDepositNote = (key, note) => {
+            update(ref(db, 'deposits/' + key), {
+                notes: note,
+                noteUpdatedAt: Date.now()
+            }).then(() => {
+                showToast('Note saved');
+            }).catch(() => {
+                showToast('Failed to save note', 'error');
+            });
+        };
+
+        window.approveDep = (key, uid, amount) => {
+            const updates = {};
+            get(ref(db, 'deposits/' + key)).then(depSnap => {
+                const dep = depSnap.val() || {};
+                get(ref(db, 'users/' + uid)).then(snap => {
+                    const user = snap.val();
+                    const curBal = user.balanceTK;
+                    updates['users/' + uid + '/balanceTK'] = curBal + amount;
+                    updates['deposits/' + key + '/status'] = 'approved';
+
+                    // ===== AUTO ACCOUNT ACTIVATION =====
+                    // Verified user deposits >= 50% of current balance (PKR) -> Activate account
+                    const tkPrice = marketData.tkPrice || 1.50;
+                    const usdtRate = marketData.usdtRate || 280;
+                    const balancePKR = (parseFloat(curBal) || 0) * tkPrice * usdtRate;
+                    const depPKR = parseFloat(dep.rawAmount) || 0;
+                    const createdMs = user.createdAt ? new Date(user.createdAt).getTime() : 0;
+                    const ageDays = createdMs ? Math.floor((Date.now() - createdMs) / 86400000) : 0;
+                    if (user.isActivated !== true && ageDays >= 60 && balancePKR > 0 && depPKR >= balancePKR * 0.5) {
+                        updates['users/' + uid + '/isActivated'] = true;
+                        updates['users/' + uid + '/activationDate'] = new Date().toLocaleString();
+                    }
+                    // =====================================
+
+                    update(ref(db), updates).then(() => {
+                        showToast(updates['users/' + uid + '/isActivated'] ? "Deposit Approved & Account ACTIVATED!" : "Deposit Approved");
+                    });
+                });
+            });
+        };
+        
+        window.rejectDep = (key) => {
+            update(ref(db, 'deposits/' + key), {
+                status: 'rejected'
+            }).then(() => {
+                showToast("Deposit Rejected");
+            });
+        };
+        
+        // UPDATED: Now shows Rate and PKR Value columns using LOCKED rate
+        function loadAdminWithdrawals() {
+            const list = document.getElementById('admin-withdraw-list');
+            if(!list) return;
+
+            onValue(ref(db, 'withdrawals'), (snapshot) => {
+                const data = snapshot.val();
+                list.innerHTML = "";
+                if (!data) {
+                    list.innerHTML = "<tr><td colspan='8' style='text-align:center; color:#ad9d78;'>No requests found.</td></tr>";
+                    document.getElementById('admin-with-pending-count').innerText = 0;
+                    return;
+                }
+
+                let count = 0;
+                let html = "";
+
+                Object.keys(data).forEach((key) => {
+                    const item = data[key];
+                    if(!item) return;
+                    if (item.status === 'pending') count++;
+                    
+                    // Use LOCKED rate from withdrawal data (rate at time of request)
+                    // This is the rate user saw when placing withdrawal
+                    const lockedRate = item.lockedRate || (marketData.tkPrice * marketData.usdtRate) || 280;
+                    const pkrValue = item.pkrAmount || (item.amount * lockedRate);
+
+                    html += `
+                        <tr>
+                            <td>${item.userEmail || 'Unknown'}</td>
+                            <td>${item.method || 'Unknown'}</td>
+                            <td>${(item.amount || 0).toFixed(2)} TK</td>
+                            <td style="color: var(--primary); font-weight: bold;">${lockedRate.toFixed(2)}</td>
+                            <td style="color: var(--success); font-weight: bold;">Rs. ${pkrValue.toLocaleString('en-IN', {maximumFractionDigits: 2})}</td>
+                            <td>${(item.total || 0).toFixed(2)} TK</td>
+                            <td>
+                                <button class="btn btn-sm" style="background:var(--blue)" onclick="window.viewWithdrawDetails('${key}', '${item.userEmail}', '${item.method}', '${item.account}', ${item.amount}, ${item.total}, '${item.userId}', ${lockedRate}, ${pkrValue})"><i class="fas fa-eye"></i></button>
+                            </td>
+                            <td>
+                                ${item.status === 'pending' ? `
+                                    <button class="btn btn-sm" style="background:var(--success)" onclick="window.approveWithdraw('${key}')"><i class="fas fa-check"></i></button>
+                                    <button class="btn btn-sm" style="background:var(--danger)" onclick="window.rejectWithdraw('${key}', '${item.userId}', ${item.total})"><i class="fas fa-times"></i></button>
+                                ` : `<span class="status-badge status-${item.status}">${item.status}</span>`}
+                                <button class="btn btn-sm" style="background:#66562e; margin-left:5px;" onclick="window.deleteSingleWithdraw('${key}', '${item.userEmail}')" title="Delete"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                list.innerHTML = html;
+                document.getElementById('admin-with-pending-count').innerText = count;
+            });
+        }
+
+        window.approveWithdraw = (key) => {
+            update(ref(db, 'withdrawals/' + key), {
+                status: 'approved'
+            }).then(() => {
+                showToast("Withdrawal Approved");
+            });
+        };
+
+        window.rejectWithdraw = (key, uid, totalRefundAmount) => {
+            get(ref(db, 'users/' + uid)).then(snap => {
+                if(!snap.exists()) return showToast("User not found", "error");
+                const curBal = snap.val().balanceTK;
+                const newBal = curBal + totalRefundAmount;
+                const updates = {};
+                updates['users/' + uid + '/balanceTK'] = newBal;
+                updates['withdrawals/' + key + '/status'] = 'rejected';
+                update(ref(db), updates).then(() => {
+                    showToast("Withdrawal Rejected & Refunded");
+                });
+            });
+        };
+        
+        // ===== NEW ADMIN FEATURES =====
+
+        // 1. USER COUNT
+        function updateUserCount() {
+            onValue(ref(db, 'users'), (snapshot) => {
+                const data = snapshot.val();
+                const count = data ? Object.keys(data).length : 0;
+                document.getElementById('total-user-count').innerText = count;
+            });
+        }
+
+        // 2. EDIT BALANCE VARIABLES
+        let editingUserId = null;
+        let editingUserCurrentBalance = 0;
+
+        window.openEditBalance = (uid, name, email, currentBalance) => {
+            editingUserId = uid;
+            editingUserCurrentBalance = parseFloat(currentBalance) || 0;
+            
+            document.getElementById('edit-balance-user-name').innerText = name || 'Unknown';
+            document.getElementById('edit-balance-user-email').innerText = email || '';
+            document.getElementById('edit-balance-current').innerText = editingUserCurrentBalance.toFixed(2) + ' TK';
+            document.getElementById('edit-balance-amount').value = '';
+            document.getElementById('edit-balance-reason').value = '';
+            
+            document.getElementById('edit-balance-modal').classList.remove('hidden');
+        };
+
+        window.closeEditBalanceModal = () => {
+            document.getElementById('edit-balance-modal').classList.add('hidden');
+            editingUserId = null;
+        };
+
+        window.saveBalanceEdit = () => {
+            if (!editingUserId) return;
+            
+            const amount = parseFloat(document.getElementById('edit-balance-amount').value);
+            const reason = document.getElementById('edit-balance-reason').value || 'Admin correction';
+            
+            if (isNaN(amount)) {
+                showToast("Please enter a valid amount", "error");
+                return;
+            }
+            
+            const newBalance = editingUserCurrentBalance + amount;
+            
+            if (newBalance < 0) {
+                showToast("Balance cannot be negative", "error");
+                return;
+            }
+            
+            const updates = {};
+            updates['users/' + editingUserId + '/balanceTK'] = newBalance;
+            
+            // Log the correction
+            const logRef = push(ref(db, 'balanceCorrections'));
+            updates['balanceCorrections/' + logRef.key] = {
+                userId: editingUserId,
+                previousBalance: editingUserCurrentBalance,
+                newBalance: newBalance,
+                amountChanged: amount,
+                reason: reason,
+                correctedBy: 'admin',
+                timestamp: Date.now(),
+                date: new Date().toLocaleString()
+            };
+            
+            update(ref(db), updates).then(() => {
+                showToast(`Balance updated! New balance: ${newBalance.toFixed(2)} TK`);
+                closeEditBalanceModal();
+            }).catch(err => {
+                showToast("Error updating balance", "error");
+            });
+        };
+
+        // 3. UPDATED USER LOADING WITH LOCATION & EDIT BUTTON
+        function loadAdminUsers() {
+            const list = document.getElementById('admin-user-list');
+            onValue(ref(db, 'users'), (snapshot) => {
+                const data = snapshot.val();
+                list.innerHTML = "";
+                if(data) {
+                    Object.keys(data).forEach((uid) => {
+                        const u = data[uid];
+                        const isBanned = u.isBanned || false;
+                        const banBtnStyle = isBanned ? "background:var(--success)" : "background:var(--danger)";
+                        const banText = isBanned ? "Unban Account" : "Ban Account";
+                        
+                        // Location info
+                        let locationHtml = '';
+                        if(u.lastLocation) {
+                            locationHtml = `
+                                <div class="location-info">
+                                    <i class="fas fa-map-marker-alt"></i> 
+                                    ${u.lastLocation.city || 'Unknown'}, ${u.lastLocation.country || 'Unknown'} 
+                                    <span style="color:#66562e;">|</span> 
+                                    IP: ${u.lastLocation.ip || 'N/A'}
+                                </div>
+                            `;
+                        } else if(u.lastIP) {
+                            locationHtml = `
+                                <div class="location-info">
+                                    <i class="fas fa-network-wired"></i> IP: ${u.lastIP}
+                                </div>
+                            `;
+                        }
+                        
+                        let activeStatus = '<span style="color:#ad9d78;">Never</span>';
+                        if(u.lastActive) {
+                            const lastActive = new Date(u.lastActive).getTime();
+                            const now = Date.now();
+                            const diffMin = Math.floor((now - lastActive) / 60000);
+                            
+                            if(diffMin < 1) {
+                                activeStatus = '<span class="online-indicator"></span> Online';
+                            } else if(diffMin < 60) {
+                                activeStatus = `<span style="color:#d4af37;">${diffMin} min ago</span>`;
+                            } else if(diffMin < 1440) {
+                                activeStatus = `<span style="color:#ff9900;">${Math.floor(diffMin/60)}h ago</span>`;
+                            } else {
+                                activeStatus = `<span style="color:#ad9d78;">${Math.floor(diffMin/1440)}d ago</span>`;
+                            }
+                        }
+
+                        list.innerHTML += `
+                            <tr>
+                                <td>
+                                    ${u.name}
+                                    ${u.isVerified === true ? ' <i class="fas fa-check-circle" style="color:#d4af37;" title="Verified"></i>' : ''}
+                                    ${u.isActivated === true ? ' <i class="fas fa-check-circle" style="color:var(--success);" title="Active"></i>' : ''}
+                                    ${locationHtml}
+                                </td>
+                                <td>${u.email}</td>
+                                <td>
+                                    ${u.balanceTK.toFixed(2)} TK
+                                    <button class="edit-balance-btn" onclick="window.openEditBalance('${uid}', '${u.name}', '${u.email}', ${u.balanceTK})">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
+                                </td>
+                                <td>${activeStatus}</td>
+                                <td>
+                                    <button class="btn btn-sm" style="background:var(--blue)" onclick="window.viewUserCredentials('${u.name}', '${u.email}', '${u.password || '---'}')">
+                                        <i class="fas fa-eye"></i> View
+                                    </button>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm" style="background:#a88423" onclick="window.viewIPLocation('${uid}', '${u.name}', '${u.email}')">
+                                        <i class="fas fa-map-marker-alt"></i> Track
+                                    </button>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm" style="${banBtnStyle}" onclick="window.banUser('${uid}', ${isBanned})">${banText}</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+            });
+        }
+
+        window.banUser = (uid, isAlreadyBanned) => {
+            if(isAlreadyBanned) {
+                // Unban the user
+                if(confirm("Are you sure you want to unban this user?")) {
+                    update(ref(db, 'users/' + uid), {
+                        isBanned: false
+                    }).then(() => showToast("User Unbanned - Account Active"));
+                }
+                return;
+            }
+            if(confirm("Are you sure you want to ban this user?")) {
+                update(ref(db, 'users/' + uid), {
+                    isBanned: true
+                }).then(() => showToast("User Banned"));
+            }
+        }
+        function loadSummaryData() {
+            get(ref(db, 'deposits')).then(depositSnap => {
+                const deposits = depositSnap.val() || {};
+                let totalDepositsTK = 0;
+                let totalDepositsPKR = 0;
+                let userDeposits = {};
+                
+                Object.values(deposits).forEach(dep => {
+                    if (dep.status === 'approved') {
+                        totalDepositsTK += dep.amount;
+                        
+                        // Calculate PKR using locked rate at time of deposit
+                        const tkPrice = dep.tkPriceAtDeposit || marketData.tkPrice || 1.50;
+                        const usdtRate = dep.usdtRateAtDeposit || marketData.usdtRate || 280;
+                        const lockedRate = tkPrice * usdtRate;
+                        const pkrValue = dep.rawAmount || (dep.amount * lockedRate);
+                        totalDepositsPKR += pkrValue;
+                        
+                        if (!userDeposits[dep.userId]) userDeposits[dep.userId] = { tk: 0, pkr: 0 };
+                        userDeposits[dep.userId].tk += dep.amount;
+                        userDeposits[dep.userId].pkr += pkrValue;
+                    }
+                });
+                
+                get(ref(db, 'withdrawals')).then(withdrawSnap => {
+                    const withdrawals = withdrawSnap.val() || {};
+                    let totalWithdrawalsTK = 0;
+                    let totalWithdrawalsPKR = 0;
+                    let userWithdrawals = {};
+                    
+                    Object.values(withdrawals).forEach(withdraw => {
+                        if (withdraw.status === 'approved') {
+                            totalWithdrawalsTK += withdraw.total;
+                            
+                            // Use locked PKR value from withdrawal data
+                            const pkrValue = withdraw.pkrAmount || withdraw.finalPKR || (withdraw.amount * (withdraw.lockedRate || 280));
+                            totalWithdrawalsPKR += pkrValue;
+                            
+                            if (!userWithdrawals[withdraw.userId]) userWithdrawals[withdraw.userId] = { tk: 0, pkr: 0 };
+                            userWithdrawals[withdraw.userId].tk += withdraw.total;
+                            userWithdrawals[withdraw.userId].pkr += pkrValue;
+                        }
+                    });
+                    
+                    // Calculate admin profit (Deposits - Withdrawals)
+                    const adminProfit = totalDepositsPKR - totalWithdrawalsPKR;
+                    
+                    document.getElementById('total-deposits-pkr').innerText = 'Rs. ' + totalDepositsPKR.toLocaleString('en-IN', {maximumFractionDigits: 2});
+                    document.getElementById('total-deposits-tk').innerText = totalDepositsTK.toFixed(2) + ' TK';
+                    document.getElementById('total-withdrawals-pkr').innerText = 'Rs. ' + totalWithdrawalsPKR.toLocaleString('en-IN', {maximumFractionDigits: 2});
+                    document.getElementById('total-withdrawals-tk').innerText = totalWithdrawalsTK.toFixed(2) + ' TK';
+                    
+                    // Admin Profit
+                    const profitElement = document.getElementById('admin-profit');
+                    profitElement.innerText = 'Rs. ' + Math.abs(adminProfit).toLocaleString('en-IN', {maximumFractionDigits: 2});
+                    profitElement.className = 'amount ' + (adminProfit >= 0 ? 'text-orange' : 'loss');
+                    
+                    // Net Status
+                    const netElement = document.getElementById('net-profit-loss');
+                    netElement.innerText = (adminProfit >= 0 ? '+' : '-') + 'Rs. ' + Math.abs(adminProfit).toLocaleString('en-IN', {maximumFractionDigits: 2});
+                    netElement.className = 'amount ' + (adminProfit >= 0 ? 'profit' : 'loss');
+                    
+                    loadUserProfitLoss(userDeposits, userWithdrawals);
+                });
+            });
+        }
+        
+        function loadUserProfitLoss(userDeposits, userWithdrawals) {
+            const list = document.getElementById('user-profit-loss-list');
+            list.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#ad9d78;">Loading...</td></tr>';
+            
+            get(ref(db, 'users')).then(userSnap => {
+                const users = userSnap.val() || {};
+                let html = '';
+                
+                Object.keys(users).forEach(uid => {
+                    const user = users[uid];
+                    const depData = userDeposits[uid] || { tk: 0, pkr: 0 };
+                    const withData = userWithdrawals[uid] || { tk: 0, pkr: 0 };
+                    const depPKR = depData.pkr;
+                    const withPKR = withData.pkr;
+                    const net = depPKR - withPKR;
+                    
+                    if (depData.tk > 0 || withData.tk > 0) {
+                        html += `
+                            <tr>
+                                <td>${user.name || user.email || 'Unknown'}</td>
+                                <td style="color: var(--success);">Rs. ${depPKR.toLocaleString('en-IN', {maximumFractionDigits: 2})}<br><small style="color:#a59470">${depData.tk.toFixed(2)} TK</small></td>
+                                <td style="color: var(--danger);">Rs. ${withPKR.toLocaleString('en-IN', {maximumFractionDigits: 2})}<br><small style="color:#a59470">${withData.tk.toFixed(2)} TK</small></td>
+                                <td style="color: ${net >= 0 ? 'var(--success)' : 'var(--danger)'}; font-weight: bold;">
+                                    ${net >= 0 ? '+' : '-'}Rs. ${Math.abs(net).toLocaleString('en-IN', {maximumFractionDigits: 2})}
+                                </td>
+                            </tr>
+                        `;
+                    }
+                });
+                
+                if (html === '') {
+                    html = '<tr><td colspan="4" style="text-align:center; color:#ad9d78;">No transactions found</td></tr>';
+                }
+                
+                list.innerHTML = html;
+            });
+        }
+
+        function loadAdminSavings() {
+            const list = document.getElementById('admin-savings-list');
+            
+            onValue(ref(db, 'savings'), (snapshot) => {
+                const data = snapshot.val();
+                list.innerHTML = "";
+                
+                let totalSavingsPKR = 0;
+                let activeCount = 0;
+                let totalProfitDistributed = 0;
+                
+                if (data) {
+                    Object.entries(data).forEach(([key, saving]) => {
+                        if (saving.status === 'active') {
+                            totalSavingsPKR += parseFloat(saving.amountPKR);
+                            activeCount++;
+                        }
+                        totalProfitDistributed += parseFloat(saving.totalProfitEarned || 0);
+                        
+                        const startDate = new Date(saving.startDate);
+                        const maturityDate = new Date(saving.maturityDate);
+                        const now = new Date();
+                        
+                        let statusClass = 'status-active';
+                        let statusText = 'Active';
+                        
+                        if (saving.status === 'matured') {
+                            statusClass = 'status-matured';
+                            statusText = 'Matured';
+                        } else if (now > maturityDate) {
+                            statusClass = 'status-matured';
+                            statusText = 'Ready';
+                        }
+                        
+                        list.innerHTML += `
+                            <tr>
+                                <td>${saving.userName || saving.userEmail}</td>
+                                <td>Rs. ${parseFloat(saving.amountPKR).toLocaleString()}</td>
+                                <td>${saving.plan} Days</td>
+                                <td>${startDate.toLocaleDateString()}</td>
+                                <td>${maturityDate.toLocaleDateString()}</td>
+                                <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                                <td style="color: var(--success);">Rs. ${(saving.totalProfitEarned || 0).toFixed(2)}</td>
+                            </tr>
+                        `;
+                    });
+                }
+                
+                document.getElementById('admin-total-savings-pkr').innerText = 'Rs. ' + totalSavingsPKR.toLocaleString();
+                document.getElementById('admin-total-savings-count').innerText = activeCount + ' Active Plans';
+                document.getElementById('admin-total-profit').innerText = 'Rs. ' + totalProfitDistributed.toLocaleString();
+                
+                if (list.innerHTML === '') {
+                    list.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#ad9d78;">No savings plans found</td></tr>';
+                }
+            });
+        }
+        
+        function loadAdminChatList() {
+            const list = document.getElementById('admin-chat-list');
+            list.innerHTML = '<div style="padding:10px; text-align:center; color:#ad9d78;">Loading users...</div>';
+
+            onValue(ref(db, 'users'), (snapshot) => {
+                const data = snapshot.val();
+                list.innerHTML = "";
+                if(data) {
+                    Object.keys(data).forEach((uid) => {
+                        const u = data[uid];
+                        const item = document.createElement('div');
+                        item.className = 'chat-user-item';
+                        item.id = `chat-user-${uid}`; 
+                        item.innerHTML = `<span><i class="fas fa-user-circle"></i> ${u.name}</span>`;
+                        item.onclick = () => selectAdminChatUser(uid, u.name);
+                        list.appendChild(item);
+
+                        const chatRef = ref(db, 'chats/' + uid);
+                        onValue(chatRef, (chatSnap) => {
+                            const chatData = chatSnap.val();
+                            if(chatData) {
+                                const msgKeys = Object.keys(chatData);
+                                const lastKey = msgKeys[msgKeys.length - 1];
+                                const lastMsg = chatData[lastKey];
+
+                                if(lastMsg.sender !== 'admin' && adminSelectedChatUser !== uid) {
+                                    const badgeSpan = `<span class="unread-badge"></span>`;
+                                    const existingBadge = document.getElementById(`chat-user-${uid}`).querySelector('.unread-badge');
+                                    if(!existingBadge) document.getElementById(`chat-user-${uid}`).innerHTML += badgeSpan;
+                                } else {
+                                    const existingBadge = document.getElementById(`chat-user-${uid}`).querySelector('.unread-badge');
+                                    if(existingBadge) existingBadge.remove();
+                                }
+                            }
+                        });
+                    });
+                }
+            });
+        }
+
+        function selectAdminChatUser(uid, name) {
+            adminSelectedChatUser = uid;
+            document.getElementById('chatting-with-name').innerText = name;
+            
+            const userItem = document.getElementById(`chat-user-${uid}`);
+            if(userItem) {
+                const badge = userItem.querySelector('.unread-badge');
+                if(badge) badge.remove();
+            }
+
+            document.getElementById('admin-chat-window').classList.remove('hidden');
+
+            const chatRef = ref(db, 'chats/' + uid);
+            onValue(chatRef, (snapshot) => {
+                const container = document.getElementById('admin-chat-messages');
+                container.innerHTML = "";
+                const data = snapshot.val();
+                
+                if (!data) {
+                    container.innerHTML = `<div style="text-align:center; color:#ad9d78; margin-top:20px;">No messages yet.</div>`;
+                    return;
+                }
+
+                Object.values(data).forEach(msg => {
+                    const div = document.createElement('div');
+                    const isAdminMsg = msg.sender === 'admin';
+                    div.className = `message ${isAdminMsg ? 'msg-admin' : 'msg-user'}`;
+                    div.innerText = msg.text;
+                    container.appendChild(div);
+                });
+                container.scrollTop = container.scrollHeight;
+            });
+        }
+
+        window.adminSendReply = () => {
+            const input = document.getElementById('admin-chat-input');
+            const text = input.value;
+            if(!text || !adminSelectedChatUser) return;
+
+            push(ref(db, 'chats/' + adminSelectedChatUser), {
+                sender: 'admin',
+                text: text,
+                timestamp: Date.now()
+            });
+            input.value = "";
+        }
+
+        // ===== IP/LOCATION TRACKING FUNCTIONS =====
+        let currentIPData = null;
+        
+        window.viewIPLocation = (uid, name, email) => {
+            document.getElementById('ip-loc-user-name').innerText = name || 'Unknown User';
+            document.getElementById('ip-loc-user-email').innerText = email || '';
+            document.getElementById('ip-location-modal').classList.remove('hidden');
+            document.getElementById('ip-location-content').style.display = 'none';
+            document.getElementById('ip-location-loading').style.display = 'block';
+            document.getElementById('ip-location-error').style.display = 'none';
+            
+            // Fetch user data from Firebase
+            get(ref(db, 'users/' + uid)).then(snap => {
+                if(!snap.exists()) {
+                    showIPError();
+                    return;
+                }
+                
+                const userData = snap.val();
+                
+                // Check for location data in different possible formats
+                let locationData = null;
+                let ipAddress = null;
+                let timestamp = null;
+                
+                if(userData.lastLocation) {
+                    locationData = userData.lastLocation;
+                    ipAddress = locationData.ip || userData.lastIP || 'Unknown';
+                    timestamp = locationData.timestamp || userData.lastActive;
+                } else if(userData.lastIP) {
+                    ipAddress = userData.lastIP;
+                    timestamp = userData.lastActive;
+                }
+                
+                if(!locationData && !ipAddress) {
+                    showIPError();
+                    return;
+                }
+                
+                currentIPData = {
+                    ip: ipAddress,
+                    city: locationData?.city || 'Unknown',
+                    region: locationData?.region || locationData?.regionName || 'Unknown',
+                    country: locationData?.country || 'Unknown',
+                    zip: locationData?.zip || locationData?.zipCode || '-',
+                    lat: locationData?.lat || locationData?.latitude || null,
+                    lon: locationData?.lon || locationData?.longitude || null,
+                    isp: locationData?.isp || locationData?.org || 'Unknown',
+                    org: locationData?.org || locationData?.as || '-',
+                    timestamp: timestamp
+                };
+                
+                displayIPLocationData(currentIPData);
+            }).catch(err => {
+                console.error('Error fetching user data:', err);
+                showIPError();
+            });
+        };
+        
+        function showIPError() {
+            document.getElementById('ip-location-loading').style.display = 'none';
+            document.getElementById('ip-location-content').style.display = 'none';
+            document.getElementById('ip-location-error').style.display = 'block';
+        }
+        
+        function displayIPLocationData(data) {
+            document.getElementById('ip-location-loading').style.display = 'none';
+            document.getElementById('ip-location-content').style.display = 'block';
+            document.getElementById('ip-location-error').style.display = 'none';
+            
+            document.getElementById('ip-loc-ip').innerText = data.ip;
+            document.getElementById('ip-loc-city').innerText = data.city;
+            document.getElementById('ip-loc-region').innerText = data.region;
+            document.getElementById('ip-loc-country').innerText = data.country;
+            document.getElementById('ip-loc-zip').innerText = data.zip;
+            document.getElementById('ip-loc-lat').innerText = data.lat || '-';
+            document.getElementById('ip-loc-lon').innerText = data.lon || '-';
+            document.getElementById('ip-loc-isp').innerText = data.isp;
+            document.getElementById('ip-loc-org').innerText = data.org;
+            
+            if(data.timestamp) {
+                const date = new Date(data.timestamp);
+                document.getElementById('ip-loc-timestamp').innerText = date.toLocaleString();
+            } else {
+                document.getElementById('ip-loc-timestamp').innerText = 'Unknown';
+            }
+            
+            // Show/hide map button based on coordinates availability
+            const mapBtn = document.getElementById('open-map-btn');
+            if(data.lat && data.lon) {
+                mapBtn.style.display = 'inline-block';
+            } else {
+                mapBtn.style.display = 'none';
+            }
+        }
+        
+        window.closeIPLocationModal = () => {
+            document.getElementById('ip-location-modal').classList.add('hidden');
+            currentIPData = null;
+        };
+        
+        window.copyIPToClipboard = () => {
+            if(!currentIPData || !currentIPData.ip) return;
+            navigator.clipboard.writeText(currentIPData.ip).then(() => {
+                showToast('IP Address copied to clipboard!');
+            }).catch(() => {
+                showToast('Failed to copy', 'error');
+            });
+        };
+        
+        window.lookupIP = () => {
+            if(!currentIPData || !currentIPData.ip || currentIPData.ip === 'Unknown') {
+                showToast('No valid IP to lookup', 'error');
+                return;
+            }
+            window.open(`https://www.ip-tracker.org/locator/ip-lookup.php?ip=${currentIPData.ip}`, '_blank');
+        };
+        
+        window.openInMaps = () => {
+            if(!currentIPData || !currentIPData.lat || !currentIPData.lon) {
+                showToast('No coordinates available', 'error');
+                return;
+            }
+            window.open(`https://www.google.com/maps?q=${currentIPData.lat},${currentIPData.lon}`, '_blank');
+        };
+
+        // ===== NEW TRADING CONTROL FUNCTIONS =====
+        let currentTradingMode = 'random';
+
+        // Load trading mode from Firebase
+        onValue(ref(db, 'tradingControl'), (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                currentTradingMode = data.mode || 'random';
+                updateTradingModeDisplay();
+            }
+        });
+
+        function updateTradingModeDisplay() {
+            const displayElements = [
+                document.getElementById('trading-mode-display'),
+                document.getElementById('admin-trading-mode-display')
+            ];
+            
+            displayElements.forEach(el => {
+                if (!el) return;
+                
+                el.className = 'status-indicator';
+                
+                if (currentTradingMode === 'win') {
+                    el.classList.add('status-win');
+                    el.innerText = 'ALL WIN';
+                } else if (currentTradingMode === 'loss') {
+                    el.classList.add('status-loss');
+                    el.innerText = 'ALL LOSS';
+                } else {
+                    el.classList.add('status-random');
+                    el.innerText = 'RANDOM';
+                }
+            });
+        }
+
+        window.setTradingMode = (mode) => {
+            currentTradingMode = mode;
+            
+            const updates = {
+                'tradingControl/mode': mode,
+                'tradingControl/lastUpdated': Date.now(),
+                'tradingControl/updatedBy': 'admin'
+            };
+            
+            update(ref(db), updates).then(() => {
+                updateTradingModeDisplay();
+                
+                let modeText = '';
+                if (mode === 'win') modeText = 'ALL WIN';
+                else if (mode === 'loss') modeText = 'ALL LOSS';
+                else modeText = 'RANDOM';
+                
+                showToast(`Trading mode set to: ${modeText}`);
+            }).catch(err => {
+                showToast('Error updating trading mode', 'error');
+            });
+        };
+        
+        window.updateMinTrade = () => {
+            const minTrade = parseFloat(document.getElementById('admin-min-trade').value);
+            
+            if (!minTrade || minTrade < 1) {
+                showToast('Minimum trade must be at least 1 TK', 'error');
+                return;
+            }
+            
+            update(ref(db, 'tradingControl'), {
+                minTrade: minTrade,
+                lastUpdated: Date.now()
+            }).then(() => {
+                showToast(`Minimum trade amount set to: ${minTrade} TK`);
+            }).catch(err => {
+                showToast('Error updating minimum trade', 'error');
+            });
+        };
+        
+        function loadMinTradeSetting() {
+            onValue(ref(db, 'tradingControl/minTrade'), (snapshot) => {
+                const minTrade = snapshot.val() || 1;
+                const input = document.getElementById('admin-min-trade');
+                if (input) {
+                    input.value = minTrade;
+                }
+            });
+        }
+
+        function loadAdminTrading() {
+            // Load trading statistics
+            onValue(ref(db, 'trades'), (snapshot) => {
+                const data = snapshot.val();
+                let totalTrades = 0;
+                let winTrades = 0;
+                
+                if (data) {
+                    const today = new Date().toDateString();
+                    Object.values(data).forEach(trade => {
+                        const tradeDate = new Date(trade.timestamp).toDateString();
+                        if (tradeDate === today) {
+                            totalTrades++;
+                            if (trade.result === 'win') winTrades++;
+                        }
+                    });
+                }
+                
+                const winRate = totalTrades > 0 ? ((winTrades / totalTrades) * 100).toFixed(1) : 0;
+                
+                document.getElementById('admin-total-trades').innerText = totalTrades;
+                document.getElementById('admin-win-rate').innerText = winRate + '%';
+            });
+            
+            // Load recent trades list
+            const tradesList = document.getElementById('admin-trades-list');
+            onValue(ref(db, 'trades'), (snapshot) => {
+                const data = snapshot.val();
+                tradesList.innerHTML = '';
+                
+                if (!data) {
+                    tradesList.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#ad9d78;">No trades yet</td></tr>';
+                    return;
+                }
+                
+                const trades = Object.entries(data)
+                    .map(([key, trade]) => ({ key, ...trade }))
+                    .sort((a, b) => b.timestamp - a.timestamp)
+                    .slice(0, 20);
+                
+                trades.forEach(trade => {
+                    const resultClass = trade.result === 'win' ? 'status-approved' : 'status-rejected';
+                    const resultText = trade.result === 'win' ? 'WIN' : 'LOSS';
+                    const time = new Date(trade.timestamp).toLocaleTimeString();
+                    
+                    tradesList.innerHTML += `
+                        <tr>
+                            <td>${trade.userEmail || 'Unknown'}</td>
+                            <td>${trade.type || 'N/A'}</td>
+                            <td>${trade.amount || 0} TK</td>
+                            <td><span class="status-badge ${resultClass}">${resultText}</span></td>
+                            <td>${time}</td>
+                            <td>
+                                <button class="btn btn-sm" style="background:#66562e;" onclick="window.deleteSingleTrade('${trade.key}', '${trade.userEmail || 'Unknown'}')" title="Delete"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            });
+            
+            // Load active traders count
+            onValue(ref(db, 'users'), (snapshot) => {
+                const data = snapshot.val();
+                let activeTraders = 0;
+                
+                if (data) {
+                    Object.values(data).forEach(user => {
+                        if (user.lastActive) {
+                            const lastActive = new Date(user.lastActive).getTime();
+                            const now = Date.now();
+                            const diffMin = Math.floor((now - lastActive) / 60000);
+                            if (diffMin < 30) activeTraders++;
+                        }
+                    });
+                }
+                
+                document.getElementById('active-traders-count').innerText = activeTraders;
+            });
+        }
+        // ===== END TRADING CONTROL FUNCTIONS =====
+
+        // ===== KYC VERIFICATION MANAGEMENT =====
+        function loadAdminVerifications() {
+            const list = document.getElementById('admin-verification-list');
+            onValue(ref(db, 'verifications'), (snapshot) => {
+                const data = snapshot.val();
+                list.innerHTML = "";
+                let count = 0;
+
+                if (!data) {
+                    list.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#ad9d78;">No verification requests.</td></tr>';
+                    document.getElementById('admin-ver-pending-count').innerText = 0;
+                    return;
+                }
+
+                Object.entries(data).forEach(([uid, v]) => {
+                    if (v.status === 'pending') count++;
+                    const imgBtn = (url) => url
+                        ? `<a href="${url}" target="_blank" class="btn btn-sm" style="background:var(--blue); width:auto;"><i class="fas fa-image"></i> View</a>`
+                        : '<span style="color:#66562e;">-</span>';
+                    const stClass = v.status === 'approved' ? 'status-approved' : v.status === 'rejected' ? 'status-rejected' : 'status-pending';
+
+                    list.innerHTML += `
+                        <tr>
+                            <td>${v.userName || 'Unknown'}<br><small style="color:#b0a17f;">${v.userEmail || ''}</small></td>
+                            <td>${imgBtn(v.nicFront)}</td>
+                            <td>${imgBtn(v.nicBack)}</td>
+                            <td>${imgBtn(v.handLeft)}</td>
+                            <td>${imgBtn(v.handRight)}</td>
+                            <td style="font-size:0.75rem; color:#b0a17f;">${v.date || '-'}</td>
+                            <td><span class="status-badge ${stClass}">${v.status || 'pending'}</span></td>
+                            <td>
+                                ${v.status !== 'approved' ? `<button class="btn btn-sm" style="background:var(--success)" onclick="window.approveVerification('${uid}', '${(v.userName || '').replace(/'/g, '')}')" title="Approve & add blue tick"><i class="fas fa-check"></i></button>` : ''}
+                                ${v.status !== 'rejected' ? `<button class="btn btn-sm" style="background:var(--danger)" onclick="window.rejectVerification('${uid}')" title="Reject"><i class="fas fa-times"></i></button>` : ''}
+                            </td>
+                        </tr>
+                    `;
+                });
+                document.getElementById('admin-ver-pending-count').innerText = count;
+            });
+        }
+
+        window.approveVerification = (uid, name) => {
+            const updates = {};
+            updates['verifications/' + uid + '/status'] = 'approved';
+            updates['verifications/' + uid + '/reviewedAt'] = Date.now();
+            updates['users/' + uid + '/isVerified'] = true;
+            updates['users/' + uid + '/verificationStatus'] = 'approved';
+            update(ref(db), updates).then(() => {
+                showToast((name || 'User') + " verified — Blue tick added to profile");
+            });
+        };
+
+        window.rejectVerification = (uid) => {
+            if (!confirm("Reject this verification? User will need to re-upload documents.")) return;
+            const updates = {};
+            updates['verifications/' + uid + '/status'] = 'rejected';
+            updates['verifications/' + uid + '/reviewedAt'] = Date.now();
+            updates['users/' + uid + '/isVerified'] = false;
+            updates['users/' + uid + '/verificationStatus'] = 'rejected';
+            update(ref(db), updates).then(() => {
+                showToast("Verification rejected");
+            });
+        };
+        // ===== END KYC VERIFICATION MANAGEMENT =====
+
+        // Initialize user count on load
+        updateUserCount();
+
+        initApp();
+
+        // ===== DELETE HISTORY FUNCTIONS =====
+        // Delete single deposit
+        window.deleteSingleDeposit = (key, userEmail) => {
+            if (!confirm(`Delete this deposit record for ${userEmail}?`)) {
+                return;
+            }
+
+            set(ref(db, 'deposits/' + key), null).then(() => {
+                showToast(`Deposit record deleted for ${userEmail}`);
+            }).catch(err => {
+                showToast("Error deleting deposit: " + err.message, "error");
+            });
+        };
+
+        // Delete single withdraw
+        window.deleteSingleWithdraw = (key, userEmail) => {
+            if (!confirm(`Delete this withdraw record for ${userEmail}?`)) {
+                return;
+            }
+
+            set(ref(db, 'withdrawals/' + key), null).then(() => {
+                showToast(`Withdraw record deleted for ${userEmail}`);
+            }).catch(err => {
+                showToast("Error deleting withdraw: " + err.message, "error");
+            });
+        };
+
+        // Delete single trade
+        window.deleteSingleTrade = (key, userEmail) => {
+            if (!confirm(`Delete this trade record for ${userEmail}?`)) {
+                return;
+            }
+
+            set(ref(db, 'trades/' + key), null).then(() => {
+                showToast(`Trade record deleted for ${userEmail}`);
+            }).catch(err => {
+                showToast("Error deleting trade: " + err.message, "error");
+            });
+        };
+
+        // Delete all deposits
+        window.deleteAllDepositHistory = () => {
+            if (!confirm("Are you sure you want to DELETE ALL deposit history? This action cannot be undone!")) {
+                return;
+            }
+            if (!confirm("WARNING: All deposit records will be permanently deleted! Confirm again?")) {
+                return;
+            }
+
+            set(ref(db, 'deposits'), null).then(() => {
+                showToast("All deposit history deleted successfully!");
+                document.getElementById('admin-deposit-list').innerHTML = '<tr><td colspan="8" style="text-align:center; color:#ad9d78;">No deposits found.</td></tr>';
+                document.getElementById('admin-dep-pending-count').innerText = '0';
+            }).catch(err => {
+                showToast("Error deleting deposit history: " + err.message, "error");
+            });
+        };
+
+        // Delete all withdraws
+        window.deleteAllWithdrawHistory = () => {
+            if (!confirm("Are you sure you want to DELETE ALL withdraw history? This action cannot be undone!")) {
+                return;
+            }
+            if (!confirm("WARNING: All withdraw records will be permanently deleted! Confirm again?")) {
+                return;
+            }
+
+            set(ref(db, 'withdrawals'), null).then(() => {
+                showToast("All withdraw history deleted successfully!");
+                document.getElementById('admin-withdraw-list').innerHTML = '<tr><td colspan="8" style="text-align:center; color:#ad9d78;">No withdrawals found.</td></tr>';
+                document.getElementById('admin-with-pending-count').innerText = '0';
+            }).catch(err => {
+                showToast("Error deleting withdraw history: " + err.message, "error");
+            });
+        };
+
+        // Delete all trades
+        window.deleteAllTradingHistory = () => {
+            if (!confirm("Are you sure you want to DELETE ALL trading history? This action cannot be undone!")) {
+                return;
+            }
+            if (!confirm("WARNING: All trading records will be permanently deleted! Confirm again?")) {
+                return;
+            }
+
+            set(ref(db, 'trades'), null).then(() => {
+                showToast("All trading history deleted successfully!");
+                document.getElementById('admin-trades-list').innerHTML = '<tr><td colspan="6" style="text-align:center; color:#ad9d78;">No trades found.</td></tr>';
+                document.getElementById('admin-total-trades').innerText = '0';
+                document.getElementById('admin-win-rate').innerText = '0%';
+            }).catch(err => {
+                showToast("Error deleting trading history: " + err.message, "error");
+            });
+        };
+        // ===== END DELETE HISTORY FUNCTIONS =====
+    
+
+        // ===== BANNED CHAT BOX FUNCTIONS =====
+        let bannedSelectedUser = null;
+        let bannedSelectedUserName = '';
+        let bannedSelectedUserEmail = '';
+
+        function loadBannedChatList() {
+            const list = document.getElementById('banned-chat-user-list');
+            list.innerHTML = '<div style="padding:10px; text-align:center; color:#ad9d78;">Loading banned users...</div>';
+
+            onValue(ref(db, 'users'), (snapshot) => {
+                const data = snapshot.val();
+                list.innerHTML = "";
+                let bannedCount = 0;
+
+                if(data) {
+                    Object.keys(data).forEach((uid) => {
+                        const u = data[uid];
+                        if (u.isBanned === true) {
+                            bannedCount++;
+                            const item = document.createElement('div');
+                            item.className = 'chat-user-item';
+                            item.style.borderLeft = '3px solid var(--danger)';
+                            item.innerHTML = `
+                                <span><i class="fas fa-user-slash" style="color:var(--danger);"></i> ${u.name}</span>
+                                <button class="btn btn-sm" style="background:var(--success); width:auto;" onclick="event.stopPropagation(); window.unbanUser('${uid}')">
+                                    <i class="fas fa-unlock"></i> Unban
+                                </button>
+                            `;
+                            item.onclick = () => selectBannedChatUser(uid, u.name, u.email);
+                            list.appendChild(item);
+
+                            // Monitor unread messages
+                            const chatRef = ref(db, 'bannedChats/' + uid);
+                            onValue(chatRef, (chatSnap) => {
+                                const chatData = chatSnap.val();
+                                if(chatData) {
+                                    const msgKeys = Object.keys(chatData);
+                                    const lastKey = msgKeys[msgKeys.length - 1];
+                                    const lastMsg = chatData[lastKey];
+                                    if(lastMsg && lastMsg.sender !== 'admin' && bannedSelectedUser !== uid) {
+                                        const badgeSpan = `<span class="unread-badge"></span>`;
+                                        const existingBadge = item.querySelector('.unread-badge');
+                                        if(!existingBadge) item.innerHTML += badgeSpan;
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
+
+                document.getElementById('banned-chat-count').innerText = bannedCount;
+
+                if (bannedCount === 0) {
+                    list.innerHTML = '<div style="padding:20px; text-align:center; color:#ad9d78;"><i class="fas fa-check-circle" style="color:var(--success); font-size:2rem; margin-bottom:10px; display:block;"></i>No banned users found.</div>';
+                }
+            });
+        }
+
+        function selectBannedChatUser(uid, name, email) {
+            bannedSelectedUser = uid;
+            bannedSelectedUserName = name;
+            bannedSelectedUserEmail = email;
+            document.getElementById('banned-chatting-with-name').innerText = name;
+            document.getElementById('banned-user-email').innerText = email || '';
+
+            const userItem = document.querySelector(`#banned-chat-user-list .chat-user-item:nth-child(${getBannedUserIndex(uid) + 1})`);
+            if(userItem) {
+                const badge = userItem.querySelector('.unread-badge');
+                if(badge) badge.remove();
+            }
+
+            document.getElementById('banned-chat-window').classList.remove('hidden');
+
+            const chatRef = ref(db, 'bannedChats/' + uid);
+            onValue(chatRef, (snapshot) => {
+                const container = document.getElementById('banned-chat-messages');
+                container.innerHTML = "";
+                const data = snapshot.val();
+
+                if (!data) {
+                    container.innerHTML = `<div style="text-align:center; color:#ad9d78; margin-top:20px;">No messages yet.</div>`;
+                    return;
+                }
+
+                Object.values(data).forEach(msg => {
+                    const div = document.createElement('div');
+                    const isAdminMsg = msg.sender === 'admin';
+                    div.className = `message ${isAdminMsg ? 'msg-admin' : 'msg-user'}`;
+                    if (isAdminMsg) {
+                        div.innerHTML = '<i class="fas fa-headset" style="margin-right: 5px;"></i> ' + msg.text;
+                    } else {
+                        div.innerText = msg.text;
+                    }
+                    container.appendChild(div);
+                });
+                container.scrollTop = container.scrollHeight;
+            });
+        }
+
+        function getBannedUserIndex(uid) {
+            const items = document.querySelectorAll('#banned-chat-user-list .chat-user-item');
+            let index = 0;
+            items.forEach((item, i) => {
+                if (item.onclick && item.onclick.toString().includes(uid)) {
+                    index = i;
+                }
+            });
+            return index;
+        }
+
+        window.adminSendBannedReply = () => {
+            const input = document.getElementById('banned-admin-chat-input');
+            const text = input.value;
+            if(!text || !bannedSelectedUser) return;
+
+            push(ref(db, 'bannedChats/' + bannedSelectedUser), {
+                sender: 'admin',
+                text: text,
+                timestamp: Date.now()
+            });
+            input.value = "";
+        };
+
+        window.unbanUser = (uid) => {
+            if(confirm("Are you sure you want to unban this user? Their account will become active immediately.")) {
+                update(ref(db, 'users/' + uid), {
+                    isBanned: false
+                }).then(() => {
+                    showToast("User Unbanned - Account Active");
+                    // Clear chat window if this user was selected
+                    if (bannedSelectedUser === uid) {
+                        document.getElementById('banned-chat-window').classList.add('hidden');
+                        bannedSelectedUser = null;
+                    }
+                });
+            }
+        };
+
+        window.unbanCurrentUser = () => {
+            if (!bannedSelectedUser) return;
+            window.unbanUser(bannedSelectedUser);
+        };
+        // ===== END BANNED CHAT BOX FUNCTIONS =====
+
+</script>
+</body>
+</html>
